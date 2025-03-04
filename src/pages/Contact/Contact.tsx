@@ -36,7 +36,7 @@ function Contact() {
           <label className="block text-sm font-medium text-gray-700">Name</label>
           <input
             type="text"
-            className="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             placeholder="Your Name"
             required
           />
@@ -45,7 +45,7 @@ function Contact() {
           <label className="block text-sm font-medium text-gray-700">Email</label>
           <input
             type="email"
-            className="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             placeholder="Your Email"
             required
           />
@@ -53,7 +53,7 @@ function Contact() {
         <div>
           <label className="block text-sm font-medium text-gray-700">Message</label>
           <textarea
-            className="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1 p-3 w-full border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             rows={4}
             placeholder="Your Message"
             required
@@ -62,7 +62,7 @@ function Contact() {
         <div>
           <button
             type="submit"
-            className="mt-4 px-6 py-3 w-full bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-4 px-6 py-3 w-full bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           >
             Send Message
           </button>
@@ -78,7 +78,7 @@ function Contact() {
             <div className="flex justify-center">
               <button
                 onClick={handleClosePopup}
-                className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-hidden focus:ring-2 focus:ring-red-500"
               >
                 Close
               </button>

@@ -39,4 +39,18 @@ router.get("/logout", (req, res) => {
     });
 });
 
+// Sign-in with Github routes
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+router.get('/github/callback', 
+  passport.authenticate('github', { failureRedirect: 'api/auth/github/error' }),
+  (req, res) => {
+    res.redirect(`${process.env.CORS_ORIGIN}/home`);
+  }
+);
+
+router.get('/github/error', (req, res) => {
+  res.redirect(`${process.env.CORS_ORIGIN}/login`);
+});
+
 module.exports = router;

@@ -16,7 +16,7 @@ function App() {
         <Navbar />
 
         {/* Main content */}
-        <main className="flex-grow bg-gray-50 flex justify-center items-center">
+        <main className="flex-grow bg-gray-50 flex justify-center items-center p-2">
           <Router/>
         </main>
 

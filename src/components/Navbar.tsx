@@ -49,7 +49,7 @@ const Navbar: React.FC = () => {
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="relative w-8 h-8 flex flex-col space-y-[5px] items-center group focus:outline-none"
+            className="relative w-8 h-8 flex flex-col space-y-[5px] items-center group focus:outline-hidden"
           >
             <span
               className={`block h-[3px] w-full bg-white rounded-lg transition-transform duration-300 ${

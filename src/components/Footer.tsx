@@ -2,7 +2,7 @@ import { FaGithub } from 'react-icons/fa';
 
 function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-purple-800 via-pink-800 to-red-800 text-white py-2 mt-4 shadow-lg">
+    <footer className="bg-linear-to-r from-purple-800 via-pink-800 to-red-800 text-white py-2 mt-4 shadow-lg">
       <div className="container mx-auto text-center">
         <p className="text-sm md:text-base font-medium flex justify-center items-center space-x-2">
           <span>Made with ❤️ by <span className="font-semibold"><a href="https://github.com/mehul-m-prajapati"

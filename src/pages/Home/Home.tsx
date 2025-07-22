@@ -74,7 +74,8 @@ const Home: React.FC = () => {
   // Handle data submission to fetch GitHub data
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    fetchData(username);
+    const datafetch = fetchData(username);
+    console.log("fetch user detail: ", datafetch);
   };
 
   // Format date strings into a readable format
@@ -83,13 +84,14 @@ const Home: React.FC = () => {
   };
 
   // Filter data based on selected criteria
-  const filterData = (
-    data: GitHubItem[],
-    filterType: string
-  ): GitHubItem[] => {
+  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
     let filteredData = [...data];
 
-    if (filterType === "open" || filterType === "closed" || filterType === "merged") {
+    if (
+      filterType === "open" ||
+      filterType === "closed" ||
+      filterType === "merged"
+    ) {
       filteredData = filteredData.filter((item) =>
         filterType === "merged"
           ? item.pull_request?.merged_at
@@ -160,7 +162,11 @@ const Home: React.FC = () => {
               required
               sx={{ flex: 1 }}
             />
-            <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ minWidth: "120px" }}
+            >
               Fetch Data
             </Button>
           </Box>
@@ -210,12 +216,18 @@ const Home: React.FC = () => {
           gap: 2,
         }}
       >
-        <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ flex: 1 }}>
+        <Tabs
+          value={tab}
+          onChange={(e, newValue) => setTab(newValue)}
+          sx={{ flex: 1 }}
+        >
           <Tab label={`Issues (${filterData(issues, issueFilter).length})`} />
           <Tab label={`Pull Requests (${filterData(prs, prFilter).length})`} />
         </Tabs>
         <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px", color: "#555" }}>State</InputLabel>
+          <InputLabel sx={{ fontSize: "14px", color: "#555" }}>
+            State
+          </InputLabel>
           <Select
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
@@ -261,7 +273,9 @@ const Home: React.FC = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ textAlign: "left" }}>Title</TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>Repository</TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
+                      Repository
+                    </TableCell>
                     <TableCell sx={{ textAlign: "center" }}>State</TableCell>
                     <TableCell sx={{ textAlign: "left" }}>Created</TableCell>
                   </TableRow>

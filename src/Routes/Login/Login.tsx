@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Import the hook for navigation
+import toast from "react-hot-toast";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface LoginFormData {
@@ -9,7 +10,10 @@ interface LoginFormData {
 }
 
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
+  const [formData, setFormData] = useState<LoginFormData>({
+    email: "",
+    password: "",
+  });
   const [message, setMessage] = useState<string>("");
 
   const navigate = useNavigate(); // Initialize the navigate hook
@@ -22,18 +26,18 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`,
-        formData,
-        
+      const response = await axios.post(
+        `${backendUrl}/api/auth/login`,
+        formData
       );
-      setMessage(response.data.message); // Show success message from backend
+      toast.success(response.data.message); // Show success message from backend
 
       // Navigate to /home if login is successful
-      if (response.data.message === 'Login successful') {
+      if (response.data.message === "Login successful") {
         navigate("/home");
       }
     } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -70,10 +74,9 @@ const Login: React.FC = () => {
           Login
         </button>
       </form>
-      {message && <p className="text-center text-red-500 mt-4">{message}</p>}
+      {/* {message && <p className="text-center text-red-500 mt-4">{message}</p>} */}
     </div>
   );
 };
 
 export default Login;
-

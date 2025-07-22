@@ -45,12 +45,6 @@ const Navbar: React.FC = () => {
           >
             Login
           </Link>
-          {/* <Link
-            to="/signup"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
-            Signup
-          </Link> */}
         </div>
 
         {/* Mobile Menu Button */}

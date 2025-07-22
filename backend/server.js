@@ -5,7 +5,6 @@ const passport = require("passport");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 const cors = require("cors");
-
 // Passport configuration
 require("./config/passportConfig");
 
@@ -16,7 +15,6 @@ app.use(cors("*"));
 
 // Middleware
 app.use(bodyParser.json());
-console.log("process.env.SESSION_SECRET: ", process.env.SESSION_SECRET);
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -31,7 +29,6 @@ app.use(passport.session());
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
-console.log("process.env.MONGO_URI: ", process.env.MONGO_URI);
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {})

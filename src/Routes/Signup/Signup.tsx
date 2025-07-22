@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SignUpFormData {
@@ -39,7 +39,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="mt-12 max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+    <div className="w-[400px] mt-12 max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-6">Sign Up</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -82,6 +82,14 @@ const SignUp: React.FC = () => {
           Sign Up
         </button>
       </form>
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600">
+          Already a member?{" "}
+          <Link to="/login" className="text-blue-500 hover:text-blue-600">
+            Login
+          </Link>
+        </p>
+      </div>
       {message && <p className="text-center text-red-500 mt-4">{message}</p>}
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SignUpFormData {
@@ -10,7 +11,11 @@ interface SignUpFormData {
 }
 
 const SignUp: React.FC = () => {
-  const [formData, setFormData] = useState<SignUpFormData>({ username: "", email: "", password: "" });
+  const [formData, setFormData] = useState<SignUpFormData>({
+    username: "",
+    email: "",
+    password: "",
+  });
   const [message, setMessage] = useState<string>("");
 
   const navigate = useNavigate();
@@ -27,14 +32,17 @@ const SignUp: React.FC = () => {
         `${backendUrl}/api/auth/signup`,
         formData // Include cookies for session
       );
-      setMessage(response.data.message); // Show success message from backend
+      toast.success(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
+      if (response.data.message === "User created successfully") {
         navigate("/login");
       }
     } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+      if (error.status === 404) {
+        toast.error("User not found");
+      } else
+        toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -82,7 +90,7 @@ const SignUp: React.FC = () => {
           Sign Up
         </button>
       </form>
-      {message && <p className="text-center text-red-500 mt-4">{message}</p>}
+      {/* {message && <p className="text-center text-red-500 mt-4">{message}</p>} */}
     </div>
   );
 };

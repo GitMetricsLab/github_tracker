@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -42,7 +42,15 @@ const Navbar: React.FC = () => {
           <Link
             to="/login"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >Login</Link>
+          >
+            Login
+          </Link>
+          {/* <Link
+            to="/signup"
+            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+          >
+            Signup
+          </Link> */}
         </div>
 
         {/* Mobile Menu Button */}

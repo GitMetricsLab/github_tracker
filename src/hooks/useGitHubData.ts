@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import toast from 'react-hot-toast';
 
 export const useGitHubData = (octokit) => {
   const [issues, setIssues] = useState([]);
@@ -22,8 +23,9 @@ export const useGitHubData = (octokit) => {
   };
 
   const fetchData = useCallback(async (username) => {
-    if (!octokit || !username) return;
-
+    if (!octokit || !username) {
+      toast.error("PAT not found"); return
+    }
     setLoading(true);
     setError('');
 
@@ -42,11 +44,26 @@ export const useGitHubData = (octokit) => {
           per_page: 100,
         }),
       ]);
-
       setIssues(issuesResponse);
       setPrs(prsResponse);
-    } catch (err) {
-      setError(err.message);
+
+      if (issuesResponse?.length || prsResponse?.length) toast.success(
+        `Fetched ${issuesResponse.length} issues and ${prsResponse.length} PRs successfully.`
+      );
+
+      else toast("⚠️ No issues or PRs found", { icon: "🕵️‍♂️" });
+
+
+
+    } catch (err: any) {
+      if (err.status === 401 || err.status === 403) {
+        toast.error("Please provide a valid GitHub token ");
+      }
+      else if (err.status === 422) toast.error("User not found")
+      else {
+        toast.error("something went wrong while fetching data")
+      }
+      // setError("Failed to fetched github date")
     } finally {
       setLoading(false);
     }
@@ -56,7 +73,7 @@ export const useGitHubData = (octokit) => {
     issues,
     prs,
     loading,
-    error,
+    // error,
     fetchData,
   };
 };

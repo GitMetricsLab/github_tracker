@@ -45,6 +45,14 @@ const Navbar: React.FC = () => {
           >
             Login
           </Link>
+
+          {/* signup button add */}
+          <Link
+            to="/signup"
+            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+          >
+            Signup
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -103,6 +111,21 @@ const Navbar: React.FC = () => {
               onClick={() => setIsOpen(false)}
             >
               Contributors
+            </Link>
+            {/* signup and login button add on mobile screen */}
+            <Link
+              to="/login"
+              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Signup
             </Link>
           </div>
         </div>

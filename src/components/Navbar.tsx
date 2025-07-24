@@ -1,14 +1,16 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useTheme } from "../hooks/useTheme";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
+  const { theme, setTheme } = useTheme();
+  
   return (
-    <nav className="bg-gray-800 text-white shadow-lg">
+   <nav className="bg-white text-black dark:bg-gray-800 dark:text-white shadow-lg">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo Section */}
-        <div className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center">
+      <div className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center">  
           <img src="/crl-icon.png" alt="CRL Icon" className="h-8 mr-2" />
           GitHub Tracker
         </div>
@@ -42,7 +44,16 @@ const Navbar: React.FC = () => {
           <Link
             to="/login"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >Login</Link>
+          >
+            Login
+          </Link>
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="text-lg font-medium px-2 py-1 rounded border border-transparent hover:border-gray-400 transition-all"
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            {theme === "dark" ? "🌞 Light" : "🌙 Dark"}
+          </button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -52,17 +63,17 @@ const Navbar: React.FC = () => {
             className="relative w-8 h-8 flex flex-col space-y-[5px] items-center group focus:outline-none"
           >
             <span
-              className={`block h-[3px] w-full bg-white rounded-lg transition-transform duration-300 ${
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
                 isOpen ? "rotate-45 translate-y-2" : ""
               }`}
             ></span>
             <span
-              className={`block h-[3px] w-full bg-white rounded-lg transition-opacity duration-300 ${
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-opacity duration-300 ${
                 isOpen ? "opacity-0" : ""
               }`}
             ></span>
             <span
-              className={`block h-[3px] w-full bg-white rounded-lg transition-transform duration-300 ${
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
                 isOpen ? "-rotate-45 -translate-y-2" : ""
               }`}
             ></span>

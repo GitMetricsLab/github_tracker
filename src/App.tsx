@@ -3,21 +3,24 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollProgressBar from './components/ScrollProgressBar';
 import { Toaster } from "react-hot-toast";
+import { useTheme } from "./hooks/useTheme";
 
 import Router from "./Routes/Router";
 
 function App() {
+  const { theme, setTheme } = useTheme();
+
   return (
 
-      <div className="relative flex flex-col min-h-screen">
+      <div className="relative flex flex-col min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
         <ScrollProgressBar/>
 
         {/* Navbar */}
         <Navbar />
 
         {/* Main content */}
-        <main className="flex-grow bg-gray-50 flex justify-center items-center">
-          <Router/>
+        <main className="flex-grow bg-gray-50 dark:bg-gray-800 flex justify-center items-center">
+          <Router theme={theme} />
         </main>
 
         {/* Footer */}
@@ -49,3 +52,7 @@ function App() {
 }
 
 export default App;
+
+
+
+

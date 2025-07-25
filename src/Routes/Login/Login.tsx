@@ -1,7 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Import the hook for navigation
-
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface LoginFormData {
   email: string;
@@ -9,30 +8,29 @@ interface LoginFormData {
 }
 
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
   const [message, setMessage] = useState<string>("");
+  
 
   const navigate = useNavigate(); // Initialize the navigate hook
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+
+  
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/auth/login`,
-        formData
+      const response = await axios.post(`${backendUrl}/api/auth/login`,
+        formData,
+
       );
       setMessage(response.data.message); // Show success message from backend
 
       // Navigate to /home if login is successful
-      if (response.data.message === "Login successful") {
+      if (response.data.message === 'Login successful') {
         navigate("/home");
       }
     } catch (error: any) {
@@ -41,13 +39,9 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="features bg-gray-100 dark:bg-gray-800 text-black dark:text-white py-12">
-      <div className="max-w-md mx-auto p-6 rounded-lg bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow-md">
+    <div className="max-w-md mt-12 mx-auto bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
-      
-
       <form onSubmit={handleSubmit} className="space-y-4">
-        
         <div>
           <input
             type="email"
@@ -56,7 +50,7 @@ const Login: React.FC = () => {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
@@ -67,7 +61,7 @@ const Login: React.FC = () => {
             value={formData.password}
             onChange={handleChange}
             required
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <button
@@ -78,7 +72,6 @@ const Login: React.FC = () => {
         </button>
       </form>
       {message && <p className="text-center text-red-500 mt-4">{message}</p>}
-    </div>
     </div>
   );
 };

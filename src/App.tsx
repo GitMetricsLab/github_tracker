@@ -1,3 +1,4 @@
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollProgressBar from './components/ScrollProgressBar';
@@ -7,8 +8,10 @@ import Router from "./Routes/Router";
 
 function App() {
   return (
+
       <div className="relative flex flex-col min-h-screen">
         <ScrollProgressBar/>
+
         {/* Navbar */}
         <Navbar />
 
@@ -19,6 +22,7 @@ function App() {
 
         {/* Footer */}
         <Footer />
+
         <Toaster
           position="top-center"
           reverseOrder={false}
@@ -29,6 +33,7 @@ function App() {
             className: 'bg-white',
             duration: 5000,
             //removeDelay: 1000,
+
             success: {
               duration: 3000,
               iconTheme: {
@@ -39,6 +44,7 @@ function App() {
           }}
         />
       </div>
+
   );
 }
 

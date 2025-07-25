@@ -1,0 +1,20 @@
+# Use a lightweight Node.js Alpine image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and yarn.lock files for dependency installation
+COPY package.json ./
+
+# Install production dependencies using Yarn
+RUN npm install --production
+
+# Copy the rest of the application files
+COPY . .
+
+# Expose the port for the application
+EXPOSE 5000
+
+# Start the server in production mode using Yarn
+CMD ["npm","run", "start"]

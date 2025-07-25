@@ -1,0 +1,9 @@
+backend
+node_modules
+dist
+build
+.gitignore 
+.git
+.env.*
+.github
+yarn.lock

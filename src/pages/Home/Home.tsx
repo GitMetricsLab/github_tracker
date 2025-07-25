@@ -142,30 +142,101 @@ const Home: React.FC = () => {
       }}
     >
       {/* Authentication Form */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4 }}>
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              label="GitHub Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              sx={{ flex: 1 }}
-            />
-            <TextField
-              label="Personal Access Token"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              type="password"
-              required
-              sx={{ flex: 1 }}
-            />
-            <Button type="submit" variant="contained" sx={{ minWidth: "120px",borderRadius: "8px" }}>
-              Fetch Data
-            </Button>
-          </Box>
+      <div
+        style={{
+          marginBottom: "2.5rem",
+          padding: "2.5rem 2rem",
+          borderRadius: "22px",
+          background: "rgba(255,255,255,0.18)",
+          boxShadow: "0 8px 32px 0 rgba(31,38,135,0.18)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1.5px solid rgba(255,255,255,0.25)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          maxWidth: "370px",
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      >
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.3rem",
+          }}
+          autoComplete="off"
+        >
+          <h2
+            style={{
+              margin: 0,
+              marginBottom: "1.2rem",
+              color: "#232946",
+              fontWeight: 700,
+              letterSpacing: "1px",
+              textAlign: "center",
+              textShadow: "0 2px 8px rgba(0,0,0,0.07)",
+            }}
+          >
+            GitHub Login
+          </h2>
+          <input
+            type="text"
+            placeholder="GitHub Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            style={{
+              padding: "0.85rem 1rem",
+              borderRadius: "10px",
+              border: "none",
+              background: "rgba(255,255,255,0.35)",
+              fontSize: "1rem",
+              outline: "none",
+              boxShadow: "0 2px 8px rgba(31,38,135,0.07)",
+              color: "#232946",
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Personal Access Token"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            required
+            style={{
+              padding: "0.85rem 1rem",
+              borderRadius: "10px",
+              border: "none",
+              background: "rgba(255,255,255,0.35)",
+              fontSize: "1rem",
+              outline: "none",
+              boxShadow: "0 2px 8px rgba(31,38,135,0.07)",
+              color: "#232946",
+            }}
+          />
+          <button
+            type="submit"
+            style={{
+              padding: "0.9rem 1rem",
+              borderRadius: "10px",
+              border: "none",
+              background: "linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%)",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: "1.1rem",
+              cursor: "pointer",
+              boxShadow: "0 2px 8px rgba(31,38,135,0.07)",
+              transition: "background 0.2s",
+              letterSpacing: "0.5px",
+            }}
+          >
+            Fetch Data
+          </button>
         </form>
-      </Paper>
+      </div>
 
       {/* Filters Section */}
       <Box

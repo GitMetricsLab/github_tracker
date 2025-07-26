@@ -11,9 +11,8 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa"; // GitHub Icon
 import axios from "axios";
-import { useTheme } from "../../hooks/useTheme";
 
 interface Contributor {
   id: number;
@@ -22,45 +21,30 @@ interface Contributor {
   contributions: number;
   html_url: string;
 }
-
 const ContributorsPage = () => {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { theme } = useTheme();
-  
 
-  // Style tokens
-  const bgColor = theme === "dark" ? "#1f1f1f" : "#FFFFFF";
-  const textColor = theme === "dark" ? "#FFFFFF" : "#333333";
-  const cardBg = theme === "dark" ? "#2a2a2a" : "#FFFFFF";
-  const borderColor = theme === "dark" ? "#444444" : "#E0E0E0";
-  const hoverBorder = theme === "dark" ? "#666666" : "#C0C0C0";
-
+  // Fetch contributors data from GitHub API
   useEffect(() => {
     const fetchContributors = async () => {
       try {
         const response = await axios.get(
-          "https://api.github.com/repos/mehul-m-prajapati/github_tracker/contributors",
-          { withCredentials: false }
+          "https://api.github.com/repos/mehul-m-prajapati/github_tracker/contributors", {
+            withCredentials : false
+          }
         );
         setContributors(response.data);
       } catch (err) {
-        setError("Failed to fetch contributors. Please try again later. " + err);
+        setError("Failed to fetch contributors. Please try again later."+ err);
       } finally {
         setLoading(false);
       }
     };
 
-    
-
     fetchContributors();
   }, []);
-
-  useEffect(() => {
-  // trigger re-render by updating a dummy state
-  setContributors((prev) => [...prev]);
-}, [theme]);
 
   if (loading) {
     return (
@@ -69,7 +53,6 @@ const ContributorsPage = () => {
       </Box>
     );
   }
-
   if (error) {
     return (
       <Box sx={{ mt: 4 }}>
@@ -77,13 +60,12 @@ const ContributorsPage = () => {
       </Box>
     );
   }
-
   return (
     <Container
       sx={{
         mt: 4,
-        bgcolor: bgColor,
-        color: textColor,
+        backgroundColor: "#FFFFFF",
+        color: "#333333",
         minHeight: "100vh",
         p: 4,
       }}
@@ -97,32 +79,35 @@ const ContributorsPage = () => {
             <Card
               sx={{
                 textAlign: "center",
-                backgroundColor: cardBg,
-                color: textColor,
+                p: 2,
+                backgroundColor: "#F9F9F9",
+                color: "#333333",
                 borderRadius: "10px",
-                border: `1px solid ${borderColor}`,
+                border: "1px solid #E0E0E0", // Border styling
+
                 boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                 transition: "transform 0.3s ease-in-out",
                 "&:hover": {
-                  transform: "scale(1.05)",
+                  transform: "scale(1.05)", // Zoom effect
                   boxShadow: "0 8px 15px rgba(0,0,0,0.2)",
-                  borderColor: hoverBorder,
+                  borderColor: "#C0C0C0", // Change border color on hover
+                  outlineColor: "#B3B3B3", // Change outline color on hover
                 },
               }}
             >
               <Avatar
                 src={contributor.avatar_url}
                 alt={contributor.login}
-                sx={{ width: 100, height: 100, mx: "auto", mt: 3 }}
+                sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}
               />
               <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: textColor }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                   {contributor.login}
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 1, color: textColor }}>
+                <Typography variant="body2" color="textSecondary">
                   {contributor.contributions} Contributions
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 2, color: textColor }}>
+                <Typography variant="body2" sx={{ mt: 2 }}>
                   Thank you for your valuable contributions to our community!
                 </Typography>
                 <Box sx={{ mt: 2 }}>
@@ -134,7 +119,9 @@ const ContributorsPage = () => {
                     sx={{
                       backgroundColor: "#333333",
                       color: "#FFFFFF",
-                      "&:hover": { backgroundColor: "#555555" },
+                      "&:hover": {
+                        backgroundColor: "#555555", // Custom hover color
+                      },
                     }}
                   >
                     GitHub Profile

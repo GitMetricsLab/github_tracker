@@ -1,7 +1,4 @@
 import React, { useState } from "react";
-import { useEffect } from "react";
-import { useTheme } from "../../hooks/useTheme";
-
 import {
   Container,
   Box,
@@ -25,13 +22,13 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { usePagination } from "../../hooks/usePagination";
 
 const ROWS_PER_PAGE = 10;
 
+// Define the shape of the data received from GitHub
 interface GitHubItem {
   id: number;
   title: string;
@@ -42,15 +39,8 @@ interface GitHubItem {
   html_url: string;
 }
 
-const Home: React.FC<{ theme: string }> = ({ theme }) => 
-  
-  
-  {
-  
-  useEffect(() => {
-  console.log("Theme updated in Home:", theme);
-}, [theme]);
-
+const Home: React.FC = () => {
+  // Hooks for managing user authentication
   const {
     username,
     setUsername,
@@ -59,7 +49,6 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
     error: authError,
     getOctokit,
   } = useGitHubAuth();
-
   const octokit = getOctokit();
   const {
     issues,
@@ -68,10 +57,10 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
     error: dataError,
     fetchData,
   } = useGitHubData(octokit);
-
   const { page, itemsPerPage, handleChangePage, paginateData } =
     usePagination(ROWS_PER_PAGE);
 
+  // State for various filters and tabs
   const [tab, setTab] = useState(0);
   const [issueFilter, setIssueFilter] = useState<string>("all");
   const [prFilter, setPrFilter] = useState<string>("all");
@@ -80,15 +69,22 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
+  // Handle data submission to fetch GitHub data
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     fetchData(username);
   };
 
-  const formatDate = (dateString: string): string =>
-    new Date(dateString).toLocaleDateString();
+  // Format date strings into a readable format
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString();
+  };
 
-  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
+  // Filter data based on selected criteria
+  const filterData = (
+    data: GitHubItem[],
+    filterType: string
+  ): GitHubItem[] => {
     let filteredData = [...data];
 
     if (filterType === "open" || filterType === "closed" || filterType === "merged") {
@@ -98,19 +94,16 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
           : item.state === filterType
       );
     }
-
     if (searchTitle) {
       filteredData = filteredData.filter((item) =>
         item.title.toLowerCase().includes(searchTitle.toLowerCase())
       );
     }
-
     if (selectedRepo) {
       filteredData = filteredData.filter((item) =>
         item.repository_url.includes(selectedRepo)
       );
     }
-
     if (startDate) {
       filteredData = filteredData.filter(
         (item) => new Date(item.created_at) >= new Date(startDate)
@@ -121,38 +114,29 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
         (item) => new Date(item.created_at) <= new Date(endDate)
       );
     }
-
     return filteredData;
   };
 
+  // Determine the current tab's data
   const currentData =
     tab === 0 ? filterData(issues, issueFilter) : filterData(prs, prFilter);
 
+  // Paginate the filtered data
   const displayData = paginateData(currentData);
 
+  // Main UI rendering
   return (
     <Container
       maxWidth="lg"
       sx={{
-        backgroundColor: theme === "dark" ? "#121212" : "#fff",
-        color: theme === "dark" ? "#eee" : "#111",
         display: "flex",
         flexDirection: "column",
         minHeight: "78vh",
         mt: 4,
       }}
     >
-      <Paper
-        elevation={1}
-        sx={{
-          p: 2,
-          mb: 4,
-          backgroundColor: theme === "dark" ? "#1e1e1e" : "#f5f5f5",
-          color: theme === "dark" ? "#e0e0e0" : "#000",
-          border: "1px solid",
-          borderColor: theme === "dark" ? "#444" : "#ccc",
-        }}
-      >
+      {/* Authentication Form */}
+      <Paper elevation={1} sx={{ p: 2, mb: 4 }}>
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
@@ -160,82 +144,36 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              sx={{
-                flex: 1,
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: theme === "dark" ? "#2a2a2a" : "#fff",
-                  color: theme === "dark" ? "#eee" : "#000",
-                },
-                "& .MuiInputLabel-root": {
-                  color: theme === "dark" ? "#ccc" : "#555",
-                },
-              }}
+              sx={{ flex: 1 }}
             />
             <TextField
               label="Personal Access Token"
-              type="password"
               value={token}
               onChange={(e) => setToken(e.target.value)}
+              type="password"
               required
-              sx={{
-                flex: 1,
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: theme === "dark" ? "#2a2a2a" : "#fff",
-                  color: theme === "dark" ? "#eee" : "#000",
-                },
-                "& .MuiInputLabel-root": {
-                  color: theme === "dark" ? "#ccc" : "#555",
-                },
-              }}
+              sx={{ flex: 1 }}
             />
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{
-                minWidth: "120px",
-                backgroundColor: theme === "dark" ? "#1976d2" : "#1976d2",
-                color: "#fff",
-                "&:hover": {
-                  backgroundColor: theme === "dark" ? "#1565c0" : "#1565c0",
-                },
-              }}
-            >
+            <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
               Fetch Data
             </Button>
           </Box>
         </form>
       </Paper>
 
+      {/* Filters Section */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
         <TextField
           label="Search Title"
           value={searchTitle}
           onChange={(e) => setSearchTitle(e.target.value)}
-          sx={{
-            minWidth: 200,
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: theme === "dark" ? "#2a2a2a" : "#fff",
-              color: theme === "dark" ? "#eee" : "#000",
-            },
-            "& .MuiInputLabel-root": {
-              color: theme === "dark" ? "#ccc" : "#555",
-            },
-          }}
+          sx={{ minWidth: 200 }}
         />
         <TextField
           label="Repository"
           value={selectedRepo}
           onChange={(e) => setSelectedRepo(e.target.value)}
-          sx={{
-            minWidth: 200,
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: theme === "dark" ? "#2a2a2a" : "#fff",
-              color: theme === "dark" ? "#eee" : "#000",
-            },
-            "& .MuiInputLabel-root": {
-              color: theme === "dark" ? "#ccc" : "#555",
-            },
-          }}
+          sx={{ minWidth: 200 }}
         />
         <TextField
           label="Start Date"
@@ -243,16 +181,7 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
-          sx={{
-            minWidth: 150,
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: theme === "dark" ? "#2a2a2a" : "#fff",
-              color: theme === "dark" ? "#eee" : "#000",
-            },
-            "& .MuiInputLabel-root": {
-              color: theme === "dark" ? "#ccc" : "#555",
-            },
-          }}
+          sx={{ minWidth: 150 }}
         />
         <TextField
           label="End Date"
@@ -260,19 +189,11 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
-          sx={{
-            minWidth: 150,
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: theme === "dark" ? "#2a2a2a" : "#fff",
-              color: theme === "dark" ? "#eee" : "#000",
-            },
-            "& .MuiInputLabel-root": {
-              color: theme === "dark" ? "#ccc" : "#555",
-            },
-          }}
+          sx={{ minWidth: 150 }}
         />
       </Box>
 
+      {/* Tabs and State Dropdown */}
       <Box
         sx={{
           display: "flex",
@@ -283,32 +204,12 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
           gap: 2,
         }}
       >
-               <Tabs
-          value={tab}
-          onChange={(e, newValue) => setTab(newValue)}
-          sx={{
-            flex: 1,
-            "& .MuiTab-root": {
-              color: theme === "dark" ? "#ddd" : "#111",
-            },
-            "& .MuiTabs-indicator": {
-              backgroundColor: theme === "dark" ? "#90caf9" : "#1976d2",
-            },
-          }}
-        >
+        <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ flex: 1 }}>
           <Tab label={`Issues (${filterData(issues, issueFilter).length})`} />
           <Tab label={`Pull Requests (${filterData(prs, prFilter).length})`} />
         </Tabs>
-
         <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel
-            sx={{
-              fontSize: "14px",
-              color: theme === "dark" ? "#ccc" : "#555",
-            }}
-          >
-            State
-          </InputLabel>
+          <InputLabel sx={{ fontSize: "14px", color: "#555" }}>State</InputLabel>
           <Select
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
@@ -318,11 +219,11 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
             }
             label="State"
             sx={{
-              backgroundColor: theme === "dark" ? "#2a2a2a" : "#fff",
-              color: theme === "dark" ? "#eee" : "#000",
+              backgroundColor: "#fff",
+              borderRadius: "4px",
               "& .MuiSelect-select": { padding: "10px" },
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme === "dark" ? "#90caf9" : "#1976d2",
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#1976d2",
               },
             }}
           >
@@ -334,68 +235,29 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
         </FormControl>
       </Box>
 
+      {/* Error Alert */}
       {(authError || dataError) && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 3,
-            backgroundColor: theme === "dark" ? "#3c1a1a" : "#fff1f1",
-            color: theme === "dark" ? "#ffdddd" : "#990000",
-          }}
-        >
+        <Alert severity="error" sx={{ mb: 3 }}>
           {authError || dataError}
         </Alert>
       )}
 
+      {/* Table Section */}
       {loading ? (
         <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress color="primary" />
+          <CircularProgress />
         </Box>
       ) : (
         <Box>
           <Box sx={{ maxHeight: "400px", overflowY: "auto", display: "block" }}>
-            <TableContainer
-              component={Paper}
-              sx={{
-                backgroundColor: theme === "dark" ? "#1e1e1e" : "#fff",
-                color: theme === "dark" ? "#eee" : "#111",
-              }}
-            >
+            <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell
-                      sx={{
-                        textAlign: "left",
-                        color: theme === "dark" ? "#90caf9" : "#1976d2",
-                      }}
-                    >
-                      Title
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        textAlign: "center",
-                        color: theme === "dark" ? "#90caf9" : "#1976d2",
-                      }}
-                    >
-                      Repository
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        textAlign: "center",
-                        color: theme === "dark" ? "#90caf9" : "#1976d2",
-                      }}
-                    >
-                      State
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        textAlign: "left",
-                        color: theme === "dark" ? "#90caf9" : "#1976d2",
-                      }}
-                    >
-                      Created
-                    </TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>Title</TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>Repository</TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>State</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>Created</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -406,13 +268,6 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
                           href={item.html_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          sx={{
-                            color: theme === "dark" ? "#82b1ff" : "#1976d2",
-                            textDecoration: "none",
-                            "&:hover": {
-                              textDecoration: "underline",
-                            },
-                          }}
                         >
                           {item.title}
                         </Link>
@@ -437,10 +292,6 @@ const Home: React.FC<{ theme: string }> = ({ theme }) =>
                 onPageChange={handleChangePage}
                 rowsPerPage={itemsPerPage}
                 rowsPerPageOptions={[5]}
-                sx={{
-                  backgroundColor: theme === "dark" ? "#121212" : "#f9f9f9",
-                  color: theme === "dark" ? "#eee" : "#111",
-                }}
               />
             </TableContainer>
           </Box>

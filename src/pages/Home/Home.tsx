@@ -22,13 +22,13 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { usePagination } from "../../hooks/usePagination";
 
 const ROWS_PER_PAGE = 10;
 
-// Define the shape of the data received from GitHub
 interface GitHubItem {
   id: number;
   title: string;
@@ -40,7 +40,7 @@ interface GitHubItem {
 }
 
 const Home: React.FC = () => {
-  // Hooks for managing user authentication
+  const theme = useTheme();
   const {
     username,
     setUsername,
@@ -60,7 +60,6 @@ const Home: React.FC = () => {
   const { page, itemsPerPage, handleChangePage, paginateData } =
     usePagination(ROWS_PER_PAGE);
 
-  // State for various filters and tabs
   const [tab, setTab] = useState(0);
   const [issueFilter, setIssueFilter] = useState<string>("all");
   const [prFilter, setPrFilter] = useState<string>("all");
@@ -69,62 +68,50 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  // Handle data submission to fetch GitHub data
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     fetchData(username);
   };
 
-  // Format date strings into a readable format
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString();
-  };
+  const formatDate = (dateString: string): string =>
+    new Date(dateString).toLocaleDateString();
 
-  // Filter data based on selected criteria
-  const filterData = (
-    data: GitHubItem[],
-    filterType: string
-  ): GitHubItem[] => {
-    let filteredData = [...data];
-
-    if (filterType === "open" || filterType === "closed" || filterType === "merged") {
-      filteredData = filteredData.filter((item) =>
+  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
+    let filtered = [...data];
+    if (["open", "closed", "merged"].includes(filterType)) {
+      filtered = filtered.filter((item) =>
         filterType === "merged"
           ? item.pull_request?.merged_at
           : item.state === filterType
       );
     }
     if (searchTitle) {
-      filteredData = filteredData.filter((item) =>
+      filtered = filtered.filter((item) =>
         item.title.toLowerCase().includes(searchTitle.toLowerCase())
       );
     }
     if (selectedRepo) {
-      filteredData = filteredData.filter((item) =>
+      filtered = filtered.filter((item) =>
         item.repository_url.includes(selectedRepo)
       );
     }
     if (startDate) {
-      filteredData = filteredData.filter(
+      filtered = filtered.filter(
         (item) => new Date(item.created_at) >= new Date(startDate)
       );
     }
     if (endDate) {
-      filteredData = filteredData.filter(
+      filtered = filtered.filter(
         (item) => new Date(item.created_at) <= new Date(endDate)
       );
     }
-    return filteredData;
+    return filtered;
   };
 
-  // Determine the current tab's data
   const currentData =
     tab === 0 ? filterData(issues, issueFilter) : filterData(prs, prFilter);
-
-  // Paginate the filtered data
   const displayData = paginateData(currentData);
 
-  // Main UI rendering
   return (
     <Container
       maxWidth="lg"
@@ -133,10 +120,18 @@ const Home: React.FC = () => {
         flexDirection: "column",
         minHeight: "78vh",
         mt: 4,
+        color: theme.palette.text.primary,
       }}
     >
-      {/* Authentication Form */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4 }}>
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2,
+          mb: 4,
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+        }}
+      >
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
@@ -161,7 +156,6 @@ const Home: React.FC = () => {
         </form>
       </Paper>
 
-      {/* Filters Section */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
         <TextField
           label="Search Title"
@@ -193,7 +187,6 @@ const Home: React.FC = () => {
         />
       </Box>
 
-      {/* Tabs and State Dropdown */}
       <Box
         sx={{
           display: "flex",
@@ -204,12 +197,12 @@ const Home: React.FC = () => {
           gap: 2,
         }}
       >
-        <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ flex: 1 }}>
+        <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ flex: 1 }}>
           <Tab label={`Issues (${filterData(issues, issueFilter).length})`} />
           <Tab label={`Pull Requests (${filterData(prs, prFilter).length})`} />
         </Tabs>
         <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px", color: "#555" }}>State</InputLabel>
+          <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
           <Select
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
@@ -219,11 +212,12 @@ const Home: React.FC = () => {
             }
             label="State"
             sx={{
-              backgroundColor: "#fff",
+              backgroundColor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
               borderRadius: "4px",
               "& .MuiSelect-select": { padding: "10px" },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#1976d2",
+                borderColor: theme.palette.primary.main,
               },
             }}
           >
@@ -235,14 +229,12 @@ const Home: React.FC = () => {
         </FormControl>
       </Box>
 
-      {/* Error Alert */}
       {(authError || dataError) && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {authError || dataError}
         </Alert>
       )}
 
-      {/* Table Section */}
       {loading ? (
         <Box display="flex" justifyContent="center" my={4}>
           <CircularProgress />
@@ -268,6 +260,8 @@ const Home: React.FC = () => {
                           href={item.html_url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          underline="hover"
+                          sx={{ color: theme.palette.primary.main }}
                         >
                           {item.title}
                         </Link>
@@ -283,7 +277,7 @@ const Home: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ))}
-                </TableBody>
+                               </TableBody>
               </Table>
               <TablePagination
                 component="div"

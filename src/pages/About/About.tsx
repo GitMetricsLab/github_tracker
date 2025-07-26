@@ -2,21 +2,21 @@ const About = () => {
   return (
     <div className="about-container">
       {/* Hero Section */}
-      <section className="hero bg-gray-100 dark:bg-gray-800 text-black dark:text-white py-12">
+      <section className="hero bg-gray-800 text-white py-12">
         <h1 className="text-4xl font-bold text-center">About Us</h1>
         <p className="text-lg text-center mt-4">Welcome to GitHub Tracker! We simplify issue tracking for developers.</p>
       </section>
 
       {/* Mission Section */}
-      <section className="mission py-12"> 
+      <section className="mission py-12">
         <h2 className="text-3xl font-semibold text-center">Our Mission</h2>
         <p className="text-lg text-center mt-4 max-w-3xl mx-auto">
           We aim to provide an efficient and user-friendly way to track GitHub issues and pull requests. Our goal is to make it easy for developers to stay organized and focused on their projects without getting bogged down by the details.
         </p>
       </section>
 
-      {/* Features Section */} 
-      <section className="features bg-gray-100 dark:bg-gray-800 text-black dark:text-white py-12">
+      {/* Features Section */}
+      <section className="features bg-gray-100 py-12">
         <h2 className="text-3xl font-semibold text-center">What We Do</h2>
         <div className="flex justify-around mt-8">
           <div className="feature-item text-center">

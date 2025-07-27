@@ -84,6 +84,26 @@ $ npm start
 
 ---
 
+
+## API Endpoints
+
+### Backend Data Fetching
+
+The application uses two main API endpoints:
+
+#### 1. `/api/github/get-data` (Home Page)
+- **Purpose**: Fetches basic GitHub data for home dashboard
+- **Returns**: User issues and pull requests
+- **Used in**: Home page for displaying recent activity
+
+
+#### 2. `/api/github/user-profile` (Analytics Page)  
+- **Purpose**: Fetches comprehensive user analytics data
+- **Returns**: Complete user profile, repositories, contribution stats, language statistics, rankings
+- **Used in**: Analytics dashboard for detailed insights
+
+---
+
 ### 🌟 Coming Soon
 - Add options to track stars, followers, following
 - Add options to track engagements (e.g. comments, closing, opening and merging PRs)

@@ -1,0 +1,31 @@
+name: 🚀 Feature
+description: "Submit a proposal for a new feature"
+title: "🚀 Feature: "
+labels: [feature]
+body:
+  - type: markdown
+    attributes:
+      value: We value your time and your efforts to submit this bug report is appreciated. 🙏
+  - type: textarea
+    id: feature-description
+    validations:
+      required: true
+    attributes:
+      label: "🔖 Feature description"
+      description: "A clear and concise description of what the feature is."
+      placeholder: "You should add ..."
+  - type: textarea
+    id: screenshot
+    validations:
+      required: false
+    attributes:
+      label: "🎤 Screenshot"
+      description: "Add screenshot if applicable."
+  - type: textarea
+    id: alternative
+    validations:
+      required: false
+    attributes:
+      label: "🔄️ Additional Information"
+      description: "A clear and concise description of any alternative solutions or additional solutions you've considered."
+      placeholder: "I tried, ..."

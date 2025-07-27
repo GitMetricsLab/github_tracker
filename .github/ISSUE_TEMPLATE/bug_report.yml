@@ -1,0 +1,50 @@
+name: "🐛 Bug Report"
+description: "Submit a bug report to help us improve"
+title: "🐛 Bug Report: "
+labels: ["type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: We value your time and your efforts to submit this bug report is appreciated. 🙏
+
+  - type: textarea
+    id: description
+    validations:
+      required: true
+    attributes:
+      label: "📜 Description"
+      description: "A clear and concise description of what the bug is."
+      placeholder: "It bugs out when ..."
+
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: "💻 Operating system"
+      description: "What OS is your app running on?"
+      options:
+        - Linux
+        - MacOS
+        - Windows
+        - Something else
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+        - Something else
+
+  - type: textarea
+    id: screenshots
+    validations:
+      required: false
+    attributes:
+      label: "📃  Relevant Screenshots (Links)"
+      description: "Screenshot"

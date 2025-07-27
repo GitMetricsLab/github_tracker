@@ -1,25 +1,30 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { ThemeContext } from "../ThemeContext";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const themeContext = useContext(ThemeContext);
+  if (!themeContext) return null;
+
+  const { toggleTheme, mode } = themeContext;
 
   return (
-    <nav className="bg-gray-800 text-white shadow-lg">
+    <nav className="bg-white text-black dark:bg-gray-800 dark:text-white shadow-lg">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo Section */}
-       <Link
-  to="/"
-  className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center"
->
-  <img src="/crl-icon.png" alt="CRL Icon" className="h-8 mr-2" />
-  GitHub Tracker
-</Link>
+        <Link
+          to="/"
+          className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center"
+        >
+          <img src="/crl-icon.png" alt="CRL Icon" className="h-8 mr-2" />
+          GitHub Tracker
+        </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex space-x-6">
           <Link
-            to="/home"
+            to="/"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Home
@@ -45,7 +50,15 @@ const Navbar: React.FC = () => {
           <Link
             to="/login"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >Login</Link>
+          >
+            Login
+          </Link>
+          <button
+            onClick={toggleTheme}
+            className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
+          >
+            {mode === "dark" ? "🌞 Light" : "🌙 Dark"}
+          </button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -105,6 +118,22 @@ const Navbar: React.FC = () => {
             >
               Contributors
             </Link>
+            <Link
+              to="/login"
+              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Login
+            </Link>
+            <button
+              onClick={() => {
+                toggleTheme();
+                setIsOpen(false);
+              }}
+              className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200 w-full text-left"
+            >
+              {mode === "dark" ? "🌞 Light" : "🌙 Dark"}
+            </button>
           </div>
         </div>
       )}

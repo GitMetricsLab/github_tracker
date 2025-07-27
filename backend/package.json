@@ -11,8 +11,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "@octokit/rest": "^22.0.0",
     "axios": "^1.11.0",
+=======
+>>>>>>> f00eb9898001de6940350eaf72bd05f9ac76129a
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",

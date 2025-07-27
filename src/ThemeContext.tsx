@@ -36,3 +36,4 @@ const ThemeWrapper = ({ children }: { children: ReactNode }) => {
 };
 
 export default ThemeWrapper;
+export type { ThemeContextType };

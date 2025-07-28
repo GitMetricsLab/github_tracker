@@ -6,6 +6,7 @@ import Contributors from "../pages/Contributors/Contributors"
 import Signup from "../pages/Signup/Signup.tsx"
 import Login from "../pages/Login/Login.tsx"
 import UserProfile from "../pages/UserProfile/UserProfile.tsx"
+import UserAnalytics from "../pages/UserAnalytics/UserAnalytics.tsx";
 
 
 
@@ -16,6 +17,7 @@ const Router = () => {
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<Home />} />
+      <Route path="/analytics" element={<UserAnalytics />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/contributors" element={<Contributors />} />

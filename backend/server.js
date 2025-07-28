@@ -23,6 +23,8 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+const githubRoutes = require('./routes/details');
+app.use('/api/github', githubRoutes);
 
 // Routes
 const authRoutes = require('./routes/auth');

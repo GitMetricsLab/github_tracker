@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Box,
@@ -23,11 +24,14 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGitHubAuth } from "../../hooks/useGitHubAuth";
-import { useGitHubData } from "../../hooks/useGitHubData";
+// import { useGitHubAuth } from "../../hooks/useGitHubAuth";
+// import { useGitHubData } from "../../hooks/useGitHubData";
 import { usePagination } from "../../hooks/usePagination";
+import { BarChart3 } from "lucide-react";
+import axios from 'axios';
 
 const ROWS_PER_PAGE = 10;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 interface GitHubItem {
   id: number;
@@ -40,23 +44,34 @@ interface GitHubItem {
 }
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
-  const {
-    username,
-    setUsername,
-    token,
-    setToken,
-    error: authError,
-    getOctokit,
-  } = useGitHubAuth();
-  const octokit = getOctokit();
-  const {
-    issues,
-    prs,
-    loading,
-    error: dataError,
-    fetchData,
-  } = useGitHubData(octokit);
+  // const {
+  //   username,
+  //   setUsername,
+  //   token,
+  //   setToken,
+  //   error: authError,
+  //   getOctokit,
+  // } = useGitHubAuth();
+  // const octokit = getOctokit();
+  // const {
+  //   issues,
+  //   prs,
+  //   loading,
+  //   error: dataError,
+  //   fetchData,
+  // } = useGitHubData(octokit);
+
+//state management
+  const [username, setUsername] = useState<string>('');
+  const [token, setToken] = useState<string>('');
+  const [issues, setIssues] = useState<GitHubItem[]>([]);
+  const [prs, setPrs] = useState<GitHubItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+
+
   const { page, itemsPerPage, handleChangePage, paginateData } =
     usePagination(ROWS_PER_PAGE);
 
@@ -68,9 +83,76 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  //validation of username and token
+  const validateCredentials= async()=>{
+    if(!username.trim()){
+      setError('Username is required.')
+      return false;
+    }
+    if(!token.trim()){
+      setError('Personal acess token is required.')
+      return false;
+    }
+
+    setError('');
+    return true;
+  
+  }
+
+  // Navigate to analytics page with username and token
+  const handleViewAnalytics = () => {
+    if (!username.trim() || !token.trim()) {
+      setError('Please enter username and token first');
+      return;
+    }
+    // Pass username and token as state to analytics page
+    navigate('/analytics', { 
+      state: { 
+        username: username.trim(), 
+        token: token.trim() 
+      } 
+    });
+  };
+
+
+
+  //fetching data from backend
+  const fetchData= async()=>{
+
+    setLoading(true);
+    setError('');
+
+    try{
+      
+      console.log('Request payload:', { username, token: token ? 'PROVIDED' : 'MISSING' });
+      
+      const response = await axios.post(`${backendUrl}/api/github/get-data`,{
+        username, token
+      }); //we get data from backend by providng username and token
+
+      setIssues(response.data.issues);
+      setPrs(response.data.prs);
+
+    }catch(err:any){
+      
+      console.error('Error response:', err.response?.data);
+      setError(err.response?.data?.message || `Error fetching GitHub data: ${err.message}`);
+      setIssues([]);
+      setPrs([]);
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>)=> {
     e.preventDefault();
-    fetchData(username);
+    const isValid = await validateCredentials();
+    if(isValid){
+      fetchData();
+    }
+    
   };
 
   const formatDate = (dateString: string): string =>
@@ -149,9 +231,34 @@ const Home: React.FC = () => {
               required
               sx={{ flex: 1 }}
             />
-            <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
-              Fetch Data
-            </Button>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loading}
+                sx={{ minWidth: "120px", borderRadius: "8px" }}
+              >
+                {loading ? <CircularProgress size={24} /> : 'Fetch Data'}
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleViewAnalytics}
+                startIcon={<BarChart3 size={20} />}
+                sx={{
+                  minWidth: "140px",
+                  borderRadius: "8px",
+                  color: "secondary.main",
+                  borderColor: "secondary.main",
+                  "&:hover": {
+                    borderColor: "secondary.dark",
+                    backgroundColor: "secondary.light",
+                    color: "secondary.dark",
+                  },
+                }}
+              >
+                {username && token ? 'View Analytics' : 'Enter Data First'}
+              </Button>
+            </Box>
           </Box>
         </form>
       </Paper>
@@ -229,9 +336,9 @@ const Home: React.FC = () => {
         </FormControl>
       </Box>
 
-      {(authError || dataError) && (
+      {(error) && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {authError || dataError}
+          {error}
         </Alert>
       )}
 

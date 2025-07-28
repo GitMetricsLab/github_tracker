@@ -132,9 +132,10 @@ const Home: React.FC = () => {
           color: theme.palette.text.primary,
         }}
       >
-        <form onSubmit={handleSubmit}>
+        <form className="" onSubmit={handleSubmit}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
+            className=""
               label="GitHub Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}

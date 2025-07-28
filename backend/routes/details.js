@@ -3,6 +3,58 @@ const express = require('express');
 const router = express.Router();
 const authenticateGitHub = require('../middlewares/authenticateGitHub');
 
+// Simple in-memory cache for language data
+const languageCache = new Map();
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
+// Helper function to create delay
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Helper function to limit concurrent API calls
+const createLimiter = (limit) => {
+  let running = 0;
+  const queue = [];
+
+  const run = async (fn) => {
+    return new Promise((resolve, reject) => {
+      queue.push({ fn, resolve, reject });
+      process();
+    });
+  };
+
+  const process = async () => {
+    if (running >= limit || queue.length === 0) return;
+    
+    running++;
+    const { fn, resolve, reject } = queue.shift();
+    
+    try {
+      const result = await fn();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    } finally {
+      running--;
+      process();
+    }
+  };
+
+  return run;
+};
+
+// Cache cleanup function to prevent memory leaks
+const cleanupCache = () => {
+  const now = Date.now();
+  for (const [key, value] of languageCache.entries()) {
+    if (now - value.timestamp > CACHE_DURATION) {
+      languageCache.delete(key);
+    }
+  }
+};
+
+// Run cache cleanup every 15 minutes
+setInterval(cleanupCache, 15 * 60 * 1000);
+
 router.post('/get-data', authenticateGitHub, async (req,res)=>{
 
     try{
@@ -88,33 +140,80 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
       per_page: 100
     });
 
-    // Calculate language statistics
+    // Calculate language statistics with concurrency control and caching
     const languageStats = {};
     const repositories = [];
     
-    for (const repo of reposResponse.data) {
+    // Create limiter for 3 concurrent requests (GitHub recommends max 5)
+    const limit = createLimiter(3);
+    
+    // Helper function to get cached or fetch language data
+    const getLanguageData = async (repo) => {
+      const cacheKey = `${githubUsername}/${repo.name}`;
+      const cached = languageCache.get(cacheKey);
+      
+      // Check if cache is valid (not expired)
+      if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        return cached.data;
+      }
+      
       try {
         const languagesResponse = await octokit.rest.repos.listLanguages({
           owner: githubUsername,
           repo: repo.name
         });
         
-        Object.entries(languagesResponse.data).forEach(([lang, bytes]) => {
-          languageStats[lang] = (languageStats[lang] || 0) + bytes;
+        // Cache the result
+        languageCache.set(cacheKey, {
+          data: languagesResponse.data,
+          timestamp: Date.now()
         });
-
-        repositories.push({
-          name: repo.name,
-          description: repo.description,
-          stars: repo.stargazers_count,
-          forks: repo.forks_count,
-          watchers: repo.watchers_count,
-          language: repo.language,
-          html_url: repo.html_url,
-          updated_at: repo.updated_at
-        });
+        
+        return languagesResponse.data;
       } catch (err) {
         console.log(`Error fetching languages for ${repo.name}:`, err.message);
+        return {};
+      }
+    };
+    
+    // Process repositories in batches with concurrency control
+    const batchSize = 10;
+    const repos = reposResponse.data;
+    
+    for (let i = 0; i < repos.length; i += batchSize) {
+      const batch = repos.slice(i, i + batchSize);
+      
+      // Process batch with concurrency limit
+      const batchPromises = batch.map(repo => 
+        limit(async () => {
+          const languages = await getLanguageData(repo);
+          
+          // Add languages to stats
+          Object.entries(languages).forEach(([lang, bytes]) => {
+            languageStats[lang] = (languageStats[lang] || 0) + bytes;
+          });
+
+          // Build repository object
+          return {
+            name: repo.name,
+            description: repo.description,
+            stars: repo.stargazers_count,
+            forks: repo.forks_count,
+            watchers: repo.watchers_count,
+            language: repo.language,
+            html_url: repo.html_url,
+            updated_at: repo.updated_at
+          };
+        })
+      );
+      
+      // Wait for current batch to complete
+      const batchResults = await Promise.all(batchPromises);
+      repositories.push(...batchResults);
+      
+      // Add small delay between batches to be respectful to GitHub API
+      if (i + batchSize < repos.length) {
+        await delay(100); // 100ms delay between batches
       }
     }
 
@@ -128,73 +227,143 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
       totalWatchers: repositories.reduce((sum, repo) => sum + repo.watchers, 0)
     };
 
-    // Calculate real contribution stats
-    const currentDate = new Date();
-    const oneYearAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate());
-    
-    // Get user events for contribution analysis
-    let userEvents = [];
-    try {
-      const eventsResponse = await octokit.rest.activity.listPublicEventsForUser({
-        username: githubUsername,
-        per_page: 100
-      });
-      userEvents = eventsResponse.data;
-    } catch (err) {
-      console.log('Could not fetch user events:', err.message);
-    }
-
-    // Calculate contributions from repositories and events
-    const totalContributions = userResponse.data.public_repos + 
-      userResponse.data.public_gists + 
-      (userEvents.length || 0);
-
-    // Calculate streaks and activity patterns
-    const contributionsByDate = {};
-    userEvents.forEach(event => {
-      const date = event.created_at.split('T')[0];
-      contributionsByDate[date] = (contributionsByDate[date] || 0) + 1;
-    });
-
-    // Calculate longest and current streak
-    const dates = Object.keys(contributionsByDate).sort();
+    // Calculate real contribution stats using GitHub GraphQL API
+    let totalContributions = 0;
     let longestStreak = 0;
     let currentStreak = 0;
-    let tempStreak = 0;
+    let contributionsByDate = {};
+    let dayActivityCount = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 };
 
-    for (let i = 0; i < dates.length; i++) {
-      if (i === 0 || isConsecutiveDay(dates[i-1], dates[i])) {
-        tempStreak++;
-      } else {
-        longestStreak = Math.max(longestStreak, tempStreak);
-        tempStreak = 1;
-      }
-    }
-    longestStreak = Math.max(longestStreak, tempStreak);
+    try {
+      // Get current year and last year for comprehensive data
+      const currentYear = new Date().getFullYear();
+      const lastYear = currentYear - 1;
+      
+      // GraphQL query to get contribution data for current and last year
+      const contributionQuery = `
+        query($username: String!, $from: DateTime!, $to: DateTime!) {
+          user(login: $username) {
+            contributionsCollection(from: $from, to: $to) {
+              totalContributions
+              contributionCalendar {
+                totalContributions
+                weeks {
+                  contributionDays {
+                    date
+                    contributionCount
+                    weekday
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
 
-    // Current streak calculation
-    const today = new Date().toISOString().split('T')[0];
-    if (dates.length > 0) {
-      const lastDate = dates[dates.length - 1];
-      if (isRecentDate(lastDate, today)) {
-        currentStreak = calculateCurrentStreak(dates);
+      // Query for current year
+      const currentYearFrom = `${currentYear}-01-01T00:00:00Z`;
+      const currentYearTo = `${currentYear}-12-31T23:59:59Z`;
+      
+      // Query for last year  
+      const lastYearFrom = `${lastYear}-01-01T00:00:00Z`;
+      const lastYearTo = `${lastYear}-12-31T23:59:59Z`;
+      
+      // Execute both queries with error handling
+      const [currentYearResponse, lastYearResponse] = await Promise.allSettled([
+        octokit.graphql(contributionQuery, {
+          username: githubUsername,
+          from: currentYearFrom,
+          to: currentYearTo
+        }),
+        octokit.graphql(contributionQuery, {
+          username: githubUsername,
+          from: lastYearFrom,
+          to: lastYearTo
+        })
+      ]);
+
+      // Combine contribution data from both years with error handling
+      const allContributionDays = [];
+      
+      // Process last year data if successful
+      if (lastYearResponse.status === 'fulfilled' && 
+          lastYearResponse.value?.user?.contributionsCollection?.contributionCalendar?.weeks) {
+        lastYearResponse.value.user.contributionsCollection.contributionCalendar.weeks.forEach(week => {
+          week.contributionDays.forEach(day => {
+            if (day.contributionCount > 0) {
+              allContributionDays.push(day);
+              contributionsByDate[day.date] = day.contributionCount;
+              
+              // Count day activity (0=Sunday, 1=Monday, etc.)
+              const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+              dayActivityCount[dayNames[day.weekday]] += day.contributionCount;
+            }
+          });
+        });
       }
+
+      // Process current year data if successful
+      if (currentYearResponse.status === 'fulfilled' && 
+          currentYearResponse.value?.user?.contributionsCollection?.contributionCalendar?.weeks) {
+        currentYearResponse.value.user.contributionsCollection.contributionCalendar.weeks.forEach(week => {
+          week.contributionDays.forEach(day => {
+            if (day.contributionCount > 0) {
+              allContributionDays.push(day);
+              contributionsByDate[day.date] = day.contributionCount;
+              
+              // Count day activity
+              const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+              dayActivityCount[dayNames[day.weekday]] += day.contributionCount;
+            }
+          });
+        });
+      }
+
+      // Calculate total contributions from successful responses
+      totalContributions = 
+        (currentYearResponse.status === 'fulfilled' ? 
+         (currentYearResponse.value?.user?.contributionsCollection?.totalContributions || 0) : 0) +
+        (lastYearResponse.status === 'fulfilled' ? 
+         (lastYearResponse.value?.user?.contributionsCollection?.totalContributions || 0) : 0);
+
+      // Calculate streaks using accurate contribution dates
+      const contributionDates = Object.keys(contributionsByDate).sort();
+      
+      // Calculate longest streak
+      let tempStreak = 0;
+      for (let i = 0; i < contributionDates.length; i++) {
+        if (i === 0 || isConsecutiveDay(contributionDates[i-1], contributionDates[i])) {
+          tempStreak++;
+        } else {
+          longestStreak = Math.max(longestStreak, tempStreak);
+          tempStreak = 1;
+        }
+      }
+      longestStreak = Math.max(longestStreak, tempStreak);
+
+      // Calculate current streak
+      const today = new Date().toISOString().split('T')[0];
+      if (contributionDates.length > 0) {
+        const lastContributionDate = contributionDates[contributionDates.length - 1];
+        if (isRecentDate(lastContributionDate, today)) {
+          currentStreak = calculateCurrentStreak(contributionDates);
+        }
+      }
+
+    } catch (err) {
+      console.log('Could not fetch contribution data from GraphQL:', err.message);
+      // Fallback to basic calculation if GraphQL fails
+      totalContributions = userResponse.data.public_repos + userResponse.data.public_gists;
     }
 
     // Most active day calculation
-    const dayActivityCount = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 };
-    userEvents.forEach(event => {
-      const dayOfWeek = new Date(event.created_at).getDay();
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      dayActivityCount[dayNames[dayOfWeek]]++;
-    });
-    
     const mostActiveDay = Object.keys(dayActivityCount).reduce((a, b) => 
       dayActivityCount[a] > dayActivityCount[b] ? a : b
     );
 
-    // Average contributions per day (last 365 days)
-    const averagePerDay = userEvents.length > 0 ? (userEvents.length / 365).toFixed(1) : 0;
+    // Average contributions per day (based on actual contribution data)
+    const daysWithContributions = Object.keys(contributionsByDate).length;
+    const averagePerDay = daysWithContributions > 0 ? (totalContributions / 365).toFixed(1) : 0;
 
     const contributionStats = {
       totalContributions,
@@ -220,7 +389,7 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
     }
 
     function calculateCurrentStreak(dates) {
-      let streak = 0;
+      let streak = 1; // Start with 1 if we have any contributions
       for (let i = dates.length - 1; i > 0; i--) {
         if (isConsecutiveDay(dates[i-1], dates[i])) {
           streak++;
@@ -228,7 +397,7 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
           break;
         }
       }
-      return streak + 1;
+      return streak;
     }
 
     function getDayFullName(shortDay) {

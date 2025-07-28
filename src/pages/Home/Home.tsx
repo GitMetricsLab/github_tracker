@@ -124,8 +124,6 @@ const Home: React.FC = () => {
 
     try{
       
-      console.log('Request payload:', { username, token: token ? 'PROVIDED' : 'MISSING' });
-      
       const response = await axios.post(`${backendUrl}/api/github/get-data`,{
         username, token
       }); //we get data from backend by providng username and token
@@ -135,8 +133,8 @@ const Home: React.FC = () => {
 
     }catch(err:any){
       
-      console.error('Error response:', err.response?.data);
-      setError(err.response?.data?.message || `Error fetching GitHub data: ${err.message}`);
+      console.error('Error response:', err.response?.status, err.response?.statusText);
+      setError(err.response?.data?.message || 'Failed to fetch GitHub data. Please check your credentials.');
       setIssues([]);
       setPrs([]);
     }
@@ -144,7 +142,7 @@ const Home: React.FC = () => {
       setLoading(false);
     }
   }
-
+   
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>)=> {
     e.preventDefault();

@@ -11,9 +11,10 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa"; // GitHub Icon
 import axios from "axios";
-import { Link } from "react-router-dom"; // ✅ Added
+import { Link } from "react-router-dom";
+import { useTheme } from "../../hooks/useTheme";
 
 interface Contributor {
   id: number;
@@ -27,17 +28,25 @@ const ContributorsPage = () => {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme();
+
+  // Theme-based colors
+  const bgColor = theme === "dark" ? "#1f1f1f" : "#FFFFFF";
+  const textColor = theme === "dark" ? "#FFFFFF" : "#333333";
+  const cardBg = theme === "dark" ? "#2a2a2a" : "#FFFFFF";
+  const borderColor = theme === "dark" ? "#444444" : "#E0E0E0";
+  const hoverBorder = theme === "dark" ? "#666666" : "#C0C0C0";
 
   useEffect(() => {
     const fetchContributors = async () => {
       try {
         const response = await axios.get(
-          "https://api.github.com/repos/GitMetricsLab/github_tracker/contributors",
+          "https://api.github.com/repos/mehul-m-prajapati/github_tracker/contributors",
           { withCredentials: false }
         );
         setContributors(response.data);
       } catch (err) {
-        setError("Failed to fetch contributors. Please try again later. " + err);
+        setError("Failed to fetch contributors. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -45,6 +54,11 @@ const ContributorsPage = () => {
 
     fetchContributors();
   }, []);
+
+  // To trigger re-render on theme change (optional)
+  useEffect(() => {
+    setContributors((prev) => [...prev]);
+  }, [theme]);
 
   if (loading) {
     return (
@@ -66,6 +80,8 @@ const ContributorsPage = () => {
     <Container
       sx={{
         mt: 4,
+        backgroundColor: bgColor,
+        color: textColor,
         minHeight: "100vh",
         p: { xs: 2, sm: 4 },
       }}
@@ -87,56 +103,41 @@ const ContributorsPage = () => {
         {contributors.map((contributor) => (
           <Grid item xs={12} sm={6} md={4} key={contributor.id}>
             <Link
-              to={`/user/${contributor.login}`} // ✅ Add link to user profile
+              to={`/user/${contributor.login}`}
               style={{ textDecoration: "none" }}
             >
               <Card
                 sx={{
                   textAlign: "center",
-                  p: 2,
+                  backgroundColor: cardBg,
+                  color: textColor,
                   borderRadius: "12px",
-                  border: "1px solid #e0e0e0",
-                  backgroundColor: "#F9F9F9",
+                  border: `1px solid ${borderColor}`,
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                   transition: "transform 0.3s ease-in-out",
                   "&:hover": {
-                    transform: "scale(1.03)",
-                    boxShadow: "0 8px 15px rgba(0,0,0,0.15)",
-                    borderColor: "#ccc",
+                    transform: "scale(1.05)",
+                    boxShadow: "0 8px 15px rgba(0,0,0,0.2)",
+                    borderColor: hoverBorder,
                   },
                 }}
               >
                 <Avatar
                   src={contributor.avatar_url}
                   alt={contributor.login}
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    mx: "auto",
-                    mb: 2,
-                  }}
+                  sx={{ width: 100, height: 100, mx: "auto", mt: 3 }}
                 />
                 <CardContent>
                   <Typography
                     variant="h6"
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: { xs: "1rem", sm: "1.2rem" },
-                      color: "#333",
-                    }}
+                    sx={{ fontWeight: "bold", color: textColor }}
                   >
                     {contributor.login}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                  >
+                  <Typography variant="body2" sx={{ mt: 1, color: textColor }}>
                     {contributor.contributions} Contributions
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 2, fontSize: { xs: "0.85rem", sm: "1rem" } }}
-                  >
+                  <Typography variant="body2" sx={{ mt: 2, color: textColor }}>
                     Thank you for your valuable contributions!
                   </Typography>
                   <Box sx={{ mt: 2 }}>
@@ -145,6 +146,7 @@ const ContributorsPage = () => {
                       startIcon={<FaGithub />}
                       href={contributor.html_url}
                       target="_blank"
+                      onClick={(e) => e.stopPropagation()}
                       sx={{
                         backgroundColor: "#24292f",
                         color: "#fff",
@@ -155,7 +157,6 @@ const ContributorsPage = () => {
                           backgroundColor: "#444",
                         },
                       }}
-                      onClick={(e) => e.stopPropagation()} // prevent nested Link trigger
                     >
                       GitHub Profile
                     </Button>

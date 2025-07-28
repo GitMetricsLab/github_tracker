@@ -82,27 +82,6 @@ $ npm i
 $ npm start
 ```
 
----
-
-### 🌟 Coming Soon
-- Add options to track stars, followers, following
-- Add options to track engagements (e.g. comments, closing, opening and merging PRs)
-- **👥 Team Monitoring**: Track activities of your team members in one place.
-- **📊 Custom Dashboards**: Create personalized dashboards to visualize the data that matters to you.
-
----
-
-# 👀 Our Contributors
-
-- We extend our heartfelt gratitude for your invaluable contribution to our project.
-- Make sure you show some love by giving ⭐ to our repository.
-
-<div align="center">
-  <a href="https://github.com/mehul-m-prajapati/github_tracker">
-    <img src="https://contrib.rocks/image?repo=mehul-m-prajapati/github_tracker&&max=1000" />
-  </a>
-</div>
-
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 
 This project uses the Jasmine framework for backend unit and integration tests. The tests cover:
@@ -156,4 +135,13 @@ spec_files: [
 
 ---
 
-For any questions or to add more tests (including frontend), see the contribution guidelines or open an issue.
+# 👀 Our Contributors
+
+- We extend our heartfelt gratitude for your invaluable contribution to our project.
+- Make sure you show some love by giving ⭐ to our repository.
+
+<div align="center">
+  <a href="https://github.com/mehul-m-prajapati/github_tracker">
+    <img src="https://contrib.rocks/image?repo=mehul-m-prajapati/github_tracker&&max=1000" />
+  </a>
+</div>

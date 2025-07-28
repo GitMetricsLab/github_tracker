@@ -1,3 +1,5 @@
+
+import Metrics from "../components/MetricCard.tsx";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import Home from "../pages/Home/Home"; // Import the Home component
@@ -7,6 +9,7 @@ import Contributors from "../pages/Contributors/Contributors";
 import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import UserProfile from "../pages/UserProfile/UserProfile.tsx";
+import MetricCard from "../components/MetricCard.tsx";
 
 const Router = () => {
   return (
@@ -20,6 +23,8 @@ const Router = () => {
       <Route path="/home" element={<Home />} />
       <Route path="/contributors" element={<Contributors />} />
       <Route path="/user/:username" element={<UserProfile />} />
+
+      <Route path="/metrics" element={<Metrics />} />
     </Routes>
   );
 };

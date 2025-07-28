@@ -1,3 +1,4 @@
+ gsoc-2025Gaurav
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useGitHubAuth } from '../hooks/useGitHubAuth';
@@ -13,8 +14,20 @@ const Navbar: React.FC = () => {
     navigate('/login');
   };
 
+import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { ThemeContext } from "../ThemeContext";
+
+const Navbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const themeContext = useContext(ThemeContext);
+  if (!themeContext) return null;
+
+  const { toggleTheme, mode } = themeContext;
+ main
+
   return (
-    <nav className="bg-gray-800 text-white shadow-lg">
+    <nav className="bg-white text-black dark:bg-gray-800 dark:text-white shadow-lg">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo Section */}
         <Link
@@ -28,7 +41,7 @@ const Navbar: React.FC = () => {
         {/* Desktop Links */}
         <div className="hidden md:flex space-x-6 items-center">
           <Link
-            to="/home"
+            to="/"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Home
@@ -51,6 +64,7 @@ const Navbar: React.FC = () => {
           >
             Contributors
           </Link>
+ gsoc-2025Gaurav
           {!username ? (
             <Link
               to="/login"
@@ -98,6 +112,20 @@ const Navbar: React.FC = () => {
               )}
             </div>
           )}
+
+          <Link
+            to="/login"
+            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+          >
+            Login
+          </Link>
+          <button
+            onClick={toggleTheme}
+            className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
+          >
+            {mode === "dark" ? "🌞 Light" : "🌙 Dark"}
+          </button>
+ main
         </div>
 
         {/* Mobile Menu Button */}
@@ -157,6 +185,7 @@ const Navbar: React.FC = () => {
             >
               Contributors
             </Link>
+ gsoc-2025Gaurav
             {!username ? (
               <Link
                 to="/login"
@@ -205,6 +234,24 @@ const Navbar: React.FC = () => {
                 )}
               </div>
             )}
+
+            <Link
+              to="/login"
+              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Login
+            </Link>
+            <button
+              onClick={() => {
+                toggleTheme();
+                setIsOpen(false);
+              }}
+              className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200 w-full text-left"
+            >
+              {mode === "dark" ? "🌞 Light" : "🌙 Dark"}
+            </button>
+ main
           </div>
         </div>
       )}

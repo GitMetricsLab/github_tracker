@@ -16,7 +16,7 @@
     "@mui/material": "^5.15.6",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.11.0",
-    "lucide-react": "^0.535.0",
+    "lucide-react": "^0.532.0",
     "octokit": "^4.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

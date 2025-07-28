@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const authenticateGitHub = require('../middlewares/authenticateGitHub');
+const pLimit = require('p-limit');
 
 // Simple in-memory cache for language data
 const languageCache = new Map();
@@ -10,37 +11,6 @@ const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 // Helper function to create delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Helper function to limit concurrent API calls
-const createLimiter = (limit) => {
-  let running = 0;
-  const queue = [];
-
-  const run = async (fn) => {
-    return new Promise((resolve, reject) => {
-      queue.push({ fn, resolve, reject });
-      process();
-    });
-  };
-
-  const process = async () => {
-    if (running >= limit || queue.length === 0) return;
-    
-    running++;
-    const { fn, resolve, reject } = queue.shift();
-    
-    try {
-      const result = await fn();
-      resolve(result);
-    } catch (error) {
-      reject(error);
-    } finally {
-      running--;
-      process();
-    }
-  };
-
-  return run;
-};
 
 // Cache cleanup function to prevent memory leaks
 const cleanupCache = () => {
@@ -144,8 +114,8 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
     const languageStats = {};
     const repositories = [];
     
-    // Create limiter for 3 concurrent requests (GitHub recommends max 5)
-    const limit = createLimiter(3);
+    // Create limiter for 3 concurrent requests using p-limit
+    const limit = pLimit(3);
     
     // Helper function to get cached or fetch language data
     const getLanguageData = async (repo) => {

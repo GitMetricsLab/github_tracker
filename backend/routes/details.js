@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const authenticateGitHub = require('../middlewares/authenticateGitHub');
 const pLimit = require('p-limit');
+const { parseISO, differenceInDays, isYesterday, isToday, format } = require('date-fns');
 
 // Simple in-memory cache for language data
 const languageCache = new Map();
@@ -296,23 +297,27 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
         (lastYearResponse.status === 'fulfilled' ? 
          (lastYearResponse.value?.user?.contributionsCollection?.totalContributions || 0) : 0);
 
-      // Calculate streaks using accurate contribution dates
+      // Calculate streaks using accurate contribution dates with improved logic
       const contributionDates = Object.keys(contributionsByDate).sort();
       
-      // Calculate longest streak
+      // Calculate longest streak with proper error handling
       let tempStreak = 0;
-      for (let i = 0; i < contributionDates.length; i++) {
-        if (i === 0 || isConsecutiveDay(contributionDates[i-1], contributionDates[i])) {
-          tempStreak++;
-        } else {
-          longestStreak = Math.max(longestStreak, tempStreak);
-          tempStreak = 1;
+      if (contributionDates.length > 0) {
+        tempStreak = 1; // Start with 1 for first date
+        
+        for (let i = 1; i < contributionDates.length; i++) {
+          if (isConsecutiveDay(contributionDates[i-1], contributionDates[i])) {
+            tempStreak++;
+          } else {
+            longestStreak = Math.max(longestStreak, tempStreak);
+            tempStreak = 1; // Reset streak
+          }
         }
+        longestStreak = Math.max(longestStreak, tempStreak); // Check final streak
       }
-      longestStreak = Math.max(longestStreak, tempStreak);
 
-      // Calculate current streak
-      const today = new Date().toISOString().split('T')[0];
+      // Calculate current streak with proper date handling
+      const today = format(new Date(), 'yyyy-MM-dd'); // Use date-fns for consistent formatting
       if (contributionDates.length > 0) {
         const lastContributionDate = contributionDates[contributionDates.length - 1];
         if (isRecentDate(lastContributionDate, today)) {
@@ -333,7 +338,7 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
 
     // Average contributions per day (based on actual contribution data)
     const daysWithContributions = Object.keys(contributionsByDate).length;
-    const averagePerDay = daysWithContributions > 0 ? (totalContributions / 365).toFixed(1) : 0;
+    const averagePerDay = daysWithContributions > 0 ? (totalContributions / daysWithContributions).toFixed(1) : 0;
 
     const contributionStats = {
       totalContributions,
@@ -343,31 +348,57 @@ router.post('/user-profile', authenticateGitHub, async (req, res) => {
       averagePerDay: parseFloat(averagePerDay)
     };
 
-    // Helper functions
+    // Helper functions with proper date handling using date-fns
     function isConsecutiveDay(date1, date2) {
-      const d1 = new Date(date1);
-      const d2 = new Date(date2);
-      const diffTime = Math.abs(d2 - d1);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays === 1;
+      try {
+        // Parse ISO date strings to Date objects in UTC
+        const d1 = parseISO(date1);
+        const d2 = parseISO(date2);
+        
+        // Check if date2 is exactly 1 day after date1 (not using Math.abs)
+        const dayDifference = differenceInDays(d2, d1);
+        return dayDifference === 1;
+      } catch (error) {
+        console.error('Error comparing dates:', error);
+        return false;
+      }
     }
 
     function isRecentDate(date, today) {
-      const diffTime = Math.abs(new Date(today) - new Date(date));
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays <= 1;
+      try {
+        // Parse the contribution date
+        const contributionDate = parseISO(date);
+        const todayDate = parseISO(today);
+        
+        // Check if the contribution was today or yesterday
+        return isToday(contributionDate) || isYesterday(contributionDate) || 
+               differenceInDays(todayDate, contributionDate) <= 1;
+      } catch (error) {
+        console.error('Error checking recent date:', error);
+        return false;
+      }
     }
 
     function calculateCurrentStreak(dates) {
-      let streak = 1; // Start with 1 if we have any contributions
-      for (let i = dates.length - 1; i > 0; i--) {
-        if (isConsecutiveDay(dates[i-1], dates[i])) {
-          streak++;
-        } else {
-          break;
+      if (!dates || dates.length === 0) return 0;
+      
+      try {
+        let streak = 1; // Start with 1 if we have any contributions
+        
+        // Work backwards from the most recent date
+        for (let i = dates.length - 1; i > 0; i--) {
+          if (isConsecutiveDay(dates[i-1], dates[i])) {
+            streak++;
+          } else {
+            break; // Break on first non-consecutive day
+          }
         }
+        
+        return streak;
+      } catch (error) {
+        console.error('Error calculating current streak:', error);
+        return 0;
       }
-      return streak;
     }
 
     function getDayFullName(shortDay) {

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
-import { ThemeContext } from "../ThemeContext";
+import { ThemeContext } from "../context/ThemeContext";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

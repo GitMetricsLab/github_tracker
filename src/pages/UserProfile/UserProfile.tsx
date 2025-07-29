@@ -46,14 +46,14 @@ export default function UserProfile() {
   if (!profile) return <div className="text-center mt-10 text-red-600">User not found.</div>;
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-4 bg-white shadow-xl rounded-xl">
+    <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-xl">
       <div className="text-center">
         <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 mx-auto rounded-full" />
         <h2 className="text-2xl font-bold mt-2">{profile.login}</h2>
-        <p className="text-gray-600">{profile.bio}</p>
+        <p className="">{profile.bio}</p>
         <button
           onClick={handleCopyLink}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-800 transition text-white"
         >
           Copy Shareable Link
         </button>
@@ -70,7 +70,7 @@ export default function UserProfile() {
                   href={pr.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-700 dark:text-blue-400 hover:underline"
                 >
                   [{repoName}] {pr.title}
                 </a>

@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { Github, Mail, Phone, Send, X, CheckCircle } from "lucide-react";
-import { ThemeContext } from "../../ThemeContext";
-import type { ThemeContextType } from "../../ThemeContext";
+import { ThemeContext } from "../../context/ThemeContext";
+import type { ThemeContextType } from "../../context/ThemeContext";
 
 function Contact() {
   const [showPopup, setShowPopup] = useState(false);

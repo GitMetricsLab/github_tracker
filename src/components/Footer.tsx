@@ -2,7 +2,7 @@ import { FaGithub } from 'react-icons/fa';
 
 function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-purple-800 via-pink-800 to-red-800 text-white py-4 mt-8 shadow-lg">
+    <footer className="py-4 shadow-lg bg-gray-100 dark:bg-gray-800 dark:text-white">
       <div className="container mx-auto text-center px-4">
         <p className="text-sm md:text-base font-medium flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4">
           <span>
@@ -27,7 +27,7 @@ function Footer() {
             GitHub Tracker
           </a>
         </p>
-        <p className="text-xs md:text-sm font-light mt-2">
+        <p className="text-xs md:text-sm mt-2 font-semibold">
           &copy; {new Date().getFullYear()}{" "}
           <span className="font-semibold">GitHub Tracker</span>. All rights reserved.
         </p>

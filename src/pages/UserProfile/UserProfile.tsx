@@ -102,6 +102,7 @@ main
 
   return (
  gsoc-2025Gaurav
+ gsoc-2025Gaurav
     <div className="flex flex-col items-center bg-gradient-to-br from-white to-gray-100 shadow-2xl rounded-2xl p-8 max-w-xl mx-auto mt-16">
       {profile && (
         <div className="flex flex-col items-center w-full">
@@ -176,13 +177,16 @@ main
       </div>
 
     <div className="max-w-3xl mx-auto mt-10 p-4 bg-white shadow-xl rounded-xl">
+
+    <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-xl">
+ main
       <div className="text-center">
         <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 mx-auto rounded-full" />
         <h2 className="text-2xl font-bold mt-2">{profile.login}</h2>
-        <p className="text-gray-600">{profile.bio}</p>
+        <p className="">{profile.bio}</p>
         <button
           onClick={handleCopyLink}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-800 transition text-white"
         >
           Copy Shareable Link
         </button>
@@ -199,7 +203,7 @@ main
                   href={pr.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-700 dark:text-blue-400 hover:underline"
                 >
                   [{repoName}] {pr.title}
                 </a>

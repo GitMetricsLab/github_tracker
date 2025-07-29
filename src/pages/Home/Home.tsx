@@ -81,7 +81,7 @@ const Home: React.FC = () => {
     if (["open", "closed", "merged"].includes(filterType)) {
       filtered = filtered.filter((item) =>
         filterType === "merged"
-          ? !!item.pull_request?.merged_at
+          ? item.pull_request?.merged_at
           : item.state === filterType
       );
     }
@@ -190,14 +190,14 @@ const Home: React.FC = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap",
           justifyContent: "space-between",
           alignItems: "center",
-          gap: 2,
           mb: 3,
+          flexWrap: "wrap",
+          gap: 2,
         }}
       >
-        <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)} sx={{ flex: 1 }}>
+        <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ flex: 1 }}>
           <Tab label={`Issues (${filterData(issues, issueFilter).length})`} />
           <Tab label={`Pull Requests (${filterData(prs, prFilter).length})`} />
         </Tabs>
@@ -240,53 +240,55 @@ const Home: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto", display: "block" }}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ textAlign: "left" }}>Title</TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>Repository</TableCell>
-                  <TableCell sx={{ textAlign: "center" }}>State</TableCell>
-                  <TableCell sx={{ textAlign: "left" }}>Created</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {displayData.map((item: GitHubItem) => (
-                  <TableRow key={item.id}>
-                    <TableCell sx={{ textAlign: "left" }}>
-                      <Link
-                        href={item.html_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        underline="hover"
-                        sx={{ color: theme.palette.primary.main }}
-                      >
-                        {item.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>
-                      {item.repository_url.split("/").slice(-1)[0]}
-                    </TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>
-                      {item.pull_request?.merged_at ? "merged" : item.state}
-                    </TableCell>
-                    <TableCell sx={{ textAlign: "left" }}>
-                      {formatDate(item.created_at)}
-                    </TableCell>
+        <Box>
+          <Box sx={{ maxHeight: "400px", overflowY: "auto", display: "block" }}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ textAlign: "left" }}>Title</TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>Repository</TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>State</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>Created</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-              component="div"
-              count={currentData.length}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={itemsPerPage}
-              rowsPerPageOptions={[5]}
-            />
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {displayData.map((item: GitHubItem) => (
+                    <TableRow key={item.id}>
+                      <TableCell sx={{ textAlign: "left" }}>
+                        <Link
+                          href={item.html_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          underline="hover"
+                          sx={{ color: theme.palette.primary.main }}
+                        >
+                          {item.title}
+                        </Link>
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "center" }}>
+                        {item.repository_url.split("/").slice(-1)[0]}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "center" }}>
+                        {item.pull_request?.merged_at ? "merged" : item.state}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "left" }}>
+                        {formatDate(item.created_at)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                               </TableBody>
+              </Table>
+              <TablePagination
+                component="div"
+                count={currentData.length}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={itemsPerPage}
+                rowsPerPageOptions={[5]}
+              />
+            </TableContainer>
+          </Box>
         </Box>
       )}
     </Container>

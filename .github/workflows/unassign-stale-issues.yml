@@ -15,9 +15,9 @@ jobs:
           github-token: ${{ secrets.PAT }}
           script: |
             const daysBeforeUnassign = 7;
-            const cutoffDate = new Date();
-            cutoffDate.setDate(cutoffDate.getDate() - daysBeforeUnassign);
+            const now = new Date();
 
+            // Get all open issues with assignees
             const issues = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -28,24 +28,43 @@ jobs:
             for (const issue of issues) {
               if (issue.pull_request) continue; // Skip PRs
 
-              const createdAt = new Date(issue.created_at);
-              const assigned = issue.assignees.length > 0;
+              // Get timeline events to find assignment and PR link events
+              const timeline = await github.paginate(github.rest.issues.listEventsForTimeline, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                mediaType: { previews: ["mockingbird"] }
+              });
 
-              if (assigned && createdAt < cutoffDate) {
-                // Check if there's a linked PR via timeline
-                const timeline = await github.paginate(github.rest.issues.listEventsForTimeline, {
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  mediaType: {
-                    previews: ["mockingbird"]
-                  }
-                });
+              // Find the first assignment event date
+              const assignedEvent = timeline.filter(e => e.event === 'assigned').at(-1);// latest
+              if (!assignedEvent) {
+                // No assignment event found, skip issue
+                continue;
+              }
+              const assignedAt = new Date(assignedEvent.created_at);
+              // Find the first PR linked event date
+              const prLinkedEvent = timeline
+                .filter(
+                  e =>
+                    ['connected', 'cross-referenced'].includes(e.event) &&
+                    new Date(e.created_at) >= assignedAt
+                )
+                .at(0); // earliest link *after* assignment
+              const prLinkedAt = prLinkedEvent ? new Date(prLinkedEvent.created_at) : null;
 
-                const hasLinkedPR = timeline.some(event => event.event === 'connected');
+              // Calculate days since assignment
+              const daysSinceAssignment = (now - assignedAt) / (1000 * 60 * 60 * 24);
 
-                if (!hasLinkedPR) {
-                  console.log(`Unassigning issue #${issue.number} (no PR in 7 days)`);
+              // Check if issue is still assigned (in case assignees changed later)
+              const currentlyAssigned = issue.assignees.length > 0;
+
+              if (currentlyAssigned && daysSinceAssignment >= daysBeforeUnassign) {
+                // If PR not linked or linked after 7 days
+                if (!prLinkedAt || prLinkedAt > new Date(assignedAt.getTime() + daysBeforeUnassign * 24 * 60 * 60 * 1000)) {
+                  console.log(`Unassigning issue #${issue.number} - no PR linked within ${daysBeforeUnassign} days of assignment.`);
+
+                  // Remove assignees
                   await github.rest.issues.removeAssignees({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
@@ -53,11 +72,12 @@ jobs:
                     assignees: issue.assignees.map(user => user.login)
                   });
 
+                  // Post comment
                   await github.rest.issues.createComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: issue.number,
-                    body: `⏰ This issue was automatically unassigned because no pull request was raised within 5 days. Feel free to ask for re-assignment if you're still working on it.`
+                    body: `⏰ This issue was automatically unassigned because no pull request was linked within ${daysBeforeUnassign} days of assignment. Please request reassignment if you are still working on it.`
                   });
                 }
               }

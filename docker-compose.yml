@@ -1,0 +1,70 @@
+services:
+  frontend:
+    image: frontend
+    container_name: frontend-container
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - app-network-1
+    profiles:
+      - dev
+  backend:
+    image: backend
+    container_name: backend-container
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - app-network-1
+    profiles:
+      - dev
+  frontend-prod:
+    image: frontend-prod
+    container_name: frontend-prod-container
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - backend-prod
+    networks:
+      - app-network-2
+    profiles:
+      - prod
+  backend-prod:
+    image: backend-prod
+    container_name: backend-prod-container
+    build:
+      context: backend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "5000:5000"
+    env_file:
+      - backend/.env
+    networks:
+      - app-network-2
+    profiles:
+      - prod
+networks:
+  app-network-1:
+  app-network-2:

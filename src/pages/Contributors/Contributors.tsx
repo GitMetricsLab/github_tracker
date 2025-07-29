@@ -296,7 +296,7 @@ const ContributorsPage = () => {
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Avatar src="/public/crl.png" sx={{ width: 32, height: 32 }} />
+<Avatar src={repoStats?.owner?.avatar_url || contrib.avatar_url} sx={{ width: 32, height: 32 }} />
                             <Box>
                               <Typography sx={{ fontWeight: 600 }}>{contrib.login}</Typography>
                               <Typography variant="caption" color="text.secondary">@{REPO_OWNER}</Typography>

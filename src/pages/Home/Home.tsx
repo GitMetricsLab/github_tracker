@@ -25,6 +25,35 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+// Helper to extract PR type from title
+function getPRType(title: string): string {
+  const lower = title.toLowerCase();
+  if (lower.includes("feature")) return "Feature";
+  if (lower.includes("fix")) return "Fix";
+  if (lower.includes("cleanup") || lower.includes("refactor")) return "Cleanup";
+  if (lower.includes("docs")) return "Docs";
+  if (lower.includes("test")) return "Test";
+  return "Other";
+}
+
+// Tailwind class based on PR type
+function getBadgeStyle(type: string): string {
+  switch (type) {
+    case "Feature":
+      return "bg-green-100 text-green-800";
+    case "Fix":
+      return "bg-red-100 text-red-800";
+    case "Cleanup":
+      return "bg-yellow-100 text-yellow-800";
+    case "Docs":
+      return "bg-blue-100 text-blue-800";
+    case "Test":
+      return "bg-purple-100 text-purple-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+}
+
 
 const ROWS_PER_PAGE = 10;
 
@@ -51,7 +80,7 @@ const Home: React.FC = () => {
     getOctokit,
   } = useGitHubAuth();
 
- //const octokit = getOctokit();
+  //const octokit = getOctokit();
 
   const {
     issues,
@@ -262,9 +291,14 @@ const Home: React.FC = () => {
                   <TableCell>Title</TableCell>
                   <TableCell align="center">Repository</TableCell>
                   <TableCell align="center">State</TableCell>
+                  <TableCell>Type</TableCell>
                   <TableCell>Created</TableCell>
+                  {tab === 1 && <TableCell align="center">Merged</TableCell>}
+                  {tab === 1 && <TableCell>Merged Date</TableCell>}
                 </TableRow>
               </TableHead>
+
+
               <TableBody>
                 {currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
@@ -285,10 +319,32 @@ const Home: React.FC = () => {
                     <TableCell align="center">
                       {item.pull_request?.merged_at ? "merged" : item.state}
                     </TableCell>
+
+                    {/* 🆕 PR Type Label */}
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getBadgeStyle(getPRType(item.title))}`}>
+                        {getPRType(item.title)}
+                      </span>
+                    </TableCell>
+
                     <TableCell>{formatDate(item.created_at)}</TableCell>
+
+                    {tab === 1 && (
+                      <TableCell align="center">
+                        {item.pull_request?.merged_at ? "Yes" : "No"}
+                      </TableCell>
+                    )}
+                    {tab === 1 && (
+                      <TableCell>
+                        {item.pull_request?.merged_at
+                          ? formatDate(item.pull_request.merged_at)
+                          : "-"}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
             <TablePagination
               component="div"

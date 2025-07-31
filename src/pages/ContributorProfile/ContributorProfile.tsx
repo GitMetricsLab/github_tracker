@@ -8,7 +8,7 @@ type PR = {
   repository_url: string;
 };
 
-export default function UserProfile() {
+export default function ContributorProfile() {
   const { username } = useParams();
   const [profile, setProfile] = useState<any>(null);
   const [prs, setPRs] = useState<PR[]>([]);
@@ -23,7 +23,9 @@ export default function UserProfile() {
         const userData = await userRes.json();
         setProfile(userData);
 
-        const prsRes = await fetch(`https://api.github.com/search/issues?q=author:${username}+type:pr`);
+        const prsRes = await fetch(
+          `https://api.github.com/search/issues?q=author:${username}+type:pr`
+        );
         const prsData = await prsRes.json();
         setPRs(prsData.items);
       } catch (error) {
@@ -43,12 +45,19 @@ export default function UserProfile() {
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
-  if (!profile) return <div className="text-center mt-10 text-red-600">User not found.</div>;
+  if (!profile)
+    return (
+      <div className="text-center mt-10 text-red-600">User not found.</div>
+    );
 
   return (
     <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-xl">
       <div className="text-center">
-        <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 mx-auto rounded-full" />
+        <img
+          src={profile.avatar_url}
+          alt="Avatar"
+          className="w-24 h-24 mx-auto rounded-full"
+        />
         <h2 className="text-2xl font-bold mt-2">{profile.login}</h2>
         <p className="">{profile.bio}</p>
         <button

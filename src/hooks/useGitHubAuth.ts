@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Octokit } from '@octokit/core';
 
 export const useGitHubAuth = () => {
@@ -6,10 +6,12 @@ export const useGitHubAuth = () => {
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
 
-  const getOctokit = () => {
+  const octokit = useMemo(() => {
     if (!username || !token) return null;
     return new Octokit({ auth: token });
-  };
+  }, [username, token]);
+
+  const getOctokit = () => octokit;
 
   return {
     username,

@@ -6,6 +6,7 @@ import Contributors from "../pages/Contributors/Contributors"
 import Signup from "../pages/Signup/Signup.tsx"
 import Login from "../pages/Login/Login.tsx"
 import UserProfile from "../pages/UserProfile/UserProfile.tsx"
+import GitHubCallback from "../pages/GitHubCallback/GitHubCallback.tsx"
 
 
 
@@ -15,6 +16,7 @@ const Router = () => {
       {/* Redirect from root (/) to the home page */}
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/auth/github/callback" element={<GitHubCallback />} />
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />

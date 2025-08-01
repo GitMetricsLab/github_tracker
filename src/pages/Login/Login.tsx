@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import { FaGithub, FaEye, FaEyeSlash, FaArrowRight } from "react-icons/fa";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -15,6 +16,8 @@ const Login: React.FC = () => {
   const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isGitHubLoading, setIsGitHubLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
@@ -28,6 +31,7 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setMessage("");
 
     try {
       const response = await axios.post(`${backendUrl}/api/auth/login`, formData);
@@ -40,6 +44,24 @@ const Login: React.FC = () => {
       setMessage(error.response?.data?.message || "Something went wrong");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    setIsGitHubLoading(true);
+    setMessage("");
+    
+    try {
+      // GitHub OAuth URL - you'll need to configure this with your GitHub OAuth app
+      const githubClientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'your-github-client-id';
+      const redirectUri = `${window.location.origin}/auth/github/callback`;
+      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email,repo`;
+      
+      window.location.href = githubAuthUrl;
+    } catch (error: any) {
+      setMessage("GitHub authentication failed. Please try again.");
+    } finally {
+      setIsGitHubLoading(false);
     }
   };
 
@@ -84,6 +106,32 @@ const Login: React.FC = () => {
             Welcome Back
           </h2>
 
+          {/* GitHub Sign In Button */}
+          <button
+            onClick={handleGitHubSignIn}
+            disabled={isGitHubLoading}
+            className={`w-full mb-6 flex items-center justify-center gap-3 py-4 px-6 rounded-2xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+              mode === "dark"
+                ? "bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 hover:border-gray-500"
+                : "bg-gray-900 hover:bg-gray-800 text-white border border-gray-700 hover:border-gray-600"
+            }`}
+          >
+            <FaGithub className="w-5 h-5" />
+            {isGitHubLoading ? "Connecting to GitHub..." : "Sign in with GitHub"}
+          </button>
+
+          {/* Divider */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className={`w-full border-t ${mode === "dark" ? "border-white/20" : "border-gray-300"}`} />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className={`px-2 ${mode === "dark" ? "bg-slate-900 text-slate-400" : "bg-white text-gray-500"}`}>
+                or continue with email
+              </span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
               <input
@@ -104,27 +152,48 @@ const Login: React.FC = () => {
 
             <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 autoComplete="current-password"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
+                className={`w-full pl-4 pr-12 py-4 rounded-2xl focus:outline-none transition-all ${
                   mode === "dark"
                     ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
                     : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
                 }`}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors ${
+                  mode === "dark" 
+                    ? "text-slate-400 hover:text-white hover:bg-white/10" 
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+              </button>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2"
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <FaArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 
@@ -142,8 +211,11 @@ const Login: React.FC = () => {
           {/* Footer Text */}
           <div className="text-center mt-8 pb-8">
             <p className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}>
-              Don't have an account?
-              <a href="#" className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300">
+              Don't have an account?{" "}
+              <a 
+                href="/signup" 
+                className="text-purple-400 hover:text-purple-300 transition-colors duration-300 font-medium hover:underline"
+              >
                 Sign up here
               </a>
             </p>

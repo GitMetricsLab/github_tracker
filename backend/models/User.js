@@ -16,6 +16,27 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    // GitHub OAuth fields
+    githubId: {
+      type: Number,
+      unique: true,
+      sparse: true,
+    },
+    githubUsername: {
+      type: String,
+    },
+    avatarUrl: {
+      type: String,
+    },
+    // Timestamps
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
 });
 
 UserSchema.pre('save', async function (next) {
@@ -30,6 +51,12 @@ UserSchema.pre('save', async function (next) {
     } catch (err) {
       return next(err);
     }
+});
+
+// Update the updatedAt field on save
+UserSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 // Compare passwords during login

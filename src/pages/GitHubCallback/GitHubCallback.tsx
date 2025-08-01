@@ -4,7 +4,7 @@ import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 import { FaGithub, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 const GitHubCallback: React.FC = () => {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -49,7 +49,7 @@ const GitHubCallback: React.FC = () => {
         if (response.ok) {
           setStatus('success');
           setMessage('Successfully authenticated with GitHub!');
-          setTimeout(() => navigate('/home'), 2000);
+          setTimeout(() => navigate('/'), 2000);
         } else {
           throw new Error(data.message || 'Authentication failed');
         }

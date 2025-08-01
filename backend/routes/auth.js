@@ -43,6 +43,7 @@ router.post("/github/callback", async (req, res) => {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
+            signal: AbortSignal.timeout(10000), // 10 second timeout
             body: JSON.stringify({
                 client_id: process.env.GITHUB_CLIENT_ID,
                 client_secret: process.env.GITHUB_CLIENT_SECRET,
@@ -51,10 +52,15 @@ router.post("/github/callback", async (req, res) => {
             }),
         });
 
+        if (!tokenResponse.ok) {
+            return res.status(400).json({ message: 'Failed to authenticate with GitHub' });
+        }
+
         const tokenData = await tokenResponse.json();
 
         if (tokenData.error) {
-            return res.status(400).json({ message: 'Failed to get access token from GitHub' });
+            console.error('GitHub token error:', tokenData.error);
+            return res.status(400).json({ message: 'Failed to authenticate with GitHub' });
         }
 
         const accessToken = tokenData.access_token;
@@ -65,6 +71,7 @@ router.post("/github/callback", async (req, res) => {
                 'Authorization': `Bearer ${accessToken}`,
                 'Accept': 'application/vnd.github.v3+json',
             },
+            signal: AbortSignal.timeout(10000), // 10 second timeout
         });
 
         const userData = await userResponse.json();
@@ -79,6 +86,7 @@ router.post("/github/callback", async (req, res) => {
                 'Authorization': `Bearer ${accessToken}`,
                 'Accept': 'application/vnd.github.v3+json',
             },
+            signal: AbortSignal.timeout(10000), // 10 second timeout
         });
 
         const emailsData = await emailsResponse.json();
@@ -92,7 +100,7 @@ router.post("/github/callback", async (req, res) => {
             user = new User({
                 username: userData.login,
                 email: primaryEmail,
-                githubId: userData.id,
+                githubId: userData.id.toString(), // Convert to string
                 githubUsername: userData.login,
                 avatarUrl: userData.avatar_url,
                 // Set a random password since GitHub users don't have passwords
@@ -101,7 +109,7 @@ router.post("/github/callback", async (req, res) => {
             await user.save();
         } else {
             // Update existing user with GitHub info
-            user.githubId = userData.id;
+            user.githubId = userData.id.toString(); // Convert to string
             user.githubUsername = userData.login;
             user.avatarUrl = userData.avatar_url;
             await user.save();

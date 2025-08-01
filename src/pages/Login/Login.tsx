@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 import { FaGithub, FaEye, FaEyeSlash, FaArrowRight } from "react-icons/fa";
@@ -52,15 +52,18 @@ const Login: React.FC = () => {
     setMessage("");
     
     try {
-      // GitHub OAuth URL - you'll need to configure this with your GitHub OAuth app
-      const githubClientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'your-github-client-id';
+      const githubClientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+      
+      if (!githubClientId) {
+        throw new Error('GitHub Client ID not configured');
+      }
+      
       const redirectUri = `${window.location.origin}/auth/github/callback`;
-      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email,repo`;
+      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email`;
       
       window.location.href = githubAuthUrl;
     } catch (error: any) {
-      setMessage("GitHub authentication failed. Please try again.");
-    } finally {
+      setMessage(error.message || "GitHub authentication failed. Please try again.");
       setIsGitHubLoading(false);
     }
   };
@@ -212,12 +215,12 @@ const Login: React.FC = () => {
           <div className="text-center mt-8 pb-8">
             <p className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}>
               Don't have an account?{" "}
-              <a 
-                href="/signup" 
+              <Link 
+                to="/signup" 
                 className="text-purple-400 hover:text-purple-300 transition-colors duration-300 font-medium hover:underline"
               >
                 Sign up here
-              </a>
+              </Link>
             </p>
           </div>
         </div>

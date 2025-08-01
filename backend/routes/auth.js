@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const User = require("../models/User");
+const crypto = require("crypto");
 const router = express.Router();
 
 // Signup route
@@ -103,8 +104,8 @@ router.post("/github/callback", async (req, res) => {
                 githubId: userData.id.toString(), // Convert to string
                 githubUsername: userData.login,
                 avatarUrl: userData.avatar_url,
-                // Set a random password since GitHub users don't have passwords
-                password: Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10)
+                // Set a cryptographically secure random password
+                password: crypto.randomBytes(32).toString('hex')
             });
             await user.save();
         } else {

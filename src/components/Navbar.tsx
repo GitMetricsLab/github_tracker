@@ -68,17 +68,17 @@ const Navbar: React.FC = () => {
             className="relative w-8 h-8 flex flex-col space-y-[5px] items-center group focus:outline-none"
           >
             <span
-              className={`block h-[3px] w-full bg-white rounded-lg transition-transform duration-300 ${
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
                 isOpen ? "rotate-45 translate-y-2" : ""
               }`}
             ></span>
             <span
-              className={`block h-[3px] w-full bg-white rounded-lg transition-opacity duration-300 ${
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-opacity duration-300 ${
                 isOpen ? "opacity-0" : ""
               }`}
             ></span>
             <span
-              className={`block h-[3px] w-full bg-white rounded-lg transition-transform duration-300 ${
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
                 isOpen ? "-rotate-45 -translate-y-2" : ""
               }`}
             ></span>
@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Links */}
       {isOpen && (
-        <div className="md:hidden bg-gray-800">
+        <div className="md:hidden bg-white dark:bg-gray-800 text-black dark:text-white">
           <div className="space-y-4 px-6 py-4">
             <Link
               to="/home"

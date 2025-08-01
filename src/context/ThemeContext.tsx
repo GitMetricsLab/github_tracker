@@ -1,5 +1,5 @@
 // src/ThemeContext.tsx
-import React, { createContext, useMemo, useState, useEffect, ReactNode } from 'react';
+import { createContext, useMemo, useState, useEffect, ReactNode } from 'react';
 import { createTheme, ThemeProvider, Theme } from '@mui/material/styles';
 
 interface ThemeContextType {
@@ -9,22 +9,32 @@ interface ThemeContextType {
 
 export const ThemeContext = createContext<ThemeContextType | null>(null);
 
-const ThemeWrapper = ({ children }: { children: ReactNode }) => {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+const THEME_STORAGE_KEY = 'theme';
 
+const ThemeWrapper = ({ children }: { children: ReactNode }) => {
+  const [mode, setMode] = useState<'light' | 'dark'>(() => {
+    const savedMode = localStorage.getItem(THEME_STORAGE_KEY);
+    return savedMode === 'dark' ? 'dark' : 'light';
+  });
+
+  // Sync mode with <html> class and localStorage
   useEffect(() => {
     if (mode === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem(THEME_STORAGE_KEY, mode);
   }, [mode]);
 
   const toggleTheme = () => {
-    setMode(prev => (prev === 'light' ? 'dark' : 'light'));
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  const muiTheme: Theme = useMemo(() => createTheme({ palette: { mode } }), [mode]);
+  const muiTheme: Theme = useMemo(
+    () => createTheme({ palette: { mode } }),
+    [mode]
+  );
 
   return (
     <ThemeContext.Provider value={{ mode, toggleTheme }}>

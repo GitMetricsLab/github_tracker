@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.icon-merged {
+  color: #2ea44f; /* Or use your theme color */
+}
+.icon-pr-open {
+  color: #0969da;
+}
+.icon-pr-closed {
+  color: #cf222e;
+}
+.icon-issue-open {
+  color: #2ea44f;
+}
+.icon-issue-closed {
+  color: #cf222e;
+}

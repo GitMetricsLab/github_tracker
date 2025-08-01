@@ -8,24 +8,25 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "docker:dev":"docker compose --profile dev up --build",
-    "docker:prod":"docker compose --profile prod up -d --build"
+    "docker:dev": "docker compose --profile dev up --build",
+    "docker:prod": "docker compose --profile prod up -d --build"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.6",
     "@mui/material": "^5.15.6",
+    "@primer/octicons-react": "^19.15.5",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.7",
     "lucide-react": "^0.525.0",
     "octokit": "^4.0.2",
+    "postcss": "^8.4.47",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.28.0",
-    "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14"
   },
   "devDependencies": {
@@ -51,5 +52,4 @@
     "supertest": "^7.1.4",
     "vite": "^5.4.10"
   }
-
 }

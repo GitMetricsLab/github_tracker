@@ -1,4 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"
+import {
+  IssueOpenedIcon,
+  IssueClosedIcon,
+  GitPullRequestIcon,
+  GitPullRequestClosedIcon,
+  GitMergeIcon,
+} from '@primer/octicons-react';
 import {
   Container,
   Box,
@@ -39,7 +46,9 @@ interface GitHubItem {
 }
 
 const Home: React.FC = () => {
+
   const theme = useTheme();
+
   const {
     username,
     setUsername,
@@ -48,7 +57,7 @@ const Home: React.FC = () => {
     error: authError,
     getOctokit,
   } = useGitHubAuth();
-  const octokit = getOctokit();
+
   const {
     issues,
     prs,
@@ -57,7 +66,7 @@ const Home: React.FC = () => {
     loading,
     error: dataError,
     fetchData,
-  } = useGitHubData(octokit);
+  } = useGitHubData(getOctokit);
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
@@ -74,7 +83,7 @@ const Home: React.FC = () => {
     if (username) {
       fetchData(username, page + 1, ROWS_PER_PAGE);
     }
-  }, [username, tab, page, fetchData]);
+  }, [tab, page]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -121,12 +130,29 @@ const Home: React.FC = () => {
     return filtered;
   };
 
+  const getStatusIcon = (item: GitHubItem) => {
+
+    if (item.pull_request) {
+
+        if (item.pull_request.merged_at)
+            return <GitMergeIcon size={16} className="icon-merged" />;
+
+        if (item.state === 'closed')
+            return <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />;
+
+        return <GitPullRequestIcon size={16} className="icon-pr-open" />;
+    }
+
+    if (item.state === 'closed')
+        return <IssueClosedIcon size={16} className="icon-issue-closed" />;
+
+    return <IssueOpenedIcon size={16} className="icon-issue-open" />;
+  };
+
+
   // Current data and filtered data according to tab and filters
   const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(
-    currentRawData,
-    tab === 0 ? issueFilter : prFilter
-  );
+  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
@@ -251,8 +277,11 @@ const Home: React.FC = () => {
         </Box>
       ) : (
         <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+
           <TableContainer component={Paper}>
+
             <Table size="small">
+
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
@@ -261,31 +290,41 @@ const Home: React.FC = () => {
                   <TableCell>Created</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>
-                      <Link
-                        href={item.html_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        underline="hover"
-                        sx={{ color: theme.palette.primary.main }}
-                      >
-                        {item.title}
-                      </Link>
+
+                    <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {getStatusIcon(item)}
+                        <Link
+                            href={item.html_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            underline="hover"
+                            sx={{ color: theme.palette.primary.main }}
+                        >
+                            {item.title}
+                        </Link>
                     </TableCell>
+
+
                     <TableCell align="center">
                       {item.repository_url.split("/").slice(-1)[0]}
                     </TableCell>
+
                     <TableCell align="center">
                       {item.pull_request?.merged_at ? "merged" : item.state}
                     </TableCell>
+
                     <TableCell>{formatDate(item.created_at)}</TableCell>
+
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
+
             <TablePagination
               component="div"
               count={totalCount}
@@ -294,6 +333,7 @@ const Home: React.FC = () => {
               rowsPerPage={ROWS_PER_PAGE}
               rowsPerPageOptions={[ROWS_PER_PAGE]}
             />
+
           </TableContainer>
         </Box>
       )}

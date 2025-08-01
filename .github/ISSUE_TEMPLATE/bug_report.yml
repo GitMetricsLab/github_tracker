@@ -17,19 +17,6 @@ body:
       placeholder: "It bugs out when ..."
 
   - type: dropdown
-    id: operating-system
-    attributes:
-      label: "💻 Operating system"
-      description: "What OS is your app running on?"
-      options:
-        - Linux
-        - MacOS
-        - Windows
-        - Something else
-    validations:
-      required: true
-
-  - type: dropdown
     id: browsers
     attributes:
       label: What browsers are you seeing the problem on?

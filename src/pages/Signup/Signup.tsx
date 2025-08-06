@@ -75,7 +75,7 @@ const navigate = useNavigate();
           <p className="text-purple-200 text-lg">Join your GitHub journey</p>
         </div>
 
-        {/* Sign Up Form */}
+        {/* Sign Up Form  */}
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
           <h2 className="text-2xl font-semibold text-white text-center mb-8">Create Account</h2>
           

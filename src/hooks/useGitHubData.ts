@@ -1,56 +1,69 @@
 import { useState, useCallback } from 'react';
+import { Octokit } from '@octokit/rest';
+import { Endpoints } from "@octokit/types"; 
 
-export const useGitHubData = (getOctokit: () => any) => {
-  const [issues, setIssues] = useState([]);
-  const [prs, setPrs] = useState([]);
+// FIX: Derive the item type directly from the library instead of defining it manually.
+type IssueSearchResponse = Endpoints["GET /search/issues"]["response"];
+export type GitHubItem = IssueSearchResponse["data"]["items"][0];
+
+export const useGitHubData = (getOctokit: () => Octokit | null) => {
+  const [issues, setIssues] = useState<GitHubItem[]>([]);
+  const [prs, setPrs] = useState<GitHubItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
-  const fetchPaginated = async (octokit: any, username: string, type: string, page = 1, per_page = 10) => {
-    const q = `author:${username} is:${type}`;
-    const response = await octokit.request('GET /search/issues', {
-      q,
-      sort: 'created',
-      order: 'desc',
-      per_page,
-      page,
-    });
-
-    return {
-      items: response.data.items,
-      total: response.data.total_count,
-    };
-  };
-
   const fetchData = useCallback(
-    async (username: string, page = 1, perPage = 10) => {
-        
+    async (
+      username: string,
+      page: number,
+      perPage: number,
+      type: 'issue' | 'pr',
+      state: string
+    ) => {
       const octokit = getOctokit();
-
       if (!octokit || !username || rateLimited) return;
 
       setLoading(true);
       setError('');
+      setRateLimited(false);
 
       try {
-        const [issueRes, prRes] = await Promise.all([
-          fetchPaginated(octokit, username, 'issue', page, perPage),
-          fetchPaginated(octokit, username, 'pr', page, perPage),
-        ]);
+        let query = `author:${username} is:${type}`;
+        if (state !== 'all') {
+          query += state === 'merged' ? ` is:merged` : ` state:${state}`;
+        }
 
-        setIssues(issueRes.items);
-        setPrs(prRes.items);
-        setTotalIssues(issueRes.total);
-        setTotalPrs(prRes.total);
+        const response = await octokit.request('GET /search/issues', {
+          q: query,
+          sort: 'created',
+          order: 'desc',
+          per_page: perPage,
+          page,
+        });
+
+        if (type === 'issue') {
+          setIssues(response.data.items);
+          setTotalIssues(response.data.total_count);
+        } else {
+          setPrs(response.data.items);
+          setTotalPrs(response.data.total_count);
+        }
       } catch (err: any) {
         if (err.status === 403) {
-          setError('GitHub API rate limit exceeded. Please wait or use a token.');
-          setRateLimited(true); // Prevent further fetches
+          setError('GitHub API rate limit exceeded. Please wait or use a valid token.');
+          setRateLimited(true);
         } else {
           setError(err.message || 'Failed to fetch data');
+          if (type === 'issue') {
+            setIssues([]);
+            setTotalIssues(0);
+          } else {
+            setPrs([]);
+            setTotalPrs(0);
+          }
         }
       } finally {
         setLoading(false);
@@ -59,13 +72,5 @@ export const useGitHubData = (getOctokit: () => any) => {
     [getOctokit, rateLimited]
   );
 
-  return {
-    issues,
-    prs,
-    totalIssues,
-    totalPrs,
-    loading,
-    error,
-    fetchData,
-  };
+  return { issues, prs, totalIssues, totalPrs, loading, error, fetchData };
 };

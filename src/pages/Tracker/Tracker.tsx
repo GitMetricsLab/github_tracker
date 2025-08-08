@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
   GitPullRequestIcon,
   GitPullRequestClosedIcon,
   GitMergeIcon,
-} from '@primer/octicons-react';
+} from "@primer/octicons-react";
 import {
   Container,
   Box,
@@ -31,23 +31,15 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
-import { useGitHubData } from "../../hooks/useGitHubData";
+import { useGitHubData, type GitHubItem } from "../../hooks/useGitHubData";
 
 const ROWS_PER_PAGE = 10;
 
-interface GitHubItem {
-  id: number;
-  title: string;
-  state: string;
-  created_at: string;
-  pull_request?: { merged_at: string | null };
-  repository_url: string;
-  html_url: string;
-}
-
 const Home: React.FC = () => {
-
   const theme = useTheme();
+
+  // FIX 1: Add a ref to track the initial render.
+  const isInitialMount = useRef(true);
 
   const {
     username,
@@ -78,17 +70,31 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+// FIX 2: Add a new useEffect to handle fetching data for page/filter changes.
   useEffect(() => {
-    if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+    // This check prevents the effect from running on the very first load.
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
-  }, [tab, page]);
 
+    // Don't fetch if the user isn't set.
+    if (!username) return;
+
+    const type = tab === 0 ? "issue" : "pr";
+    const filter = tab === 0 ? issueFilter : prFilter;
+    fetchData(username, page + 1, ROWS_PER_PAGE, type, filter);
+
+  // This effect now correctly runs only when these values change after the initial load.
+  }, [page, tab, issueFilter, prFilter]);
+
+  // FIX: Pass the current filters when submitting the form for the first fetch.
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    setPage(0); // Reset page on new search
+    const type = tab === 0 ? "issue" : "pr";
+    const filter = tab === 0 ? issueFilter : prFilter;
+    fetchData(username, 1, ROWS_PER_PAGE, type, filter);
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -98,15 +104,13 @@ const Home: React.FC = () => {
   const formatDate = (dateString: string): string =>
     new Date(dateString).toLocaleDateString();
 
-  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
+  // FIX: Remove the state-based filtering, as the API will now handle it.
+  // The other filters (title, repo, date) can remain as they filter the current page's data.
+  const filterData = (data: GitHubItem[]): GitHubItem[] => {
     let filtered = [...data];
-    if (["open", "closed", "merged"].includes(filterType)) {
-      filtered = filtered.filter((item) =>
-        filterType === "merged"
-          ? !!item.pull_request?.merged_at
-          : item.state === filterType
-      );
-    }
+
+    // The 'state' filtering logic ('open', 'closed', 'merged') is removed from here.
+
     if (searchTitle) {
       filtered = filtered.filter((item) =>
         item.title.toLowerCase().includes(searchTitle.toLowerCase())
@@ -131,28 +135,21 @@ const Home: React.FC = () => {
   };
 
   const getStatusIcon = (item: GitHubItem) => {
-
     if (item.pull_request) {
-
-        if (item.pull_request.merged_at)
-            return <GitMergeIcon size={16} className="icon-merged" />;
-
-        if (item.state === 'closed')
-            return <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />;
-
-        return <GitPullRequestIcon size={16} className="icon-pr-open" />;
+      if (item.pull_request.merged_at)
+        return <GitMergeIcon size={16} />;
+      if (item.state === "closed")
+        return <GitPullRequestClosedIcon size={16} />;
+      return <GitPullRequestIcon size={16} />;
     }
-
-    if (item.state === 'closed')
-        return <IssueClosedIcon size={16} className="icon-issue-closed" />;
-
-    return <IssueOpenedIcon size={16} className="icon-issue-open" />;
+    if (item.state === "closed")
+      return <IssueClosedIcon size={16} />;
+    return <IssueOpenedIcon size={16} />;
   };
 
-
-  // Current data and filtered data according to tab and filters
+  // The 'filterType' argument is no longer needed here.
   const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  const currentFilteredData = filterData(currentRawData);
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
@@ -230,7 +227,7 @@ const Home: React.FC = () => {
           value={tab}
           onChange={(_, v) => {
             setTab(v);
-            setPage(0);
+            setPage(0); // Reset page when switching tabs
           }}
           sx={{ flex: 1 }}
         >
@@ -241,11 +238,12 @@ const Home: React.FC = () => {
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
           <Select
             value={tab === 0 ? issueFilter : prFilter}
-            onChange={(e) =>
+            onChange={(e) => {
+              setPage(0); // Reset page when changing filter
               tab === 0
                 ? setIssueFilter(e.target.value)
-                : setPrFilter(e.target.value)
-            }
+                : setPrFilter(e.target.value);
+            }}
             label="State"
             sx={{
               backgroundColor: theme.palette.background.paper,
@@ -276,12 +274,9 @@ const Home: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-
+        <Box>
           <TableContainer component={Paper}>
-
-            <Table size="small">
-
+            <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
@@ -290,41 +285,32 @@ const Home: React.FC = () => {
                   <TableCell>Created</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
-
                     <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {getStatusIcon(item)}
-                        <Link
-                            href={item.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            underline="hover"
-                            sx={{ color: theme.palette.primary.main }}
-                        >
-                            {item.title}
-                        </Link>
+                      {getStatusIcon(item)}
+                      <Link
+                        href={item.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        sx={{ color: theme.palette.primary.main }}
+                      >
+                        {item.title}
+                      </Link>
                     </TableCell>
-
-
                     <TableCell align="center">
                       {item.repository_url.split("/").slice(-1)[0]}
                     </TableCell>
-
-                    <TableCell align="center">
-                      {item.pull_request?.merged_at ? "merged" : item.state}
+                    <TableCell align="center" style={{ textTransform: 'capitalize' }}>
+                      {item.pull_request?.merged_at ? "Merged" : item.state}
                     </TableCell>
-
                     <TableCell>{formatDate(item.created_at)}</TableCell>
-
                   </TableRow>
                 ))}
               </TableBody>
-
             </Table>
-
             <TablePagination
               component="div"
               count={totalCount}
@@ -333,7 +319,6 @@ const Home: React.FC = () => {
               rowsPerPage={ROWS_PER_PAGE}
               rowsPerPageOptions={[ROWS_PER_PAGE]}
             />
-
           </TableContainer>
         </Box>
       )}

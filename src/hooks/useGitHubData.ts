@@ -19,8 +19,15 @@ export const useGitHubData = (getOctokit: () => any) => {
       page,
     });
 
+    // Enhance items with additional data for export
+    const enhancedItems = response.data.items.map((item: any) => ({
+      ...item,
+      user: item.user || { login: 'Unknown' },
+      labels: item.labels || []
+    }));
+
     return {
-      items: response.data.items,
+      items: enhancedItems,
       total: response.data.total_count,
     };
   };

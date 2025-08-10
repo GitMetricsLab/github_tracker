@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import GoogleSignIn from "../../components/GoogleSignIn";
+
+
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -126,7 +129,13 @@ const Login: React.FC = () => {
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
+            {/* Google Sign-In Button */}
+            <div className="mt-4">
+                <GoogleSignIn />
+            </div>
+
           </form>
+
 
           {/* Message */}
           {message && (

@@ -2,12 +2,12 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithRedirect, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDT2h_X2bSMxjsiHilQQx9ryPwC3654lt0",
-  authDomain: "github-tracker-f39ac.firebaseapp.com",
-  projectId: "github-tracker-f39ac",
-  storageBucket: "github-tracker-f39ac.firebasestorage.app",
-  messagingSenderId: "562897055831",
-  appId: "1:562897055831:web:8f63882abd2f9e13b8f312"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

@@ -2,6 +2,8 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import { useNavigate ,Link } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
+import GoogleSignIn from "../../components/GoogleSignIn";
+
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SignUpFormData {
   username: string;
@@ -141,7 +143,12 @@ const navigate = useNavigate();
             }`}>
               {message}
             </div>
+            
           )}
+          <div className="mt-6">
+             <GoogleSignIn />
+          </div>
+
 
           <div className="text-center mt-8">
             <p className="text-purple-200">

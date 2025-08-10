@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
@@ -143,9 +143,12 @@ const Login: React.FC = () => {
           <div className="text-center mt-8 pb-8">
             <p className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}>
               Don't have an account?
-              <a href="#" className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300">
+              <Link
+                to="/signup"
+                className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"
+              >
                 Sign up here
-              </a>
+              </Link>
             </p>
           </div>
         </div>

@@ -20,6 +20,7 @@
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.7",
     "firebase": "^12.1.0",
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.525.0",
     "octokit": "^4.0.2",
     "postcss": "^8.4.47",

@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,Link } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SignUpFormData {
@@ -58,7 +58,7 @@ const navigate = useNavigate();
   };
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 flex items-center justify-center px-4 overflow-hidden">
+    <div className="relative h-screen w-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 flex items-center justify-center px-4 overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-32 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -146,12 +146,11 @@ const navigate = useNavigate();
           <div className="text-center mt-8">
             <p className="text-purple-200">
               Already have an account?{' '}
-              <button
-                onClick={() => console.log('Navigate to login')}
-                className="text-purple-300 hover:text-white font-medium transition-colors duration-300"
-              >
-                Sign in here
-              </button>
+              <Link to="/login" className="inline-flex items-center">
+                <button className="text-purple-300 hover:text-white font-medium transition-colors duration-300">
+                  Sign in here
+                </button>
+              </Link>
             </p>
           </div>
         </div>

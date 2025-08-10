@@ -3,7 +3,7 @@ import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
-import ThemeWrapper from "./context/ThemeContext"; // ✅ import your wrapper
+import ThemeWrapper from "./context/ThemeContext";
 
 function App() {
   return (
@@ -11,15 +11,12 @@ function App() {
       <div className="relative flex flex-col min-h-screen">
         <ScrollProgressBar />
 
-        {/* Navbar */}
         <Navbar />
 
-        {/* Main content */}
-        <main className="flex-grow bg-gray-50 dark:bg-gray-900 flex justify-center items-center">
+        <main className="flex-grow bg-gray-50 dark:bg-gray-800 flex justify-center items-center">
           <Router />
         </main>
 
-        {/* Footer */}
         <Footer />
 
         <Toaster

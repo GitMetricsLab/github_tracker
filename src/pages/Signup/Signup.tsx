@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate ,Link } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
+import GoogleSignIn from "../../components/GoogleSignIn";
+
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SignUpFormData {
   username: string;
@@ -131,6 +133,18 @@ const navigate = useNavigate();
             >
               Create Account
             </button>
+
+            {/* OR separator */}
+            <div className="flex items-center my-4">
+              <div className="flex-grow h-px bg-gray-300" />
+              <span className="mx-4 text-gray-200 font-semibold">or</span>
+              <div className="flex-grow h-px bg-gray-300" />
+            </div>
+
+            {/* Google Sign-In Button */}
+            <div>
+              <GoogleSignIn />
+            </div>
           </div>
 
           {message && (
@@ -141,6 +155,7 @@ const navigate = useNavigate();
             }`}>
               {message}
             </div>
+            
           )}
 
           <div className="text-center mt-8">

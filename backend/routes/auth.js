@@ -27,6 +27,31 @@ router.post("/login", passport.authenticate('local'), (req, res) => {
     res.status(200).json( { message: 'Login successful', user: req.user } );
 });
 
+router.post("/google-login", async (req, res) => {
+  try {
+    const { email, name, googleId } = req.body;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = new User({
+        username: name,
+        email,
+        googleId,
+      });
+      await user.save();
+      console.log("New Google user saved:", user); 
+    } else {
+      console.log("Google user found:", user);
+    }
+
+    return res.json({ message: "Login successful", user });
+  } catch (error) {
+    console.error("Google login error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Logout route
 router.get("/logout", (req, res) => {
 
@@ -40,3 +65,4 @@ router.get("/logout", (req, res) => {
 });
 
 module.exports = router;
+

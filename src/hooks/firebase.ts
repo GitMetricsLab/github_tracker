@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithRedirect, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -16,12 +16,8 @@ const auth = getAuth(app);
 const googleAuthProvider = new GoogleAuthProvider();
 
 const signInWithGoogle = async () => {
-  try {
-    await setPersistence(auth, browserLocalPersistence); // Set persistence
-    await signInWithRedirect(auth, googleAuthProvider);
-  } catch (error: any) {
-    console.error("Error signing in with Google", error);
-  }
+  await setPersistence(auth, browserLocalPersistence);
+  return await signInWithPopup(auth, googleAuthProvider);
 };
 
 export { auth, signInWithGoogle };

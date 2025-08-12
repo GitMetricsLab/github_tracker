@@ -133,6 +133,18 @@ const navigate = useNavigate();
             >
               Create Account
             </button>
+
+            {/* OR separator */}
+            <div className="flex items-center my-4">
+              <div className="flex-grow h-px bg-gray-300" />
+              <span className="mx-4 text-gray-200 font-semibold">or</span>
+              <div className="flex-grow h-px bg-gray-300" />
+            </div>
+
+            {/* Google Sign-In Button */}
+            <div>
+              <GoogleSignIn />
+            </div>
           </div>
 
           {message && (
@@ -145,10 +157,6 @@ const navigate = useNavigate();
             </div>
             
           )}
-          <div className="mt-6">
-             <GoogleSignIn />
-          </div>
-
 
           <div className="text-center mt-8">
             <p className="text-purple-200">

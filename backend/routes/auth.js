@@ -40,6 +40,9 @@ router.post("/google-login", async (req, res) => {
         googleId,
       });
       await user.save();
+      console.log("New Google user saved:", user); 
+    } else {
+      console.log("Google user found:", user);
     }
 
     return res.json({ message: "Login successful", user });
@@ -62,3 +65,4 @@ router.get("/logout", (req, res) => {
 });
 
 module.exports = router;
+

@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
   const { toggleTheme, mode } = themeContext;
 
   return (
-    <nav className="bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo Section */}
         <Link

@@ -1,4 +1,4 @@
-import { Search, ArrowRight } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {

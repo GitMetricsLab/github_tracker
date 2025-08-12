@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import MetricCard from "../../components/MetricCard";
 
 type PR = {
   title: string;
@@ -67,6 +68,10 @@ export default function ContributorProfile() {
           Copy Shareable Link
         </button>
       </div>
+
+      {/* GitHub Metrics Preview */}
+      <h3 className="text-xl font-semibold mt-6 mb-2">GitHub Metrics</h3>
+      <MetricCard username={username || ""} />
 
       <h3 className="text-xl font-semibold mt-6 mb-2">Pull Requests</h3>
       {prs.length > 0 ? (

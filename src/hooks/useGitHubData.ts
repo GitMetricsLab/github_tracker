@@ -1,62 +1,66 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
+import { searchUserIssuesAndPRs } from "../../library/githubSearch";
 
-export const useGitHubData = (getOctokit: () => any) => {
-  const [issues, setIssues] = useState([]);
-  const [prs, setPrs] = useState([]);
+type GhState = "open" | "closed" | "all";
+
+
+export const useGitHubData = (_getOctokit: () => any) => {
+  const [issues, setIssues] = useState<any[]>([]);
+  const [prs, setPrs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
-  const fetchPaginated = async (octokit: any, username: string, type: string, page = 1, per_page = 10) => {
-    const q = `author:${username} is:${type}`;
-    const response = await octokit.request('GET /search/issues', {
-      q,
-      sort: 'created',
-      order: 'desc',
-      per_page,
-      page,
-    });
-
-    return {
-      items: response.data.items,
-      total: response.data.total_count,
-    };
+  // Prefer user env (Vite), but work without it too
+  const readToken = (): string | undefined => {
+    try {
+      // Vite exposes env under import.meta.env
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const env = (import.meta as any)?.env as Record<string, string> | undefined;
+      return env?.VITE_GITHUB_TOKEN || undefined;
+    } catch {
+      return undefined;
+    }
   };
 
   const fetchData = useCallback(
-    async (username: string, page = 1, perPage = 10) => {
-        
-      const octokit = getOctokit();
-
-      if (!octokit || !username || rateLimited) return;
+    async (username: string, page = 1, perPage = 10, state: GhState = "all") => {
+      if (!username || rateLimited) return;
 
       setLoading(true);
-      setError('');
+      setError("");
 
       try {
-        const [issueRes, prRes] = await Promise.all([
-          fetchPaginated(octokit, username, 'issue', page, perPage),
-          fetchPaginated(octokit, username, 'pr', page, perPage),
+        const token = readToken();
+
+        // Fetch full result sets using robust date-window pagination (bypasses 1000 cap)
+        const [allIssues, allPRs] = await Promise.all([
+          searchUserIssuesAndPRs({ username, mode: "issues", token, state }),
+          searchUserIssuesAndPRs({ username, mode: "prs", token, state }),
         ]);
 
-        setIssues(issueRes.items);
-        setPrs(prRes.items);
-        setTotalIssues(issueRes.total);
-        setTotalPrs(prRes.total);
+        // Save totals for pagination controls
+        setTotalIssues(allIssues.length);
+        setTotalPrs(allPRs.length);
+
+        // Client-side slice to requested page
+        const startIdx = Math.max(0, (page - 1) * perPage);
+        const endIdx = startIdx + perPage;
+        setIssues(allIssues.slice(startIdx, endIdx));
+        setPrs(allPRs.slice(startIdx, endIdx));
       } catch (err: any) {
-        if (err.status === 403) {
-          setError('GitHub API rate limit exceeded. Please wait or use a token.');
-          setRateLimited(true); // Prevent further fetches
-        } else {
-          setError(err.message || 'Failed to fetch data');
+        const msg = typeof err?.message === "string" ? err.message : "Failed to fetch data";
+        setError(msg);
+        if (msg.toLowerCase().includes("rate limit") || msg.includes("403")) {
+          setRateLimited(true);
         }
       } finally {
         setLoading(false);
       }
     },
-    [getOctokit, rateLimited]
+    [rateLimited]
   );
 
   return {
@@ -69,3 +73,5 @@ export const useGitHubData = (getOctokit: () => any) => {
     fetchData,
   };
 };
+
+export default useGitHubData;

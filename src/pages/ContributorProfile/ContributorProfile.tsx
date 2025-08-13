@@ -1,41 +1,66 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
-type PR = {
-  title: string;
-  html_url: string;
-  repository_url: string;
-};
+import { searchUserIssuesAndPRs } from "../../../library/githubSearch";
 
 export default function ContributorProfile() {
   const { username } = useParams();
   const [profile, setProfile] = useState<any>(null);
-  const [prs, setPRs] = useState<PR[]>([]);
+  const [prs, setPRs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let canceled = false;
+    let toastId: string | undefined;
+
     async function fetchData() {
       if (!username) return;
 
+      setLoading(true);
+      toastId = toast.loading("Fetching PRs…");
+
       try {
-        const userRes = await fetch(`https://api.github.com/users/${username}`);
+        const token = import.meta.env.VITE_GITHUB_TOKEN as string | undefined;
+
+        // Fetch user profile (authorized if token exists)
+        const userRes = await fetch(`https://api.github.com/users/${username}`, {
+          headers: {
+            Accept: "application/vnd.github+json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            "X-GitHub-Api-Version": "2022-11-28",
+          },
+        });
+        if (!userRes.ok) {
+          throw new Error(`Failed to fetch user: ${userRes.status}`);
+        }
         const userData = await userRes.json();
+        if (canceled) return;
         setProfile(userData);
 
-        const prsRes = await fetch(
-          `https://api.github.com/search/issues?q=author:${username}+type:pr`
-        );
-        const prsData = await prsRes.json();
-        setPRs(prsData.items);
+        // Robust PR fetch: replaced with searchUserIssuesAndPRs
+        const prItems = await searchUserIssuesAndPRs({
+          username,
+          mode: "prs",
+          state: "all",
+          token,
+        });
+        if (canceled) return;
+        setPRs(prItems);
       } catch (error) {
+        console.error(error);
         toast.error("Failed to fetch user data.");
       } finally {
+        if (toastId) toast.dismiss(toastId);
         setLoading(false);
       }
     }
 
     fetchData();
+
+    return () => {
+      canceled = true;
+      if (toastId) toast.dismiss(toastId);
+    };
   }, [username]);
 
   const handleCopyLink = () => {
@@ -71,10 +96,10 @@ export default function ContributorProfile() {
       <h3 className="text-xl font-semibold mt-6 mb-2">Pull Requests</h3>
       {prs.length > 0 ? (
         <ul className="list-disc ml-6 space-y-2">
-          {prs.map((pr, i) => {
-            const repoName = pr.repository_url.split("/").slice(-2).join("/");
+          {prs.map((pr) => {
+            const repoName = pr.repository_url?.split("/").slice(-2).join("/") ?? "";
             return (
-              <li key={i}>
+              <li key={pr.id}>
                 <a
                   href={pr.html_url}
                   target="_blank"

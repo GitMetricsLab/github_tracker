@@ -11,6 +11,9 @@ export type GitHubSearchItem = {
   created_at: string;
   updated_at: string;
   repository_url?: string;
+  pull_request?: {
+    merged_at: string | null;
+  };
 };
 
 export type SearchMode = "issues" | "prs";
@@ -26,12 +29,14 @@ function midpoint(a: Date, b: Date) {
   if (yyyymmdd(m) === yyyymmdd(a)) {
     const m2 = new Date(a);
     m2.setDate(m2.getDate() + 1);
-    return m2 < b ? m2 : new Date(a.getTime() + 12 * 3600 * 1000);
+    if (m2 <= b) return m2;
+    const halfDay = new Date(a.getTime() + 12 * 3600 * 1000);
+    return halfDay < b ? halfDay : b;
   }
   return m;
 }
 
-async function gh<T>(url: string, token?: string): Promise<T> {
+async function gh<T>(url: string, token?: string, signal?: AbortSignal): Promise<T> {
   let attempt = 0;
   while (true) {
     const resp = await fetch(url, {
@@ -40,7 +45,12 @@ async function gh<T>(url: string, token?: string): Promise<T> {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         "X-GitHub-Api-Version": "2022-11-28",
       },
+      signal,
     });
+
+    if (signal?.aborted) {
+      throw new Error("Request aborted");
+    }
 
     if (resp.ok) {
       return (await resp.json()) as T;
@@ -81,27 +91,28 @@ function buildQuery(opts: {
   q.push(mode === "prs" ? "type:pr" : "type:issue");
   q.push(mode === "prs" ? `author:${username}` : `involves:${username}`);
   if (repo) q.push(`repo:${repo}`);
-  if (title) q.push(`in:title ${title}`);
-  if (state !== "all") q.push(`state:${state}`);
+  if (title) q.push(`in:title "${title.replace(/"/g, '\\"')}"`);
+  if (state !== "all") q.push(`is:${state}`);
   const s = start ? yyyymmdd(start) : "2008-01-01";
   const e = end ? yyyymmdd(end) : yyyymmdd(new Date());
   q.push(`created:${s}..${e}`);
+  // NOTE: we join with '+' for GitHub search; each token may contain quotes; the URL layer encodes the string.
   return q.join("+");
 }
 
-async function searchCount(q: string, token?: string) {
+async function searchCount(q: string, token?: string, signal?: AbortSignal) {
   const url = `${GH_API}/search/issues?q=${q}&per_page=1&page=1`;
-  const data = await gh<{ total_count: number }>(url, token);
+  const data = await gh<{ total_count: number }>(url, token, signal);
   return data.total_count;
 }
 
-async function fetchWindow(q: string, token?: string): Promise<GitHubSearchItem[]> {
+async function fetchWindow(q: string, token?: string, signal?: AbortSignal): Promise<GitHubSearchItem[]> {
   const items: GitHubSearchItem[] = [];
   let page = 1;
   while (true) {
     const url = `${GH_API}/search/issues?q=${q}&per_page=${PER_PAGE}&page=${page}`;
-    const data = await gh<{ items: GitHubSearchItem[] }>(url, token);
-    const batch = (data as any).items || [];
+    const data = await gh<{ items: GitHubSearchItem[] }>(url, token, signal);
+    const batch = data.items || [];
     if (!batch.length) break;
     items.push(...batch);
     if (batch.length < PER_PAGE) break;
@@ -123,20 +134,21 @@ export async function searchUserIssuesAndPRs(params: {
   title?: string;
   start?: Date;
   end?: Date;
+  signal?: AbortSignal;
 }): Promise<GitHubSearchItem[]> {
   const start = params.start ?? new Date("2008-01-01");
   const end = params.end ?? new Date();
 
   async function recurse(win: { start: Date; end: Date }): Promise<GitHubSearchItem[]> {
     const q = buildQuery({ ...params, start: win.start, end: win.end });
-    const count = await searchCount(q, params.token);
+    const count = await searchCount(q, params.token, params.signal);
 
     if (count === 0) return [];
-    if (count <= 1000) return fetchWindow(q, params.token);
+    if (count <= 1000) return fetchWindow(q, params.token, params.signal);
 
     const mid = midpoint(win.start, win.end);
     const left = await recurse({ start: win.start, end: mid });
-    const right = await recurse({ start: new Date(mid.getTime() + 1000), end: win.end });
+    const right = await recurse({ start: new Date(mid.getTime() + 1), end: win.end });
     return [...left, ...right];
   }
 
@@ -161,6 +173,7 @@ export async function fetchUserItems(opts: {
   title?: string;
   start?: Date;
   end?: Date;
+  signal?: AbortSignal;
 }) {
   const token =
     (opts.userProvidedToken && opts.userProvidedToken.trim()) ||
@@ -180,5 +193,6 @@ export async function fetchUserItems(opts: {
     title: opts.title,
     start: opts.start,
     end: opts.end,
+    signal: opts.signal,
   });
 }

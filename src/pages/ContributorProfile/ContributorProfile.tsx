@@ -52,6 +52,14 @@ export default function ContributorProfile() {
             setProfile(null);
             throw new Error("User not found");
           }
+          if (userRes.status === 403) {
+            const rem = userRes.headers.get("x-ratelimit-remaining");
+            const msg =
+              rem === "0"
+                ? "GitHub API rate limit exceeded. Please try again later."
+                : "Access forbidden. If in development, set VITE_GITHUB_TOKEN.";
+            throw new Error(msg);
+          }
           throw new Error(`Failed to fetch user: ${userRes.status}`);
         }
         const userData = await userRes.json();
@@ -118,10 +126,13 @@ export default function ContributorProfile() {
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
-  if (!profile)
+  if (!profile) {
     return (
-      <div className="text-center mt-10 text-red-600">User not found.</div>
+      <div className="text-center mt-10 text-red-600">
+        {errorMsg ?? "User not found."}
+      </div>
     );
+  }
 
   return (
     <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-xl">
@@ -151,9 +162,16 @@ export default function ContributorProfile() {
       {prs.length > 0 ? (
         <ul className="list-disc ml-6 space-y-2">
           {prs.map((pr) => {
-            const repoName = pr.repository_url && pr.repository_url.includes("/")
-              ? pr.repository_url.split("/").slice(-2).join("/")
-              : "unknown";
+            const repoName = (() => {
+              if (!pr.repository_url) return "unknown";
+              try {
+                const url = new URL(pr.repository_url);
+                const parts = url.pathname.split("/").filter(Boolean);
+                return parts.slice(-2).join("/");
+              } catch {
+                return "unknown";
+              }
+            })();
             return (
               <li key={pr.id}>
                 <a
@@ -165,6 +183,8 @@ export default function ContributorProfile() {
                   {`[${repoName}] ${pr.title}`}
                   {pr.pull_request?.merged_at ? (
                     <span className="ml-2 inline-block px-2 py-0.5 text-xs rounded bg-green-600/20 text-green-700 dark:text-green-300">merged</span>
+                  ) : pr.state === "closed" ? (
+                    <span className="ml-2 inline-block px-2 py-0.5 text-xs rounded bg-gray-500/20 text-gray-700 dark:text-gray-300">closed</span>
                   ) : null}
                 </a>
               </li>

@@ -23,14 +23,19 @@ export default function ContributorProfile() {
     let toastId: string | undefined;
 
     async function fetchData() {
-      if (!username) return;
+      if (!username) {
+        setLoading(false);
+        setErrorMsg("No username provided.");
+        return;
+      }
 
       setLoading(true);
       setErrorMsg(null);
       toastId = toast.loading("Fetching PRs…");
 
       try {
-        const token = import.meta.env.VITE_GITHUB_TOKEN as string | undefined;
+        const isDev = import.meta.env.DEV;
+        const token = isDev ? (import.meta.env.VITE_GITHUB_TOKEN as string | undefined) : undefined;
 
         // Fetch user profile (authorized if token exists)
         const userRes = await fetch(`https://api.github.com/users/${username}`, {
@@ -64,6 +69,10 @@ export default function ContributorProfile() {
         if (canceled) return;
         setPRs([...prItems].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()));
       } catch (error) {
+        // Ignore expected aborts (navigation/unmount)
+        if (canceled || (error as any)?.name === "AbortError") {
+          return;
+        }
         console.error(error);
         const msg = error instanceof Error ? error.message : "Failed to fetch user data.";
         setErrorMsg(msg);

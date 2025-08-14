@@ -87,7 +87,12 @@ export const useGitHubData = () => {
           msg = (err as any).message as string;
         }
         setError(msg);
-        if (msg.toLowerCase().includes("rate limit") || msg.includes("403")) {
+        // GitHub returns 403 with specific rate limit message
+        if (
+          msg.toLowerCase().includes("rate limit") ||
+          msg.includes("API rate limit exceeded") ||
+          (msg.includes("403") && msg.toLowerCase().includes("limit"))
+        ) {
           setRateLimited(true);
         }
       } finally {

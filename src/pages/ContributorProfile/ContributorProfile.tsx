@@ -142,7 +142,9 @@ export default function ContributorProfile() {
       {prs.length > 0 ? (
         <ul className="list-disc ml-6 space-y-2">
           {prs.map((pr) => {
-            const repoName = pr.repository_url?.split("/").slice(-2).join("/") ?? "";
+            const repoName = pr.repository_url && pr.repository_url.includes("/")
+              ? pr.repository_url.split("/").slice(-2).join("/")
+              : "unknown";
             return (
               <li key={pr.id}>
                 <a

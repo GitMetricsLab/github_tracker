@@ -10,7 +10,7 @@ export default defineConfig({
   // Speedier, quieter builds
   build: {
     target: "es2020",
-    sourcemap: false,               // no source maps in prod build
+    sourcemap: process.env.NODE_ENV === 'development', // source maps only in dev
     cssCodeSplit: true,             // keep CSS split for better caching
     minify: "esbuild",
     reportCompressedSize: false,    // avoid gzip size computation in logs

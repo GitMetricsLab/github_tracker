@@ -32,6 +32,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import ExportButton from "../../components/ExportButton";
 
 const ROWS_PER_PAGE = 10;
 
@@ -184,7 +185,7 @@ const Home: React.FC = () => {
       </Paper>
 
       {/* Filters */}
-      <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
+      <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
         <TextField
           label="Search Title"
           value={searchTitle}
@@ -213,9 +214,19 @@ const Home: React.FC = () => {
           InputLabelProps={{ shrink: true }}
           sx={{ minWidth: 150 }}
         />
+        
+        {/* Export All Button */}
+        {(issues.length > 0 || prs.length > 0) && (
+          <ExportButton
+            data={[...filterData(issues, issueFilter), ...filterData(prs, prFilter)]}
+            username={username}
+            type="all"
+            disabled={loading || !username}
+          />
+        )}
       </Box>
 
-      {/* Tabs + State Filter */}
+      {/* Tabs + State Filter + Export */}
       <Box
         sx={{
           display: "flex",
@@ -237,32 +248,42 @@ const Home: React.FC = () => {
           <Tab label={`Issues (${totalIssues})`} />
           <Tab label={`Pull Requests (${totalPrs})`} />
         </Tabs>
-        <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
-          <Select
-            value={tab === 0 ? issueFilter : prFilter}
-            onChange={(e) =>
-              tab === 0
-                ? setIssueFilter(e.target.value)
-                : setPrFilter(e.target.value)
-            }
-            label="State"
-            sx={{
-              backgroundColor: theme.palette.background.paper,
-              color: theme.palette.text.primary,
-              borderRadius: "4px",
-              "& .MuiSelect-select": { padding: "10px" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme.palette.primary.main,
-              },
-            }}
-          >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="open">Open</MenuItem>
-            <MenuItem value="closed">Closed</MenuItem>
-            {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
-          </Select>
-        </FormControl>
+        
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <ExportButton
+            data={currentFilteredData}
+            username={username}
+            type={tab === 0 ? 'issues' : 'prs'}
+            disabled={loading || !username}
+          />
+          
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
+            <Select
+              value={tab === 0 ? issueFilter : prFilter}
+              onChange={(e) =>
+                tab === 0
+                  ? setIssueFilter(e.target.value)
+                  : setPrFilter(e.target.value)
+              }
+              label="State"
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                borderRadius: "4px",
+                "& .MuiSelect-select": { padding: "10px" },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: theme.palette.primary.main,
+                },
+              }}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="open">Open</MenuItem>
+              <MenuItem value="closed">Closed</MenuItem>
+              {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       {(authError || dataError) && (

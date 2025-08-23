@@ -3,12 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "18.20.x"
+  },
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-  "setup": "npm install && npm --prefix backend install",
+    "setup": "npm install && npm --prefix backend install",
+    "setup:ci": "npm ci && npm --prefix backend ci",
+    "backend:install": "npm --prefix backend install",
     "docker:dev": "docker compose --profile dev up --build",
     "docker:prod": "docker compose --profile prod up -d --build"
   },

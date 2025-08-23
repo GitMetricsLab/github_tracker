@@ -22,6 +22,10 @@ Want to contribute? Here’s how to get started:
   ```bash
   git fetch upstream && git rebase upstream/main
   ```
+  If you already pushed before the rebase:
+  ```bash
+  git push --force-with-lease
+  ```
 4. **Make your changes** (e.g., edit `README.md` to improve instructions).
 5. **Commit and push**:
   ```bash
@@ -92,12 +96,6 @@ Fallback (manual):
 npm install
 cd backend && npm install
 ```
-> Tip: Use the project’s Node.js version. If you’ve set it in `.nvmrc` or `package.json#engines`, nvm will pick it up.
->
-> With nvm:
-> ```bash
-> nvm use
-> ```
 
 ### 2. Configure environment variables (backend)
 Copy the sample env file and set required variables:
@@ -145,6 +143,9 @@ If the backend runs locally, it typically listens on <http://localhost:5000> (or
 
 Alternatively, to start the full stack with Compose:
 
+> Requires Docker Compose v2 (Docker Desktop or standalone Compose v2 CLI).
+> See https://docs.docker.com/compose/ for installation and upgrade instructions.
+
 ```bash
 # Dev profile (hot reload etc.)
 npm run docker:dev
@@ -188,7 +189,6 @@ npx jasmine --config=spec/support/jasmine.mjs
   # Use a test database (e.g., github_tracker_test) to avoid clobbering dev data
   MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test" npx jasmine --config=spec/support/jasmine.mjs
   # Or cross-platform with one command:
-  # (one-time) npm install --save-dev cross-env  # in the repository root
   npx cross-env MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test" jasmine --config=spec/support/jasmine.mjs
   ```
 

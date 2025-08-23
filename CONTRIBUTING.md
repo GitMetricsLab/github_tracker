@@ -55,7 +55,7 @@ github_tracker/
 4. Commit your work to your topic branch and push to your fork:
    ```bash
    git add .
-   git commit -m "feat: add contributor quick-start to README"
+   git commit -m "docs(readme): add contributor quick-start"
    git push -u origin <topic-branch>
    ```
 5. Open a Pull Request from `<your-username>:<topic-branch>` to `GitMetricsLab:main`.
@@ -65,6 +65,8 @@ github_tracker/
    git rebase upstream/main
    # if you've already pushed, use a safe update:
    git push --force-with-lease
+   # Note: use --force-with-lease only on your own topic branch after a rebase.
+   # Avoid force-pushing shared branches.
    ```
 
 ### Commit Conventions
@@ -75,7 +77,7 @@ Use Conventional Commits. Examples:
 - `fix(auth): handle missing session cookie`
 - `feat(tracker): add contributor activity chart`
 
-This helps with change logs and automated releases. See https://www.conventionalcommits.org/.
+This helps with change logs and automated releases. See [Conventional Commits](https://www.conventionalcommits.org/).
 
 ### Sign-offs / DCO (Optional)
 

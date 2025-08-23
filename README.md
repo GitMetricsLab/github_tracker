@@ -188,6 +188,7 @@ npx jasmine --config=spec/support/jasmine.mjs
   # Use a test database (e.g., github_tracker_test) to avoid clobbering dev data
   MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test" npx jasmine --config=spec/support/jasmine.mjs
   # Or cross-platform with one command:
+  # (one-time) npm install --save-dev cross-env  # in the repository root
   npx cross-env MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test" jasmine --config=spec/support/jasmine.mjs
   ```
 

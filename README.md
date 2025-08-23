@@ -11,18 +11,25 @@ Want to contribute? Here’s how to get started:
   git clone https://github.com/<your-username>/github_tracker.git
   cd github_tracker
   ```
-3. **Create a new branch** for your change:
+3. **Add the upstream remote and sync** (original repository):
+  ```bash
+  git remote add upstream https://github.com/GitMetricsLab/github_tracker.git
+  git fetch upstream
+  # create your branch from the latest upstream main
+  git checkout -b my-first-contribution upstream/main
+  ```
+4. **Create a new branch** for your change (if you didn’t in the previous step):
   ```bash
   git checkout -b my-first-contribution
   ```
-4. **Make your changes** (e.g., edit `README.md` to improve instructions).
-5. **Commit and push**:
+5. **Make your changes** (e.g., edit `README.md` to improve instructions).
+6. **Commit and push**:
   ```bash
   git add .
-  git commit -m "docs: improve README instructions"
+  git commit -m "docs(readme): improve setup instructions"
   git push origin my-first-contribution
   ```
-6. **Open a Pull Request** from your branch to the main repository.
+7. **Open a Pull Request** from your branch to the main repository.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for more details!
 
@@ -79,6 +86,12 @@ Then in the backend folder:
 cd backend
 npm install
 ```
+> Tip: Use the project’s Node.js version. If you’ve set it in `.nvmrc` or `package.json#engines`, nvm will pick it up.
+>
+> With nvm:
+> ```bash
+> nvm use
+> ```
 
 ### 2. Start the backend server
 In the `backend` folder:
@@ -93,9 +106,15 @@ npm run dev
 ```
 
 ### 4. Open the app in your browser
-Visit the URL shown in the terminal (usually http://localhost:5173).
+Visit the URL shown in the terminal (usually <http://localhost:5173>).
+If the backend runs locally, it typically listens on <http://localhost:3000> unless overridden.
 
 > **Note:** Make sure MongoDB is running locally (default: `mongodb://127.0.0.1:27017`).
+>
+> Optional: Run MongoDB with Docker
+> ```bash
+> docker run --name github-tracker-mongo -p 27017:27017 -d mongo:6
+> ```
 
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 
@@ -109,10 +128,14 @@ This project uses the Jasmine framework for backend unit and integration tests. 
 - **MongoDB** running locally (default: `mongodb://127.0.0.1:27017`)
 
 ### Installation
-Install all required dependencies:
+Install dependencies (root and backend):
 ```sh
 npm install
-npm install --save-dev jasmine @types/jasmine supertest express-session passport passport-local bcryptjs
+cd backend && npm install
+```
+Jasmine is already configured in the repo; if not installed locally, add it as a dev dependency:
+```sh
+npm install --save-dev jasmine
 ```
 
 ### Running the Tests
@@ -120,10 +143,12 @@ npm install --save-dev jasmine @types/jasmine supertest express-session passport
    ```sh
    mongod
    ```
-2. **Run Jasmine tests:**
-   ```sh
-   npx jasmine
-   ```
+2. **Run Jasmine tests with the MJS config:**
+  ```sh
+  # tests should use a test database (e.g., github_tracker_test). Ensure your env/config points to it.
+  # Example (if your app reads MONGODB_URI):
+  MONGODB_URI="mongodb://127.0.0.1:27017/github_tracker_test" npx jasmine --config=spec/support/jasmine.mjs
+  ```
 
 ### Test Files
 - `spec/user.model.spec.cjs` — Unit tests for the User model

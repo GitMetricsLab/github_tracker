@@ -55,10 +55,17 @@ github_tracker/
 4. Commit your work to your topic branch and push to your fork:
    ```bash
    git add .
-   git commit -m "feat: <short message>"
+   git commit -m "feat: add contributor quick-start to README"
    git push -u origin <topic-branch>
    ```
 5. Open a Pull Request from `<your-username>:<topic-branch>` to `GitMetricsLab:main`.
+6. Keep your branch up to date with the latest upstream changes:
+   ```bash
+   git fetch upstream
+   git rebase upstream/main
+   # if you've already pushed, use a safe update:
+   git push --force-with-lease
+   ```
 
 ### Commit Conventions
 
@@ -68,19 +75,19 @@ Use Conventional Commits. Examples:
 - `fix(auth): handle missing session cookie`
 - `feat(tracker): add contributor activity chart`
 
-This helps with change logs and automated releases.
+This helps with change logs and automated releases. See https://www.conventionalcommits.org/.
 
 ### Sign-offs / DCO (Optional)
 
 If your organization requires a Developer Certificate of Origin (DCO), add a sign-off to each commit:
 
 ```bash
-git commit -s --signoff -m "docs(readme): clarify install steps"
+git commit -s -m "docs(readme): clarify install steps"
 ```
 
 ### Link Back to Quick Start
 
-For first-time setup and commands, see the [Quick Start](README.md#-quick-start-for-contributors).
+For first-time setup and commands, see the [Quick Start](README.md#quick-start-for-contributors).
 
 ### 🧭 First-Time Contribution Steps
 

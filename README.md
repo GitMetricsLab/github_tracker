@@ -18,6 +18,10 @@ Want to contribute? Here’s how to get started:
   # create your branch from the latest upstream main
   git checkout -b my-first-contribution upstream/main
   ```
+  Later, to refresh your branch:
+  ```bash
+  git fetch upstream && git rebase upstream/main
+  ```
 4. **Make your changes** (e.g., edit `README.md` to improve instructions).
 5. **Commit and push**:
   ```bash
@@ -49,11 +53,11 @@ Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyz
      </thead>
     <tbody>
       <tr>
-          <td><img alt="Stars" src="https://img.shields.io/github/stars/mehul-m-prajapati/github_tracker?style=flat&logo=github"/></td>
-          <td><img alt="Forks" src="https://img.shields.io/github/forks/mehul-m-prajapati/github_tracker?style=flat&logo=github"/></td>
-          <td><img alt="Issues" src="https://img.shields.io/github/issues/mehul-m-prajapati/github_tracker?style=flat&logo=github"/></td>
-          <td><img alt="Open Pull Requests" src="https://img.shields.io/github/issues-pr/mehul-m-prajapati/github_tracker?style=flat&logo=github"/></td>
-          <td><img alt="Closed Pull Requests" src="https://img.shields.io/github/issues-pr-closed/mehul-m-prajapati/github_tracker?style=flat&color=critical&logo=github"/></td>
+          <td><img alt="Stars" src="https://img.shields.io/github/stars/GitMetricsLab/github_tracker?style=flat&logo=github"/></td>
+          <td><img alt="Forks" src="https://img.shields.io/github/forks/GitMetricsLab/github_tracker?style=flat&logo=github"/></td>
+          <td><img alt="Issues" src="https://img.shields.io/github/issues/GitMetricsLab/github_tracker?style=flat&logo=github"/></td>
+          <td><img alt="Open Pull Requests" src="https://img.shields.io/github/issues-pr/GitMetricsLab/github_tracker?style=flat&logo=github"/></td>
+          <td><img alt="Closed Pull Requests" src="https://img.shields.io/github/issues-pr-closed/GitMetricsLab/github_tracker?style=flat&color=critical&logo=github"/></td>
       </tr>
     </tbody>
 </table>
@@ -73,10 +77,16 @@ Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyz
 
 ### 1. Install dependencies for both frontend and backend
 
+First, switch to the project’s Node.js version (from `.nvmrc`) if you use nvm:
+```bash
+nvm use
+```
+
 Preferred (one command):
 ```bash
 npm run setup
 ```
+
 Fallback (manual):
 ```bash
 npm install
@@ -130,7 +140,7 @@ If the backend runs locally, it typically listens on <http://localhost:5000> (or
 >   -d mongo:6
 >
 > # Then, point your app at this database, for example:
-> # export MONGO_URI="mongodb://127.0.0.1:27017/githubTracker"
+> export MONGO_URI="mongodb://127.0.0.1:27017/githubTracker"
 > ```
 
 Alternatively, to start the full stack with Compose:
@@ -159,9 +169,11 @@ Install dependencies (root and backend) if you haven’t already:
 ```bash
 npm run setup
 ```
-Jasmine is already configured in the repo; if missing locally:
+Jasmine is already configured in the repo; run it via `npx` or an npm script to avoid global installs:
 ```bash
-npm install --save-dev jasmine
+npx jasmine --config=spec/support/jasmine.mjs
+# or add to package.json:
+# "scripts": { "test": "jasmine --config=spec/support/jasmine.mjs" }
 ```
 
 ### Running the Tests
@@ -175,6 +187,8 @@ npm install --save-dev jasmine
   ```bash
   # Use a test database (e.g., github_tracker_test) to avoid clobbering dev data
   MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test" npx jasmine --config=spec/support/jasmine.mjs
+  # Or cross-platform with one command:
+  npx cross-env MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test" jasmine --config=spec/support/jasmine.mjs
   ```
 
   Windows (PowerShell):
@@ -214,7 +228,7 @@ spec_files: [
 - Make sure you show some love by giving ⭐ to our repository.
 
 <div align="center">
-  <a href="https://github.com/mehul-m-prajapati/github_tracker">
+  <a href="https://github.com/GitMetricsLab/github_tracker">
     <img src="https://contrib.rocks/image?repo=GitMetricsLab/github_tracker&&max=1000" />
   </a>
 </div>

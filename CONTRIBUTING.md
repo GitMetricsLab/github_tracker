@@ -54,6 +54,8 @@ github_tracker/
    ```
 4. Commit your work to your topic branch and push to your fork:
    ```bash
+   git add .
+   git commit -m "feat: <short message>"
    git push -u origin <topic-branch>
    ```
 5. Open a Pull Request from `<your-username>:<topic-branch>` to `GitMetricsLab:main`.
@@ -73,12 +75,12 @@ This helps with change logs and automated releases.
 If your organization requires a Developer Certificate of Origin (DCO), add a sign-off to each commit:
 
 ```bash
-git commit -s -m "docs(readme): clarify install steps"
+git commit -s --signoff -m "docs(readme): clarify install steps"
 ```
 
 ### Link Back to Quick Start
 
-For first-time setup and commands, see the Quick Start in `README.md`.
+For first-time setup and commands, see the [Quick Start](README.md#-quick-start-for-contributors).
 
 ### 🧭 First-Time Contribution Steps
 

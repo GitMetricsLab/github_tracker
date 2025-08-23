@@ -73,18 +73,14 @@ Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyz
 
 ### 1. Install dependencies for both frontend and backend
 
-In the project root:
-```bash
-npm install
-```
-Then in the backend folder:
-```bash
-cd backend
-npm install
-```
-Or, to run both in one go:
+Preferred (one command):
 ```bash
 npm run setup
+```
+Fallback (manual):
+```bash
+npm install
+cd backend && npm install
 ```
 > Tip: Use the project’s Node.js version. If you’ve set it in `.nvmrc` or `package.json#engines`, nvm will pick it up.
 >
@@ -121,7 +117,7 @@ npm run dev
 
 ### 5. Open the app in your browser
 Visit the URL shown in the terminal (usually <http://localhost:5173>).
-If the backend runs locally, it typically listens on <http://localhost:3000> unless overridden.
+If the backend runs locally, it typically listens on <http://localhost:5000> (or the value of `PORT` in your `.env`).
 
 > **Note:** Make sure MongoDB is running locally (default: `mongodb://127.0.0.1:27017`).
 >
@@ -137,6 +133,16 @@ If the backend runs locally, it typically listens on <http://localhost:3000> unl
 > # export MONGO_URI="mongodb://127.0.0.1:27017/githubTracker"
 > ```
 
+Alternatively, to start the full stack with Compose:
+
+```bash
+# Dev profile (hot reload etc.)
+npm run docker:dev
+
+# Production-like profile
+npm run docker:prod
+```
+
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 
 This project uses the Jasmine framework for backend unit and integration tests. The tests cover:
@@ -151,8 +157,7 @@ This project uses the Jasmine framework for backend unit and integration tests. 
 ### Installation
 Install dependencies (root and backend) if you haven’t already:
 ```bash
-npm install
-cd backend && npm install
+npm run setup
 ```
 Jasmine is already configured in the repo; if missing locally:
 ```bash
@@ -169,13 +174,13 @@ npm install --save-dev jasmine
   macOS/Linux (Bash):
   ```bash
   # Use a test database (e.g., github_tracker_test) to avoid clobbering dev data
-  MONGODB_URI="mongodb://127.0.0.1:27017/github_tracker_test" npx jasmine --config=spec/support/jasmine.mjs
+  MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test" npx jasmine --config=spec/support/jasmine.mjs
   ```
 
   Windows (PowerShell):
   ```powershell
   # Use a test database (e.g., github_tracker_test) to avoid clobbering dev data
-  $env:MONGODB_URI="mongodb://127.0.0.1:27017/github_tracker_test"; npx jasmine --config=spec/support/jasmine.mjs
+  $env:MONGO_URI="mongodb://127.0.0.1:27017/github_tracker_test"; npx jasmine --config=spec/support/jasmine.mjs
   ```
 
 ### Test Files

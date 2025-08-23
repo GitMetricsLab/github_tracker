@@ -1,6 +1,32 @@
 # 🌟 **GitHub Tracker** 🌟
 <!-- top -->
 
+## 🚩 Quick Start for Contributors
+
+Want to contribute? Here’s how to get started:
+
+1. **Fork** this repository on GitHub.
+2. **Clone** your fork:
+  ```bash
+  git clone https://github.com/<your-username>/github_tracker.git
+  cd github_tracker
+  ```
+3. **Create a new branch** for your change:
+  ```bash
+  git checkout -b my-first-contribution
+  ```
+4. **Make your changes** (e.g., edit `README.md` to improve instructions).
+5. **Commit and push**:
+  ```bash
+  git add .
+  git commit -m "docs: improve README instructions"
+  git push origin my-first-contribution
+  ```
+6. **Open a Pull Request** from your branch to the main repository.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for more details!
+
+
 **Track Activity of Users on GitHub**
 
 Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyze the activity of GitHub users. Whether you’re a developer, a project manager, or just curious, this tool simplifies tracking contributions and activity across repositories! 🚀👩‍💻
@@ -41,27 +67,35 @@ Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyz
 ---
 
 ## 🚀 Setup Guide
-1. Clone the repository to your local machine:
+
+### 1. Install dependencies for both frontend and backend
+
+In the project root:
 ```bash
-$ git clone https://github.com/yourusername/github-tracker.git
+npm install
+```
+Then in the backend folder:
+```bash
+cd backend
+npm install
 ```
 
-2. Navigate to the project directory:
+### 2. Start the backend server
+In the `backend` folder:
 ```bash
-$ cd github-tracker
+npm start
 ```
 
-3. Run the frontend
+### 3. Start the frontend development server
+Open a new terminal in the project root:
 ```bash
-$ npm i
-$ npm run dev
+npm run dev
 ```
 
-4. Run the backend
-```bash
-$ npm i
-$ npm start
-```
+### 4. Open the app in your browser
+Visit the URL shown in the terminal (usually http://localhost:5173).
+
+> **Note:** Make sure MongoDB is running locally (default: `mongodb://127.0.0.1:27017`).
 
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 

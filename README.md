@@ -18,18 +18,14 @@ Want to contribute? Here’s how to get started:
   # create your branch from the latest upstream main
   git checkout -b my-first-contribution upstream/main
   ```
-4. **Create a new branch** for your change (if you didn’t in the previous step):
-  ```bash
-  git checkout -b my-first-contribution
-  ```
-5. **Make your changes** (e.g., edit `README.md` to improve instructions).
-6. **Commit and push**:
+4. **Make your changes** (e.g., edit `README.md` to improve instructions).
+5. **Commit and push**:
   ```bash
   git add .
   git commit -m "docs(readme): improve setup instructions"
-  git push origin my-first-contribution
+  git push -u origin my-first-contribution
   ```
-7. **Open a Pull Request** from your branch to the main repository.
+6. **Open a Pull Request** from your branch to the main repository.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for more details!
 
@@ -86,6 +82,10 @@ Then in the backend folder:
 cd backend
 npm install
 ```
+Or, to run both in one go:
+```bash
+npm run setup
+```
 > Tip: Use the project’s Node.js version. If you’ve set it in `.nvmrc` or `package.json#engines`, nvm will pick it up.
 >
 > With nvm:
@@ -93,19 +93,33 @@ npm install
 > nvm use
 > ```
 
-### 2. Start the backend server
+### 2. Configure environment variables (backend)
+Copy the sample env file and set required variables:
+```bash
+cp backend/.env.sample backend/.env
+```
+PowerShell (Windows):
+```powershell
+Copy-Item backend/.env.sample backend/.env
+```
+Then edit `backend/.env` and set at least:
+- `MONGO_URI` (e.g., `mongodb://127.0.0.1:27017/githubTracker`)
+- `SESSION_SECRET` (e.g., a long random string)
+- `PORT` (e.g., `5000`)
+
+### 3. Start the backend server
 In the `backend` folder:
 ```bash
 npm start
 ```
 
-### 3. Start the frontend development server
+### 4. Start the frontend development server
 Open a new terminal in the project root:
 ```bash
 npm run dev
 ```
 
-### 4. Open the app in your browser
+### 5. Open the app in your browser
 Visit the URL shown in the terminal (usually <http://localhost:5173>).
 If the backend runs locally, it typically listens on <http://localhost:3000> unless overridden.
 
@@ -113,14 +127,21 @@ If the backend runs locally, it typically listens on <http://localhost:3000> unl
 >
 > Optional: Run MongoDB with Docker
 > ```bash
-> docker run --name github-tracker-mongo -p 27017:27017 -d mongo:6
+> docker volume create github-tracker-mongo
+> docker run --name github-tracker-mongo \
+>   -p 27017:27017 \
+>   -v github-tracker-mongo:/data/db \
+>   -d mongo:6
+>
+> # Then, point your app at this database, for example:
+> # export MONGO_URI="mongodb://127.0.0.1:27017/githubTracker"
 > ```
 
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 
 This project uses the Jasmine framework for backend unit and integration tests. The tests cover:
-- User model (password hashing, schema, password comparison)
-- Authentication routes (signup, login, logout)
+- [User model (password hashing, schema, password comparison)](spec/user.model.spec.cjs)
+- [Authentication routes (signup, login, logout)](spec/auth.routes.spec.cjs)
 - Passport authentication logic (via integration tests)
 
 ### Prerequisites
@@ -128,13 +149,13 @@ This project uses the Jasmine framework for backend unit and integration tests. 
 - **MongoDB** running locally (default: `mongodb://127.0.0.1:27017`)
 
 ### Installation
-Install dependencies (root and backend):
-```sh
+Install dependencies (root and backend) if you haven’t already:
+```bash
 npm install
 cd backend && npm install
 ```
-Jasmine is already configured in the repo; if not installed locally, add it as a dev dependency:
-```sh
+Jasmine is already configured in the repo; if missing locally:
+```bash
 npm install --save-dev jasmine
 ```
 
@@ -143,16 +164,23 @@ npm install --save-dev jasmine
    ```sh
    mongod
    ```
-2. **Run Jasmine tests with the MJS config:**
-  ```sh
-  # tests should use a test database (e.g., github_tracker_test). Ensure your env/config points to it.
-  # Example (if your app reads MONGODB_URI):
+2. **Run Jasmine tests (from the repository root) with the MJS config:**
+
+  macOS/Linux (Bash):
+  ```bash
+  # Use a test database (e.g., github_tracker_test) to avoid clobbering dev data
   MONGODB_URI="mongodb://127.0.0.1:27017/github_tracker_test" npx jasmine --config=spec/support/jasmine.mjs
   ```
 
+  Windows (PowerShell):
+  ```powershell
+  # Use a test database (e.g., github_tracker_test) to avoid clobbering dev data
+  $env:MONGODB_URI="mongodb://127.0.0.1:27017/github_tracker_test"; npx jasmine --config=spec/support/jasmine.mjs
+  ```
+
 ### Test Files
-- `spec/user.model.spec.cjs` — Unit tests for the User model
-- `spec/auth.routes.spec.cjs` — Integration tests for authentication routes
+- [`spec/user.model.spec.cjs`](spec/user.model.spec.cjs) — Unit tests for the User model
+- [`spec/auth.routes.spec.cjs`](spec/auth.routes.spec.cjs) — Integration tests for authentication routes
 
 ### Jasmine Configuration
 The Jasmine config (`spec/support/jasmine.mjs`) is set to recognize `.cjs`, `.js`, and `.mjs` test files:

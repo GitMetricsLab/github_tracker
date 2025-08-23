@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+  "setup": "npm install && cd backend && npm install",
     "docker:dev": "docker compose --profile dev up --build",
     "docker:prod": "docker compose --profile prod up -d --build"
   },

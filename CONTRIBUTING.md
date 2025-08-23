@@ -38,6 +38,48 @@ github_tracker/
 
 ## 🤝 How to Contribute
 
+### Branching Workflow
+
+1. Fork this repository to your GitHub account.
+2. Clone your fork locally:
+   ```bash
+   git clone https://github.com/<your-username>/github_tracker.git
+   cd github_tracker
+   ```
+3. Add the upstream remote and sync with the latest main branch:
+   ```bash
+   git remote add upstream https://github.com/GitMetricsLab/github_tracker.git
+   git fetch upstream
+   git checkout -b <topic-branch> upstream/main
+   ```
+4. Commit your work to your topic branch and push to your fork:
+   ```bash
+   git push -u origin <topic-branch>
+   ```
+5. Open a Pull Request from `<your-username>:<topic-branch>` to `GitMetricsLab:main`.
+
+### Commit Conventions
+
+Use Conventional Commits. Examples:
+
+- `docs(readme): improve setup instructions`
+- `fix(auth): handle missing session cookie`
+- `feat(tracker): add contributor activity chart`
+
+This helps with change logs and automated releases.
+
+### Sign-offs / DCO (Optional)
+
+If your organization requires a Developer Certificate of Origin (DCO), add a sign-off to each commit:
+
+```bash
+git commit -s -m "docs(readme): clarify install steps"
+```
+
+### Link Back to Quick Start
+
+For first-time setup and commands, see the Quick Start in `README.md`.
+
 ### 🧭 First-Time Contribution Steps
 
 1. **Fork the Repository** 🍴  

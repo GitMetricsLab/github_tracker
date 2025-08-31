@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
-import { useNavigate ,Link } from "react-router-dom";
-import { User, Mail, Lock } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { ThemeContext } from "../../context/ThemeContext";
+import type { ThemeContextType } from "../../context/ThemeContext";
+
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 interface SignUpFormData {
   username: string;
   email: string;
@@ -10,151 +13,203 @@ interface SignUpFormData {
 }
 
 const SignUp: React.FC = () => {
-  const [formData, setFormData] = useState<SignUpFormData>({ 
-    username: "", 
-    email: "", 
-    password: "" 
+  const [formData, setFormData] = useState<SignUpFormData>({
+    username: "",
+    email: "",
+    password: "",
   });
   const [message, setMessage] = useState<string>("");
-const navigate = useNavigate();
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const navigate = useNavigate();
+  const themeContext = useContext(ThemeContext) as ThemeContextType;
+  const { mode } = themeContext;
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
-      );
-      setMessage(response.data.message); // Show success message from backend
+      const response = await axios.post(`${backendUrl}/api/auth/signup`, formData);
+      setMessage(response.data.message);
 
-      // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
-        navigate("/login");}
-
-    
-    // // Simulate API call (replace with your actual backend integration)
-    // try {
-    //   // Mock successful signup
-    //   setMessage("Account created successfully! Redirecting to login...");
-      
-    //   // In your actual implementation, integrate with your backend here:
-    //   // const response = await fetch(`${backendUrl}/api/auth/signup`, {
-    //   //   method: 'POST',
-    //   //   headers: { 'Content-Type': 'application/json' },
-    //   //   body: JSON.stringify(formData)
-    //   // });
-      
-    //   setTimeout(() => {
-    //     // Navigate to login page in your actual implementation
-    //     console.log("Redirecting to login page...");
-    //   }, 2000);
-      
-    } catch (error) {
-      setMessage("Something went wrong. Please try again.");
+      if (response.data.message === "User created successfully") {
+        navigate("/login");
+      }
+    } catch (error: any) {
+      setMessage(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="relative h-screen w-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 flex items-center justify-center px-4 overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+    <div
+      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
+        mode === "dark"
+          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+      }`}
+    >
+      {/* Animated background elements */}
+      <div className="absolute inset-0">
+        <div
+          className={`absolute -top-40 -right-40 w-96 h-96 ${
+            mode === "dark" ? "bg-purple-500" : "bg-purple-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
+        />
+        <div
+          className={`absolute -bottom-40 -left-40 w-96 h-96 ${
+            mode === "dark" ? "bg-blue-500" : "bg-blue-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
+        />
+        <div
+          className={`absolute top-40 left-40 w-96 h-96 ${
+            mode === "dark" ? "bg-pink-500" : "bg-pink-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
+        />
+        <div
+          className={`absolute top-1/2 right-1/4 w-64 h-64 ${
+            mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"
+          } rounded-full blur-2xl opacity-20 animate-pulse delay-1000`}
+        />
       </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Logo and Title */}
-        <div className="text-center mb-8">
-           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
-  <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
-</div>
-          <h1 className="text-4xl font-bold text-white mb-2">GitHubTracker</h1>
-          <p className="text-purple-200 text-lg">Join your GitHub journey</p>
-        </div>
-
-        {/* Sign Up Form */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-          <h2 className="text-2xl font-semibold text-white text-center mb-8">Create Account</h2>
-          
-          <div className="space-y-6">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-purple-300" />
-              </div>
-              <input
-                type="text"
-                name="username"
-                placeholder="Enter your username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm transition-all duration-300"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-purple-300" />
-              </div>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm transition-all duration-300"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-purple-300" />
-              </div>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm transition-all duration-300"
-              />
-            </div>
-
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-4 rounded-2xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-400 transform hover:scale-105 transition-all duration-300 shadow-lg"
-            >
-              Create Account
-            </button>
+      <div className="relative w-full max-w-md px-6">
+        {/* Branding */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
+            <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
           </div>
 
+          <h1
+            className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${
+              mode === "dark"
+                ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
+                : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
+            }`}
+          >
+            GitHubTracker
+          </h1>
+          <p
+            className={`${
+              mode === "dark" ? "text-slate-300" : "text-gray-700"
+            } text-lg font-medium`}
+          >
+            Join your GitHub journey
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <div
+          className={`rounded-3xl p-10 shadow-2xl border ${
+            mode === "dark"
+              ? "bg-white/10 backdrop-blur-xl border-white/20 text-white"
+              : "bg-white border-gray-200 text-black"
+          }`}
+        >
+          <h2
+            className={`text-2xl font-bold text-center mb-8 ${
+              mode === "dark" ? "text-white" : "text-gray-800"
+            }`}
+          >
+            Create Account
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <input
+              type="text"
+              name="username"
+              placeholder="Enter your username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
+                mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+              }`}
+            />
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
+                mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+              }`}
+            />
+
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
+                mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+              }`}
+            />
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Creating..." : "Create Account"}
+            </button>
+          </form>
+
+          {/* Message */}
           {message && (
-            <div className={`text-center mt-6 p-3 rounded-xl ${
-              message.includes('successfully') 
-                ? 'text-green-300 bg-green-500/20' 
-                : 'text-red-300 bg-red-500/20'
-            }`}>
+            <div
+              className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
+                message.includes("successfully")
+                  ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                  : "bg-red-500/20 text-red-300 border border-red-500/30"
+              }`}
+            >
               {message}
             </div>
           )}
 
-          <div className="text-center mt-8">
-            <p className="text-purple-200">
-              Already have an account?{' '}
-              <Link to="/login" className="inline-flex items-center">
-                <button className="text-purple-300 hover:text-white font-medium transition-colors duration-300">
-                  Sign in here
-                </button>
+          {/* Footer Text */}
+          <div className="text-center mt-8 pb-8">
+            <p
+              className={`${
+                mode === "dark" ? "text-slate-500" : "text-gray-600"
+              } text-sm`}
+            >
+              Already have an account?
+              <Link
+                to="/login"
+                className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"
+              >
+                Sign in here
               </Link>
             </p>
           </div>
         </div>
       </div>
+
+      <div
+        className={`${
+          mode === "dark" ? "from-slate-900" : "from-slate-100"
+        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
+      />
     </div>
   );
 };

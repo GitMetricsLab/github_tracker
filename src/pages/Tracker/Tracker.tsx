@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from 'react'
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -163,6 +163,7 @@ const Home: React.FC = () => {
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
+
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
       {/* Auth Form */}
       <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
@@ -284,65 +285,63 @@ const Home: React.FC = () => {
         </Box>
       ) : (
         <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-
-          <TableContainer component={Paper}>
-
-            <Table size="small">
-
-              <TableHead>
-                <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell align="center">Repository</TableCell>
-                  <TableCell align="center">State</TableCell>
-                  <TableCell>Created</TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {currentFilteredData.map((item) => (
-                  <TableRow key={item.id}>
-
-                    <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {getStatusIcon(item)}
-                        <Link
-                            href={item.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            underline="hover"
-                            sx={{ color: theme.palette.primary.main }}
-                        >
-                            {item.title}
-                        </Link>
-                    </TableCell>
-
-
-                    <TableCell align="center">
-                      {item.repository_url.split("/").slice(-1)[0]}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {item.pull_request?.merged_at ? "merged" : item.state}
-                    </TableCell>
-
-                    <TableCell>{formatDate(item.created_at)}</TableCell>
-
-                  </TableRow>
-                ))}
-              </TableBody>
-
-            </Table>
-
-            <TablePagination
-              component="div"
-              count={totalCount}
-              page={page}
-              onPageChange={handlePageChange}
-              rowsPerPage={ROWS_PER_PAGE}
-              rowsPerPageOptions={[ROWS_PER_PAGE]}
-            />
-
-          </TableContainer>
+             {currentFilteredData.length === 0 ? (
+            <Box textAlign="center" my={4} color="gray">
+         <p>
+           {tab === 0
+             ? "No issues found for this user."
+             : "No pull requests found for this user."}
+          </p>
         </Box>
+  ) : (
+    <TableContainer component={Paper}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Title</TableCell>
+            <TableCell align="center">Repository</TableCell>
+            <TableCell align="center">State</TableCell>
+            <TableCell>Created</TableCell>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {currentFilteredData.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {getStatusIcon(item)}
+                <Link
+                  href={item.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  sx={{ color: theme.palette.primary.main }}
+                >
+                  {item.title}
+                </Link>
+              </TableCell>
+              <TableCell align="center">
+                {item.repository_url.split("/").slice(-1)[0]}
+              </TableCell>
+              <TableCell align="center">
+                {item.pull_request?.merged_at ? "merged" : item.state}
+              </TableCell>
+              <TableCell>{formatDate(item.created_at)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <TablePagination
+        component="div"
+        count={totalCount}
+        page={page}
+        onPageChange={handlePageChange}
+        rowsPerPage={ROWS_PER_PAGE}
+        rowsPerPageOptions={[ROWS_PER_PAGE]}
+      />
+    </TableContainer>
+      )}
+    </Box>
       )}
     </Container>
   );

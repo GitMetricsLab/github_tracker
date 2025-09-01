@@ -2,14 +2,15 @@ const passport = require("passport");
 const LocalStrategy = require('passport-local').Strategy;
 const User = require("../models/User");
 
+// Local strategy for login using email
 passport.use(
     new LocalStrategy(
-        { usernameField: "email" },
+        { usernameField: "email" }, // use email instead of username
         async (email, password, done) => {
             try {
-                const user = await User.findOne( {email} );
+                const user = await User.findOne({ email });
                 if (!user) {
-                    return done(null, false, { message: 'Email is invalid '});
+                    return done(null, false, { message: 'Email is invalid' });
                 }
 
                 const isMatch = await user.comparePassword(password);
@@ -17,8 +18,9 @@ passport.use(
                     return done(null, false, { message: 'Invalid password' });
                 }
 
+                // Return user object
                 return done(null, {
-                    id : user._id.toString(),
+                    id: user._id.toString(),
                     username: user.username,
                     email: user.email
                 });
@@ -29,7 +31,7 @@ passport.use(
     )
 );
 
-// Serialize user (store user info in session)
+// Serialize user (store user id in session)
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });

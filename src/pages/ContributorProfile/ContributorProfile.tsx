@@ -60,11 +60,14 @@ export default function ContributorProfile() {
               search(query: $query, type: ISSUE, first: 100) {
                 nodes {
                   ... on PullRequest {
-                    id
+                    databaseId
                     title
                     url
+                    state
+                    mergedAt
                     repository {
                       nameWithOwner
+                      url
                     }
                   }
                 }
@@ -72,7 +75,7 @@ export default function ContributorProfile() {
             }
           `,
           variables: {
-            query: `author:${username} type:pr sort:updated-desc`,
+            query: `author:${username} is:pr sort:updated-desc`,
           },
         };
 

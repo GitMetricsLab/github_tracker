@@ -60,12 +60,12 @@ export default function Contributors() {
         "";
 
       try {
-        const owner = "ASR1015"; // exact slug from your repo tab
-        const repo = "github_tracker"; // underscore version
-        console.log("[contributors] fetching for ASR1015/github_tracker");
+        const fallback = "ASR1015/github_tracker";
+        const fullName = (await resolveRepoFullName(token)) ?? fallback;
+        console.log(`[contributors] fetching for ${fullName}`);
 
         const res = await gh(
-          `/repos/${owner}/${repo}/contributors?per_page=50`,
+          `/repos/${fullName}/contributors?per_page=50`,
           token
         );
 

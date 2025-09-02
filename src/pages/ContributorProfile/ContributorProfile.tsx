@@ -36,15 +36,37 @@ export default function ContributorProfile() {
       try {
         // fetch user profile
         const userRes = await gh(`/users/${encodeURIComponent(username)}`, token);
+        if (!userRes.ok) {
+          if (userRes.status === 404) {
+            // user not found — clear state and bail early
+            setProfile(null);
+            setPRs([]);
+            return;
+          }
+          const msg = await userRes.text().catch(() => "");
+          throw new Error(
+            `User fetch failed: ${userRes.status} ${userRes.statusText}${
+              msg ? ` – ${msg}` : ""
+            }`
+          );
+        }
         const userData = (await userRes.json()) as Profile;
         setProfile(userData);
 
         // fetch PRs authored by the user (latest first)
-        const q = `author:${encodeURIComponent(username)}+type:pr`;
+        const q = encodeURIComponent(`author:${username} type:pr`);
         const prsRes = await gh(
           `/search/issues?q=${q}&per_page=100&sort=updated&order=desc`,
           token
         );
+        if (!prsRes.ok) {
+          const msg = await prsRes.text().catch(() => "");
+          throw new Error(
+            `PR search failed: ${prsRes.status} ${prsRes.statusText}${
+              msg ? ` – ${msg}` : ""
+            }`
+          );
+        }
         const prsData = await prsRes.json();
         setPRs(Array.isArray(prsData.items) ? (prsData.items as PR[]) : []);
       } catch (error: any) {

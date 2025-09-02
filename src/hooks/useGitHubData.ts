@@ -14,20 +14,29 @@ export const useGitHubData = (getOctokit: () => any) => {
       query ($queryString: String!, $first: Int!, $after: String) {
         search(query: $queryString, type: ISSUE, first: $first, after: $after) {
           issueCount
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
           edges {
             cursor
             node {
               ... on Issue {
-                id
+                databaseId
                 title
                 url
                 createdAt
+                state
+                repository { url }
               }
               ... on PullRequest {
-                id
+                databaseId
                 title
                 url
                 createdAt
+                state
+                mergedAt
+                repository { url }
               }
             }
           }

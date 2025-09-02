@@ -103,9 +103,9 @@ export default function ContributorProfile() {
     fetchData();
   }, [username]);
 
-  const handleCopyLink = () => {
+  const handleCopyLink = async () => {
     try {
-      navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(window.location.href);
       toast.success("🔗 Shareable link copied to clipboard!");
     } catch {
       toast.error("Could not copy link");

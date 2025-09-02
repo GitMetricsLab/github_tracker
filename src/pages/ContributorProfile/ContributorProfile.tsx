@@ -11,7 +11,7 @@ type Profile = {
 };
 
 type PR = {
-  id: number;
+  id: number; // from databaseId
   title: string;
   html_url: string;
   repository_url: string;

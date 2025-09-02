@@ -16,3 +16,18 @@ export async function ghFetch(
 
   return fetch(`${base}${path}`, { ...init, headers });
 }
+
+export async function ghJson<T>(
+  path: string,
+  token: string,
+  init: RequestInit = {}
+): Promise<T> {
+  const res = await ghFetch(path, token, init);
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(
+      `GitHub API ${res.status} ${res.statusText}${text ? `: ${text}` : ""}`
+    );
+  }
+  return res.json() as Promise<T>;
+}

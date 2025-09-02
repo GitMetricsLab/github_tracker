@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Tracker from "../pages/Tracker/Tracker.tsx";
 import About from "../pages/About/About";
 import Contact from "../pages/Contact/Contact";
@@ -19,6 +19,4 @@ const router = createBrowserRouter([
   { path: "/contributor/:username", element: <ContributorProfile /> },
 ]);
 
-export default function AppRouter() {
-  return <RouterProvider router={router} />;
-}
+export default router;

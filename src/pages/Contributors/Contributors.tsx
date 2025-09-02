@@ -69,6 +69,13 @@ export default function Contributors() {
           token
         );
 
+        // Some repos return 204 No Content when there are no contributors.
+        // res.ok is true for 204, but res.json() would throw; handle it explicitly.
+        if (res.status === 204) {
+          setContributors([]);
+          return;
+        }
+
         if (!res.ok) {
           const txt = await res.text();
           throw new Error(`GitHub ${res.status}: ${txt}`);

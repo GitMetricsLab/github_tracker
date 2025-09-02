@@ -56,15 +56,24 @@ export const useGitHubData = (getOctokit: () => any) => {
       after: page > 1 ? (cursorsRef.current?.[type]?.[page - 1] ?? null) : null,
     });
 
-    if (!cursorsRef.current[type]) {
-      cursorsRef.current[type] = {};
-    }
-    cursorsRef.current[type][page] = response.search.pageInfo.endCursor;
+    const items = response.search.edges.map((edge: any) => {
+      const n = edge.node;
+      const base = {
+        id: n.databaseId,
+        title: n.title,
+        html_url: n.url,
+        created_at: n.createdAt,
+        state: n.state,
+        repository_url: n.repository.url,
+      };
+      return n.mergedAt ? { ...base, pull_request: { merged_at: n.mergedAt } } : base;
+    });
 
-    return {
-      items: response.search.edges.map((edge: any) => edge.node),
-      total: response.search.issueCount,
-    };
+    // cache cursor for pagination
+    if (!cursorsRef.current[type]) cursorsRef.current[type] = {};
+    cursorsRef.current[type][page] = response.search.pageInfo.endCursor ?? null;
+
+    return { items, total: response.search.issueCount };
   };
 
   const fetchData = useCallback(

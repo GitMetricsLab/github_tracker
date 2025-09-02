@@ -1,18 +1,19 @@
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import ThemeWrapper from "./context/ThemeContext";
 
-import Tracker from "./pages/Tracker/Tracker.tsx";
-import About from "./pages/About/About";
-import Contact from "./pages/Contact/Contact";
-import Contributors from "./pages/Contributors/Contributors";
-import Signup from "./pages/Signup/Signup.tsx";
-import Login from "./pages/Login/Login.tsx";
-import ContributorProfile from "./pages/ContributorProfile/ContributorProfile.tsx";
-import Home from "./pages/Home/Home.tsx";
+const Home = lazy(() => import("./pages/Home/Home.tsx"));
+const Tracker = lazy(() => import("./pages/Tracker/Tracker.tsx"));
+const About = lazy(() => import("./pages/About/About"));
+const Contact = lazy(() => import("./pages/Contact/Contact"));
+const Contributors = lazy(() => import("./pages/Contributors/Contributors"));
+const Signup = lazy(() => import("./pages/Signup/Signup.tsx"));
+const Login = lazy(() => import("./pages/Login/Login.tsx"));
+const ContributorProfile = lazy(() => import("./pages/ContributorProfile/ContributorProfile.tsx"));
 
 function RootLayout() {
   return (
@@ -21,7 +22,9 @@ function RootLayout() {
         <ScrollProgressBar />
         <Navbar />
         <main className="flex-grow bg-gray-50 dark:bg-gray-800 flex justify-center items-center">
-          <Outlet />
+          <Suspense fallback={<div className="p-6">Loading…</div>}>
+            <Outlet />
+          </Suspense>
         </main>
         <Footer />
         <Toaster
@@ -44,6 +47,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
+    errorElement: <div className="p-6">Something went wrong loading this page.</div>,
     children: [
       { index: true, element: <Home /> },
       { path: "track", element: <Tracker /> },
@@ -61,7 +65,6 @@ export default function AppRouter() {
   return (
     <RouterProvider
       router={router}
-      future={{ v7_startTransition: true } as any}
     />
   );
 }

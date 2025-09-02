@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 export const useGitHubData = (getOctokit: () => any) => {
+  type SearchType = 'issue' | 'pr';
   const [issues, setIssues] = useState([]);
   const [prs, setPrs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -9,12 +10,12 @@ export const useGitHubData = (getOctokit: () => any) => {
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
-  const cursorsRef = useRef<{ issue: Record<number, string | null>, pr: Record<number, string | null> }>({
+  const cursorsRef = useRef<Record<SearchType, Record<number, string | null>>>({
     issue: {},
     pr: {},
   });
 
-  const fetchPaginated = async (octokit: any, username: string, type: string, page = 1, per_page = 10) => {
+  const fetchPaginated = async (octokit: any, username: string, type: SearchType, page = 1, per_page = 10) => {
     const query = `
       query ($queryString: String!, $first: Int!, $after: String) {
         search(query: $queryString, type: ISSUE, first: $first, after: $after) {
@@ -53,7 +54,7 @@ export const useGitHubData = (getOctokit: () => any) => {
     const response = await octokit.graphql(query, {
       queryString,
       first: Math.min(100, per_page),
-      after: page > 1 ? (cursorsRef.current?.[type]?.[page - 1] ?? null) : null,
+      after: page > 1 ? (cursorsRef.current[type]?.[page - 1] ?? null) : null,
     });
 
     const items = response.search.edges.map((edge: any) => {

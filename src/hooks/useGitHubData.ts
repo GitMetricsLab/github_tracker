@@ -68,7 +68,11 @@ export const useGitHubData = (getOctokit: () => any) => {
         state: n.state,
         repository_url: n.repository.url,
       };
-      return n.mergedAt ? { ...base, pull_request: { merged_at: n.mergedAt } } : base;
+      // Always tag PRs with a pull_request marker; merged_at may be null for open PRs
+      if (type === 'pr') {
+        return { ...base, pull_request: { merged_at: n.mergedAt ?? null } };
+      }
+      return base;
     });
 
     // cache cursor for pagination (keyed by username + page size)

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export const useGitHubData = (getOctokit: () => any) => {
   const [issues, setIssues] = useState([]);
@@ -8,6 +8,11 @@ export const useGitHubData = (getOctokit: () => any) => {
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
+
+  const cursorsRef = useRef<{ issue: Record<number, string | null>, pr: Record<number, string | null> }>({
+    issue: {},
+    pr: {},
+  });
 
   const fetchPaginated = async (octokit: any, username: string, type: string, page = 1, per_page = 10) => {
     const query = `
@@ -44,12 +49,17 @@ export const useGitHubData = (getOctokit: () => any) => {
       }
     `;
 
-    const queryString = `author:${username} is:${type}`;
+    const queryString = `author:${username} is:${type} sort:updated-desc`;
     const response = await octokit.graphql(query, {
       queryString,
-      first: per_page,
-      after: page > 1 ? btoa(`cursor:${(page - 1) * per_page}`) : null,
+      first: Math.min(100, per_page),
+      after: page > 1 ? (cursorsRef.current?.[type]?.[page - 1] ?? null) : null,
     });
+
+    if (!cursorsRef.current[type]) {
+      cursorsRef.current[type] = {};
+    }
+    cursorsRef.current[type][page] = response.search.pageInfo.endCursor;
 
     return {
       items: response.search.edges.map((edge: any) => edge.node),

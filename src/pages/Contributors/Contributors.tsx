@@ -1,20 +1,28 @@
 import { ghFetch as gh } from "../../lib/githubFetch";
 import { useEffect, useState } from "react";
 
+type Contributor = {
+  id: number;
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  contributions: number;
+};
+
 export default function Contributors() {
-  const [contributors, setContributors] = useState<any[]>([]);
+  const [contributors, setContributors] = useState<Contributor[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    async function getToken() {
-      return (
-        localStorage.getItem("gh_pat") ||
-        localStorage.getItem("github_pat") ||
-        localStorage.getItem("token") ||
-        ""
-      );
-    }
+    const ac = new AbortController();
+    let isMounted = true;
+
+    const getToken = () =>
+      localStorage.getItem("gh_pat") ||
+      localStorage.getItem("github_pat") ||
+      localStorage.getItem("token") ||
+      "";
 
     async function resolveRepoFullName(token: string): Promise<string | null> {
       // Try to find the repo by searching both org and user scopes and dash/underscore variants
@@ -53,11 +61,7 @@ export default function Contributors() {
       setLoading(true);
       setError("");
       setContributors([]);
-      const token =
-        localStorage.getItem("gh_pat") ||
-        localStorage.getItem("github_pat") ||
-        localStorage.getItem("token") ||
-        "";
+      const token = getToken();
 
       try {
         const fallback = "ASR1015/github_tracker";
@@ -72,6 +76,7 @@ export default function Contributors() {
         // Some repos return 204 No Content when there are no contributors.
         // res.ok is true for 204, but res.json() would throw; handle it explicitly.
         if (res.status === 204) {
+          if (!isMounted) return;
           setContributors([]);
           return;
         }
@@ -82,19 +87,26 @@ export default function Contributors() {
         }
 
         const data = await res.json();
-        setContributors(Array.isArray(data) ? data : []);
+        if (!isMounted) return;
+        setContributors(Array.isArray(data) ? (data as Contributor[]) : []);
       } catch (err: any) {
-        setError(
-          err?.message ||
-            "Failed to fetch contributors. Check owner/repo and token (use 'repo' scope if private)."
-        );
+        if (isMounted)
+          setError(
+            err?.message ||
+              "Failed to fetch contributors. Check owner/repo and token (use 'repo' scope if private)."
+          );
         console.error("[contributors] error", err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
 
     loadContributors();
+
+    return () => {
+      isMounted = false;
+      ac.abort();
+    };
   }, []);
 
   return (

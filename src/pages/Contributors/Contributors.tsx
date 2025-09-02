@@ -33,7 +33,7 @@ export default function Contributors() {
         for (const name of names) {
           // org search
           try {
-            const q = `org:${owner}+${name}+in:name`;
+            const q = ['org:' + owner, name, 'in:name'].join(' ');
             const res = await gh(`/search/repositories?q=${encodeURIComponent(q)}&per_page=5`, token);
             const json = await res.json();
             const match = (json.items || []).find(
@@ -44,7 +44,7 @@ export default function Contributors() {
 
           // user search
           try {
-            const q2 = `user:${owner}+${name}+in:name`;
+            const q2 = ['user:' + owner, name, 'in:name'].join(' ');
             const res2 = await gh(`/search/repositories?q=${encodeURIComponent(q2)}&per_page=5`, token);
             const json2 = await res2.json();
             const match2 = (json2.items || []).find(

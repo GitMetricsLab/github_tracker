@@ -10,7 +10,7 @@ export const useGitHubData = (getOctokit: () => any) => {
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
-  const cursorsRef = useRef<Record<SearchType, Record<number, string | null>>>({
+  const cursorsRef = useRef<Record<SearchType, Record<string, Record<number, string | null>>>>({
     issue: {},
     pr: {},
   });
@@ -51,10 +51,11 @@ export const useGitHubData = (getOctokit: () => any) => {
     `;
 
     const queryString = `author:${username} is:${type} sort:updated-desc`;
+    const cursorKey = `${username}:${Math.min(100, per_page)}`;
     const response = await octokit.graphql(query, {
       queryString,
       first: Math.min(100, per_page),
-      after: page > 1 ? (cursorsRef.current[type]?.[page - 1] ?? null) : null,
+      after: page > 1 ? (cursorsRef.current[type]?.[cursorKey]?.[page - 1] ?? null) : null,
     });
 
     const items = response.search.edges.map((edge: any) => {
@@ -70,9 +71,10 @@ export const useGitHubData = (getOctokit: () => any) => {
       return n.mergedAt ? { ...base, pull_request: { merged_at: n.mergedAt } } : base;
     });
 
-    // cache cursor for pagination
+    // cache cursor for pagination (keyed by username + page size)
     if (!cursorsRef.current[type]) cursorsRef.current[type] = {};
-    cursorsRef.current[type][page] = response.search.pageInfo.endCursor ?? null;
+    if (!cursorsRef.current[type][cursorKey]) cursorsRef.current[type][cursorKey] = {};
+    cursorsRef.current[type][cursorKey][page] = response.search.pageInfo.endCursor ?? null;
 
     return { items, total: response.search.issueCount };
   };

@@ -93,9 +93,22 @@ export default function ContributorProfile() {
           );
         }
 
-        const prsData = await prsRes.json();
-        const prs = prsData.data?.search?.nodes || [];
-        setPRs(prs as PR[]);
+        const prsPayload = await prsRes.json();
+        // GraphQL responses may include an `errors` array even when the HTTP status is 200
+        if (Array.isArray(prsPayload.errors) && prsPayload.errors.length) {
+          throw new Error(prsPayload.errors.map((e: any) => e?.message ?? "").join("; "));
+        }
+
+        const nodes: any[] = prsPayload?.data?.search?.nodes ?? [];
+        const mapped: PR[] = nodes.map((n: any) => ({
+          id: n?.databaseId as number,
+          title: n?.title as string,
+          html_url: n?.url as string,
+          // GitHub repo URL lets us derive owner/repo downstream
+          repository_url: n?.repository?.url as string,
+        }));
+
+        setPRs(mapped);
       } catch (error: any) {
         toast.error(`Failed to fetch user data. ${error?.message ?? ""}`);
       } finally {

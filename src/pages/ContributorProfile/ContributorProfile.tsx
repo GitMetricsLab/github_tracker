@@ -1,16 +1,25 @@
+import { ghFetch as gh } from "../../lib/githubFetch";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+type Profile = {
+  login: string;
+  avatar_url: string;
+  bio?: string | null;
+  html_url: string;
+};
+
 type PR = {
+  id: number;
   title: string;
   html_url: string;
   repository_url: string;
 };
 
 export default function ContributorProfile() {
-  const { username } = useParams();
-  const [profile, setProfile] = useState<any>(null);
+  const { username } = useParams<{ username: string }>();
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [prs, setPRs] = useState<PR[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,18 +27,28 @@ export default function ContributorProfile() {
     async function fetchData() {
       if (!username) return;
 
+      const token =
+        localStorage.getItem("gh_pat") ||
+        localStorage.getItem("github_pat") ||
+        localStorage.getItem("token") ||
+        "";
+
       try {
-        const userRes = await fetch(`https://api.github.com/users/${username}`);
-        const userData = await userRes.json();
+        // fetch user profile
+        const userRes = await gh(`/users/${encodeURIComponent(username)}`, token);
+        const userData = (await userRes.json()) as Profile;
         setProfile(userData);
 
-        const prsRes = await fetch(
-          `https://api.github.com/search/issues?q=author:${username}+type:pr`
+        // fetch PRs authored by the user (latest first)
+        const q = `author:${encodeURIComponent(username)}+type:pr`;
+        const prsRes = await gh(
+          `/search/issues?q=${q}&per_page=100&sort=updated&order=desc`,
+          token
         );
         const prsData = await prsRes.json();
-        setPRs(prsData.items);
-      } catch (error) {
-        toast.error("Failed to fetch user data.");
+        setPRs(Array.isArray(prsData.items) ? (prsData.items as PR[]) : []);
+      } catch (error: any) {
+        toast.error(`Failed to fetch user data. ${error?.message ?? ""}`);
       } finally {
         setLoading(false);
       }
@@ -39,8 +58,12 @@ export default function ContributorProfile() {
   }, [username]);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success("🔗 Shareable link copied to clipboard!");
+    try {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("🔗 Shareable link copied to clipboard!");
+    } catch {
+      toast.error("Could not copy link");
+    }
   };
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
@@ -55,11 +78,20 @@ export default function ContributorProfile() {
       <div className="text-center">
         <img
           src={profile.avatar_url}
-          alt="Avatar"
+          alt={`${profile.login} avatar`}
           className="w-24 h-24 mx-auto rounded-full"
         />
-        <h2 className="text-2xl font-bold mt-2">{profile.login}</h2>
-        <p className="">{profile.bio}</p>
+        <h2 className="text-2xl font-bold mt-2">
+          <a
+            href={profile.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            {profile.login}
+          </a>
+        </h2>
+        {profile.bio && <p className="mt-1 opacity-90">{profile.bio}</p>}
         <button
           onClick={handleCopyLink}
           className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-800 transition text-white"
@@ -71,10 +103,10 @@ export default function ContributorProfile() {
       <h3 className="text-xl font-semibold mt-6 mb-2">Pull Requests</h3>
       {prs.length > 0 ? (
         <ul className="list-disc ml-6 space-y-2">
-          {prs.map((pr, i) => {
+          {prs.map((pr) => {
             const repoName = pr.repository_url.split("/").slice(-2).join("/");
             return (
-              <li key={i}>
+              <li key={pr.id}>
                 <a
                   href={pr.html_url}
                   target="_blank"

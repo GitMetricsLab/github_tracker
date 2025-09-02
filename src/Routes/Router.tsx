@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Tracker from "../pages/Tracker/Tracker.tsx";
 import About from "../pages/About/About";
 import Contact from "../pages/Contact/Contact";
@@ -8,19 +8,17 @@ import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
 
-const Router = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/track" element={<Tracker />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/contributors" element={<Contributors />} />
-      <Route path="/contributor/:username" element={<ContributorProfile />} />
-    </Routes>
-  );
-};
+const router = createBrowserRouter([
+  { path: "/", element: <Home /> },
+  { path: "/track", element: <Tracker /> },
+  { path: "/signup", element: <Signup /> },
+  { path: "/login", element: <Login /> },
+  { path: "/about", element: <About /> },
+  { path: "/contact", element: <Contact /> },
+  { path: "/contributors", element: <Contributors /> },
+  { path: "/contributor/:username", element: <ContributorProfile /> },
+]);
 
-export default Router;
+export default function AppRouter() {
+  return <RouterProvider router={router} />;
+}

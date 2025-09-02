@@ -1,144 +1,135 @@
+import { ghFetch as gh } from "../../lib/githubFetch";
 import { useEffect, useState } from "react";
-import {
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Avatar,
-  Typography,
-  Button,
-  Box,
-  CircularProgress,
-  Alert,
-} from "@mui/material";
-import { FaGithub } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import { GITHUB_REPO_CONTRIBUTORS_URL } from "../../utils/constants";
 
-interface Contributor {
+type Contributor = {
   id: number;
   login: string;
   avatar_url: string;
-  contributions: number;
   html_url: string;
-}
-
-const ContributorsPage = () => {
-  const [contributors, setContributors] = useState<Contributor[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch contributors from GitHub API
-  useEffect(() => {
-    const fetchContributors = async () => {
-      try {
-        const response = await axios.get(GITHUB_REPO_CONTRIBUTORS_URL, {
-          withCredentials: false,
-        });
-        setContributors(response.data);
-      } catch (err) {
-        setError("Failed to fetch contributors. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContributors();
-  }, []);
-
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ mt: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    );
-  }
-
-  return (
-    <div className="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen p-4 mt-4">
-      <Container>
-        <Typography sx={{ pb: 2 }} variant="h4" align="center" gutterBottom>
-          🤝 Contributors
-        </Typography>
-
-        <Grid container spacing={4}>
-          {contributors.map((contributor) => (
-            <Grid item xs={12} sm={6} md={3} key={contributor.id}>
-                <Card
-                  sx={{
-                    textAlign: "center",
-                    p: 2,
-                    borderRadius: "10px",
-                    border: "1px solid #E0E0E0",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                    transition: "transform 0.3s ease-in-out",
-                    "&:hover": {
-                      transform: "scale(1.05)",
-                      boxShadow: "0 8px 15px rgba(0,0,0,0.2)",
-                      borderColor: "#C0C0C0",
-                      outlineColor: "#B3B3B3",
-                    },
-                  }}
-                >
-                    <Link
-                        to={`/contributor/${contributor.login}`}
-                        style={{ textDecoration: "none" }}
-                    >
-                    <Avatar
-                        src={contributor.avatar_url}
-                        alt={contributor.login}
-                        sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}
-                    />
-                    <CardContent>
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                        {contributor.login}
-                        </Typography>
-
-                        <Typography variant="body2" color="text.secondary">
-                        {contributor.contributions} Contributions
-                        </Typography>
-                        {/*
-                        <Typography variant="body2" sx={{ mt: 2 }}>
-                        Thank you for your valuable contributions to our
-                        community!
-                        </Typography> */}
-                    </CardContent>
-                    </Link>
-
-                    <Box sx={{ mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            startIcon={<FaGithub />}
-                            href={contributor.html_url}
-                            target="_blank"
-                            sx={{
-                                backgroundColor: "#333333",
-                                textTransform: "none",
-                                color: "#FFFFFF",
-                                "&:hover": {
-                                backgroundColor: "#555555",
-                                },
-                            }}
-                            >
-                            GitHub
-                        </Button>
-                    </Box>
-                </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-    </div>
-  );
+  contributions: number;
 };
 
-export default ContributorsPage;
+export default function Contributors() {
+  const [contributors, setContributors] = useState<Contributor[]>([]);
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    let isMounted = true;
+
+    const getToken = () =>
+      localStorage.getItem("gh_pat") ||
+      localStorage.getItem("github_pat") ||
+      localStorage.getItem("token") ||
+      "";
+
+    async function resolveRepoFullName(token: string): Promise<string | null> {
+      // Try to find the repo by searching both org and user scopes and dash/underscore variants
+      const owners = ["GitMetricsLab", "gitmetricsslab", "ASR1015"]; // include common forks/owners
+      const names = ["github-tracker", "github_tracker"]; // dash vs underscore
+
+      for (const owner of owners) {
+        for (const name of names) {
+          // org search
+          try {
+            const q = ['org:' + owner, name, 'in:name'].join(' ');
+            const res = await gh(`/search/repositories?q=${encodeURIComponent(q)}&per_page=5`, token);
+            const json = await res.json();
+            const match = (json.items || []).find(
+              (it: any) => it.name.toLowerCase() === name.toLowerCase()
+            );
+            if (match?.full_name) return match.full_name as string;
+          } catch {}
+
+          // user search
+          try {
+            const q2 = ['user:' + owner, name, 'in:name'].join(' ');
+            const res2 = await gh(`/search/repositories?q=${encodeURIComponent(q2)}&per_page=5`, token);
+            const json2 = await res2.json();
+            const match2 = (json2.items || []).find(
+              (it: any) => it.name.toLowerCase() === name.toLowerCase()
+            );
+            if (match2?.full_name) return match2.full_name as string;
+          } catch {}
+        }
+      }
+      return null;
+    }
+
+    async function loadContributors() {
+      setLoading(true);
+      setError("");
+      setContributors([]);
+      const token = getToken();
+
+      try {
+        const fallback = "ASR1015/github_tracker";
+        const fullName = (await resolveRepoFullName(token)) ?? fallback;
+        console.log(`[contributors] fetching for ${fullName}`);
+
+        const res = await gh(
+          `/repos/${fullName}/contributors?per_page=50`,
+          token
+        );
+
+        // Some repos return 204 No Content when there are no contributors.
+        // res.ok is true for 204, but res.json() would throw; handle it explicitly.
+        if (res.status === 204) {
+          if (!isMounted) return;
+          setContributors([]);
+          return;
+        }
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`GitHub ${res.status}: ${txt}`);
+        }
+
+        const data = await res.json();
+        if (!isMounted) return;
+        setContributors(Array.isArray(data) ? (data as Contributor[]) : []);
+      } catch (err: any) {
+        if (isMounted)
+          setError(
+            err?.message ||
+              "Failed to fetch contributors. Check owner/repo and token (use 'repo' scope if private)."
+          );
+        console.error("[contributors] error", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadContributors();
+
+    return () => {
+      isMounted = false;
+      ac.abort();
+    };
+  }, []);
+
+  return (
+    <div className="p-6 w-full max-w-3xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-4">Contributors</h1>
+      {loading && <div className="opacity-70 mb-2">Loading…</div>}
+      {error && (
+        <div className="mb-4 rounded-md border border-red-300 bg-red-50 p-3 text-red-700">{error}</div>
+      )}
+      <ul className="space-y-2">
+        {contributors.map((c) => (
+          <li key={c.id} className="flex items-center gap-3">
+            <img src={c.avatar_url} alt={c.login} width={32} height={32} className="rounded-full" />
+            <a href={c.html_url} target="_blank" rel="noreferrer" className="text-blue-700 hover:underline">
+              {c.login}
+            </a>
+            <span className="opacity-70">({c.contributions} contributions)</span>
+          </li>
+        ))}
+        {!loading && contributors.length === 0 && !error && (
+          <li className="opacity-70">No contributors found.</li>
+        )}
+      </ul>
+    </div>
+  );
+}

@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 export const useGitHubData = (getOctokit: () => any) => {
+  type SearchType = 'issue' | 'pr';
   const [issues, setIssues] = useState([]);
   const [prs, setPrs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -9,20 +10,77 @@ export const useGitHubData = (getOctokit: () => any) => {
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
-  const fetchPaginated = async (octokit: any, username: string, type: string, page = 1, per_page = 10) => {
-    const q = `author:${username} is:${type}`;
-    const response = await octokit.request('GET /search/issues', {
-      q,
-      sort: 'created',
-      order: 'desc',
-      per_page,
-      page,
+  const cursorsRef = useRef<Record<SearchType, Record<string, Record<number, string | null>>>>({
+    issue: {},
+    pr: {},
+  });
+
+  const fetchPaginated = async (octokit: any, username: string, type: SearchType, page = 1, per_page = 10) => {
+    const query = `
+      query ($queryString: String!, $first: Int!, $after: String) {
+        search(query: $queryString, type: ISSUE, first: $first, after: $after) {
+          issueCount
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            cursor
+            node {
+              ... on Issue {
+                databaseId
+                title
+                url
+                createdAt
+                state
+                repository { url }
+              }
+              ... on PullRequest {
+                databaseId
+                title
+                url
+                createdAt
+                state
+                mergedAt
+                repository { url }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const queryString = `author:${username} is:${type} sort:updated-desc`;
+    const cursorKey = `${username}:${Math.min(100, per_page)}`;
+    const response = await octokit.graphql(query, {
+      queryString,
+      first: Math.min(100, per_page),
+      after: page > 1 ? (cursorsRef.current[type]?.[cursorKey]?.[page - 1] ?? null) : null,
     });
 
-    return {
-      items: response.data.items,
-      total: response.data.total_count,
-    };
+    const items = response.search.edges.map((edge: any) => {
+      const n = edge.node;
+      const base = {
+        id: n.databaseId,
+        title: n.title,
+        html_url: n.url,
+        created_at: n.createdAt,
+        state: n.state,
+        repository_url: n.repository.url,
+      };
+      // Always tag PRs with a pull_request marker; merged_at may be null for open PRs
+      if (type === 'pr') {
+        return { ...base, pull_request: { merged_at: n.mergedAt ?? null } };
+      }
+      return base;
+    });
+
+    // cache cursor for pagination (keyed by username + page size)
+    if (!cursorsRef.current[type]) cursorsRef.current[type] = {};
+    if (!cursorsRef.current[type][cursorKey]) cursorsRef.current[type][cursorKey] = {};
+    cursorsRef.current[type][cursorKey][page] = response.search.pageInfo.endCursor ?? null;
+
+    return { items, total: response.search.issueCount };
   };
 
   const fetchData = useCallback(

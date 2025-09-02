@@ -10,18 +10,41 @@ export const useGitHubData = (getOctokit: () => any) => {
   const [rateLimited, setRateLimited] = useState(false);
 
   const fetchPaginated = async (octokit: any, username: string, type: string, page = 1, per_page = 10) => {
-    const q = `author:${username} is:${type}`;
-    const response = await octokit.request('GET /search/issues', {
-      q,
-      sort: 'created',
-      order: 'desc',
-      per_page,
-      page,
+    const query = `
+      query ($queryString: String!, $first: Int!, $after: String) {
+        search(query: $queryString, type: ISSUE, first: $first, after: $after) {
+          issueCount
+          edges {
+            cursor
+            node {
+              ... on Issue {
+                id
+                title
+                url
+                createdAt
+              }
+              ... on PullRequest {
+                id
+                title
+                url
+                createdAt
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const queryString = `author:${username} is:${type}`;
+    const response = await octokit.graphql(query, {
+      queryString,
+      first: per_page,
+      after: page > 1 ? btoa(`cursor:${(page - 1) * per_page}`) : null,
     });
 
     return {
-      items: response.data.items,
-      total: response.data.total_count,
+      items: response.search.edges.map((edge: any) => edge.node),
+      total: response.search.issueCount,
     };
   };
 

@@ -53,12 +53,34 @@ export default function ContributorProfile() {
         const userData = (await userRes.json()) as Profile;
         setProfile(userData);
 
-        // fetch PRs authored by the user (latest first)
-        const q = encodeURIComponent(`author:${username} type:pr`);
-        const prsRes = await gh(
-          `/search/issues?q=${q}&per_page=100&sort=updated&order=desc`,
-          token
-        );
+        // fetch PRs authored by the user (latest first) using GraphQL
+        const gqlQuery = {
+          query: `
+            query($query: String!) {
+              search(query: $query, type: ISSUE, first: 100) {
+                nodes {
+                  ... on PullRequest {
+                    id
+                    title
+                    url
+                    repository {
+                      nameWithOwner
+                    }
+                  }
+                }
+              }
+            }
+          `,
+          variables: {
+            query: `author:${username} type:pr sort:updated-desc`,
+          },
+        };
+
+        const prsRes = await gh("/graphql", token, {
+          method: "POST",
+          body: JSON.stringify(gqlQuery),
+        });
+
         if (!prsRes.ok) {
           const msg = await prsRes.text().catch(() => "");
           throw new Error(
@@ -67,8 +89,10 @@ export default function ContributorProfile() {
             }`
           );
         }
+
         const prsData = await prsRes.json();
-        setPRs(Array.isArray(prsData.items) ? (prsData.items as PR[]) : []);
+        const prs = prsData.data?.search?.nodes || [];
+        setPRs(prs as PR[]);
       } catch (error: any) {
         toast.error(`Failed to fetch user data. ${error?.message ?? ""}`);
       } finally {

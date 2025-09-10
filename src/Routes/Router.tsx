@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Tracker from "../pages/Tracker/Tracker.tsx";
-import About from "../pages/About/About";
-import Contact from "../pages/Contact/Contact";
-import Contributors from "../pages/Contributors/Contributors";
+import About from "../pages/About/About.tsx";
+import Contact from "../pages/Contact/Contact.tsx";
+import Contributors from "../pages/Contributors/Contributors.tsx";
 import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";

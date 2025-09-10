@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
-import Router from "./Routes/Router";
+import Router from "./routes/Router";
 import ThemeWrapper from "./context/ThemeContext";
 
 function App() {

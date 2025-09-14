@@ -1,13 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-    content: [
-      "./index.html",                      // For any HTML files in the root
-      "./src/**/*.{js,jsx,ts,tsx}",         // For all JS/JSX/TS/TSX files inside src folder
-    ],
-    theme: {
-      extend: {},
+  content: [
+    "./index.html",
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  theme: {
+    extend: {
+      dropShadow: {
+        glow: "0 0 8px rgba(255, 255, 255, 0.6)", // white glow
+      },
     },
-    plugins: [],
-  }
-  
+  },
+  plugins: [],
+}

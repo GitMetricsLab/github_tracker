@@ -6,6 +6,7 @@ import Contributors from "../pages/Contributors/Contributors";
 import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
+import Profile from "../pages/Profile/Profile";
 import Home from "../pages/Home/Home.tsx";
 
 const Router = () => {
@@ -18,6 +19,7 @@ const Router = () => {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/contributors" element={<Contributors />} />
+  <Route path="/profile" element={<Profile />} />
       <Route path="/contributor/:username" element={<ContributorProfile />} />
     </Routes>
   );

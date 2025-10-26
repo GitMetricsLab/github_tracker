@@ -30,7 +30,8 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGitHubAuth } from "../../hooks/useGitHubAuth";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import { useGitHubData } from "../../hooks/useGitHubData";
 
 const ROWS_PER_PAGE = 10;
@@ -49,14 +50,14 @@ const Home: React.FC = () => {
 
   const theme = useTheme();
 
-  const {
-    username,
-    setUsername,
-    token,
-    setToken,
-    error: authError,
-    getOctokit,
-  } = useGitHubAuth();
+  const auth = useContext(AuthContext);
+
+  const username = auth?.username || "";
+  const setUsername = auth?.setUsername || (() => {});
+  const token = auth?.token || "";
+  const setToken = auth?.setToken || (() => {});
+  const authError = "";
+  const getOctokit = auth?.getOctokit || (() => null);
 
   const {
     issues,

@@ -116,6 +116,10 @@ spec_files: [
 
 ---
 
+[![Star History Chart](https://api.star-history.com/svg?repos=GitMetricsLab/github_tracker&type=Date)](https://www.star-history.com/#GitMetricsLab/github_tracker&Date)
+
+---
+
 # 👀 Our Contributors
 
 - We extend our heartfelt gratitude for your invaluable contribution to our project.

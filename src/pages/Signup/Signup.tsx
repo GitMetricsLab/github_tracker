@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate ,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import { useAuth } from "../../hooks/useAuth";
+
 interface SignUpFormData {
   username: string;
   email: string;
@@ -16,7 +16,10 @@ const SignUp: React.FC = () => {
     password: "" 
   });
   const [message, setMessage] = useState<string>("");
-const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const { signup } = useAuth();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -24,36 +27,19 @@ const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setMessage("");
+
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
-      );
-      setMessage(response.data.message); // Show success message from backend
-
-      // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
-        navigate("/login");}
-
-    
-    // // Simulate API call (replace with your actual backend integration)
-    // try {
-    //   // Mock successful signup
-    //   setMessage("Account created successfully! Redirecting to login...");
-      
-    //   // In your actual implementation, integrate with your backend here:
-    //   // const response = await fetch(`${backendUrl}/api/auth/signup`, {
-    //   //   method: 'POST',
-    //   //   headers: { 'Content-Type': 'application/json' },
-    //   //   body: JSON.stringify(formData)
-    //   // });
-      
-    //   setTimeout(() => {
-    //     // Navigate to login page in your actual implementation
-    //     console.log("Redirecting to login page...");
-    //   }, 2000);
-      
-    } catch (error) {
-      setMessage("Something went wrong. Please try again.");
+      await signup(formData.username, formData.email, formData.password);
+      setMessage("Account created successfully! Redirecting to tracker...");
+      setTimeout(() => {
+        navigate("/track");
+      }, 500);
+    } catch (error: any) {
+      setMessage(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,7 +65,7 @@ const navigate = useNavigate();
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
           <h2 className="text-2xl font-semibold text-white text-center mb-8">Create Account</h2>
           
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-purple-300" />
@@ -126,12 +112,13 @@ const navigate = useNavigate();
             </div>
 
             <button
-              onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-4 rounded-2xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-400 transform hover:scale-105 transition-all duration-300 shadow-lg"
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-4 rounded-2xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-400 transform hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Account
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
-          </div>
+          </form>
 
           {message && (
             <div className={`text-center mt-6 p-3 rounded-xl ${

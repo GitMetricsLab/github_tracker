@@ -7,12 +7,20 @@ import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 const Router = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/track" element={<Tracker />} />
+      <Route
+        path="/track"
+        element={
+          <ProtectedRoute>
+            <Tracker />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
       <Route path="/about" element={<About />} />

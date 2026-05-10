@@ -1,10 +1,8 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import { useAuth } from "../../hooks/useAuth";
 
 interface LoginFormData {
   email: string;
@@ -17,6 +15,7 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+  const { login } = useAuth();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
 
@@ -28,16 +27,16 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setMessage("");
 
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, formData);
-      setMessage(response.data.message);
-
-      if (response.data.message === 'Login successful') {
-        navigate("/home");
-      }
+      await login(formData.email, formData.password);
+      setMessage("Login successful!");
+      setTimeout(() => {
+        navigate("/track");
+      }, 500);
     } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+      setMessage(error.message || "Login failed");
     } finally {
       setIsLoading(false);
     }

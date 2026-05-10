@@ -1,18 +1,33 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun } from 'lucide-react';
-
+import { Moon, Sun, LogOut } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 const Navbar: React.FC = () => {
-
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const themeContext = useContext(ThemeContext);
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  if (!themeContext)
-    return null;
+  if (!themeContext) return null;
 
   const { toggleTheme, mode } = themeContext;
+  //handling the logout process here, we set the isLoggingOut state to true, then we call the logout function from the AuthContext, and if it's successful, we navigate the user to the home page and close the mobile menu. If there's an error during logout, we log it to the console. Finally, we set isLoggingOut back to false regardless of the outcome.
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      navigate("/");
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
@@ -27,7 +42,7 @@ const Navbar: React.FC = () => {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex space-x-6 items-center">
           <Link
             to="/"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
@@ -46,17 +61,39 @@ const Navbar: React.FC = () => {
           >
             Contributors
           </Link>
-          <Link
-            to="/login"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
-            Login
-          </Link>
+
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                {user?.username}
+              </span>
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded flex items-center gap-2 disabled:opacity-50"
+              >
+                <LogOut className="h-5 w-5" />
+                {isLoggingOut ? "Logging out..." : "Logout"}
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+            >
+              Login
+            </Link>
+          )}
+
           <button
             onClick={toggleTheme}
             className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
           >
-            {mode === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {mode === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
           </button>
         </div>
 
@@ -117,13 +154,32 @@ const Navbar: React.FC = () => {
             >
               Contributors
             </Link>
-            <Link
-              to="/login"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-              onClick={() => setIsOpen(false)}
-            >
-              Login
-            </Link>
+
+            {isAuthenticated ? (
+              <>
+                <div className="border-t border-gray-300 dark:border-gray-700 pt-4">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">
+                    Logged in as: {user?.username}
+                  </p>
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="block w-full text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded text-left disabled:opacity-50"
+                  >
+                    {isLoggingOut ? "Logging out..." : "Logout"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Link>
+            )}
+
             <button
               onClick={() => {
                 toggleTheme();

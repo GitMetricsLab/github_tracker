@@ -1,4 +1,5 @@
 # 🌟 **GitHub Tracker** 🌟
+
 <!-- top -->
 
 **Track Activity of Users on GitHub**
@@ -41,23 +42,28 @@ Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyz
 ---
 
 ## 🚀 Setup Guide
+
 1. Clone the repository to your local machine:
+
 ```bash
 $ git clone https://github.com/yourusername/github-tracker.git
 ```
 
 2. Navigate to the project directory:
+
 ```bash
 $ cd github-tracker
 ```
 
 3. Run the frontend
+
 ```bash
 $ npm i
 $ npm run dev
 ```
 
 4. Run the backend
+
 ```bash
 $ npm i
 $ npm start
@@ -66,22 +72,27 @@ $ npm start
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 
 This project uses the Jasmine framework for backend unit and integration tests. The tests cover:
+
 - User model (password hashing, schema, password comparison)
 - Authentication routes (signup, login, logout)
 - Passport authentication logic (via integration tests)
 
 ### Prerequisites
+
 - **Node.js** and **npm** installed
 - **MongoDB** running locally (default: `mongodb://127.0.0.1:27017`)
 
 ### Installation
+
 Install all required dependencies:
+
 ```sh
 npm install
 npm install --save-dev jasmine @types/jasmine supertest express-session passport passport-local bcryptjs
 ```
 
 ### Running the Tests
+
 1. **Start MongoDB** (if not already running):
    ```sh
    mongod
@@ -92,24 +103,26 @@ npm install --save-dev jasmine @types/jasmine supertest express-session passport
    ```
 
 ### Test Files
+
 - `spec/user.model.spec.cjs` — Unit tests for the User model
 - `spec/auth.routes.spec.cjs` — Integration tests for authentication routes
 
 ### Jasmine Configuration
+
 The Jasmine config (`spec/support/jasmine.mjs`) is set to recognize `.cjs`, `.js`, and `.mjs` test files:
+
 ```js
-spec_files: [
-  "**/*[sS]pec.?(m)js",
-  "**/*[sS]pec.cjs"
-]
+spec_files: ["**/*[sS]pec.?(m)js", "**/*[sS]pec.cjs"];
 ```
 
 ### Troubleshooting
+
 - **No specs found:** Ensure your test files have the correct extension and are in the `spec/` directory.
 - **MongoDB connection errors:** Make sure MongoDB is running and accessible.
 - **Missing modules:** Install any missing dev dependencies with `npm install --save-dev <module>`.
 
 ### What Was Covered
+
 - Jasmine is set up and configured for backend testing.
 - All major backend modules are covered by unit/integration tests.
 - Tests are passing and verified.
@@ -126,12 +139,10 @@ spec_files: [
 - Make sure you show some love by giving ⭐ to our repository.
 
 <div align="center">
-  <a href="https://github.com/mehul-m-prajapati/github_tracker">
-    <img src="https://contrib.rocks/image?repo=GitMetricsLab/github_tracker&&max=1000" />
-  </a>
+  <a href="https://github.com/GitMetricsLab/github_tracker/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=GitMetricsLab/github_tracker" />
+</a>
 </div>
-
-
 
 ---
 

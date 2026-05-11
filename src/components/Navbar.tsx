@@ -63,11 +63,14 @@ const Navbar: React.FC = () => {
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full bg-gray-100 dark:bg-dark-lighter text-gray-600 dark:text-gray-300"
+            aria-label="Toggle theme"
           >
             {mode === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
           <button
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Main menu"
+            aria-expanded={isOpen}
             className="relative w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-dark-lighter rounded-full focus:outline-none"
           >
             <div className="flex flex-col space-y-1.5 w-5">

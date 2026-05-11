@@ -6,8 +6,8 @@ const Hero = () => {
   return (
     <section className="relative overflow-hidden px-6 py-24 md:py-32 bg-white dark:bg-dark transition-colors duration-300">
       {/* Background Glows */}
-      <div className="bg-glow top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500 rounded-full animate-pulse-slow"></div>
-      <div className="bg-glow bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-indigo-500 rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+      <div aria-hidden="true" className="bg-glow top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500 rounded-full animate-pulse-slow"></div>
+      <div aria-hidden="true" className="bg-glow bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-indigo-500 rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center">

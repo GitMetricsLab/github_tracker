@@ -4,13 +4,12 @@ import Features from "../../components/Features";
 
 function Home() {
   return (
-    <div className="">
-        <Hero />
-        <Features />
-        <HowItWorks />
-
+    <div className="w-full">
+      <Hero />
+      <Features />
+      <HowItWorks />
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

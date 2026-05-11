@@ -1,45 +1,59 @@
+import { KeyRound, ListFilter, ScanSearch } from "lucide-react";
+
+const steps = [
+  {
+    icon: ScanSearch,
+    title: "Enter a GitHub user",
+    description: "Add a username and token to fetch reliable GitHub activity data.",
+  },
+  {
+    icon: ListFilter,
+    title: "Refine the activity",
+    description: "Switch between issues and pull requests, then filter by status, repo, or date.",
+  },
+  {
+    icon: KeyRound,
+    title: "Open the right context",
+    description: "Jump straight to GitHub when a result needs review or follow-up.",
+  },
+];
 
 const HowItWorks = () => {
-  const steps = [
-    {
-      number: 1,
-      title: 'Search Users',
-      description: 'Enter GitHub usernames or search for users by name. Add them to your tracking dashboard.'
-    },
-    {
-      number: 2,
-      title: 'Monitor Activity',
-      description: 'Watch insights of commits, pull requests, issues, and other GitHub activities.'
-    },
-    {
-      number: 3,
-      title: 'Analyze Insights',
-      description: 'Review detailed analytics, export reports, and gain valuable insights into development patterns.'
-    }
-  ];
-
   return (
-    <section id="how-it-works" className="px-6 py-10 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
-      <div className="mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">How It Works</h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Get started in minutes with our simple three-step process
+    <section id="how-it-works" className="w-full bg-slate-50 px-6 py-16 dark:bg-gray-950">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10 text-center">
+          <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
+            Workflow
           </p>
+          <h2 className="mt-2 text-3xl font-black text-gray-950 dark:text-white md:text-4xl">
+            From username to insight in three steps
+          </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {steps.map((step, index) => (
-            <div key={index} className="text-center">
-              <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
-                {step.number}
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{step.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                {step.description}
-              </p>
-            </div>
-          ))}
+        <div className="grid gap-4 md:grid-cols-3">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <article
+                key={step.title}
+                className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900"
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-white">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <span className="text-sm font-black text-gray-400">0{index + 1}</span>
+                </div>
+                <h3 className="text-xl font-black text-gray-950 dark:text-white">
+                  {step.title}
+                </h3>
+                <p className="mt-3 leading-7 text-gray-600 dark:text-gray-300">
+                  {step.description}
+                </p>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

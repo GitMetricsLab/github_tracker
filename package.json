@@ -7,6 +7,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "jasmine",
     "preview": "vite preview",
     "docker:dev": "docker compose --profile dev up --build",
     "docker:prod": "docker compose --profile prod up -d --build"
@@ -45,12 +46,15 @@
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
+    "express": "^5.2.1",
     "express-session": "^1.18.2",
     "globals": "^15.11.0",
     "jasmine": "^5.9.0",
+    "mongoose": "^9.6.2",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "supertest": "^7.1.4",
+    "typescript-eslint": "^8.59.2",
     "vite": "^5.4.10"
   }
 }

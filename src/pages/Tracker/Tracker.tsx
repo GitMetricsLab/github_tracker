@@ -83,7 +83,7 @@ const Home: React.FC = () => {
     if (username) {
       fetchData(username, page + 1, ROWS_PER_PAGE);
     }
-  }, [tab, page]);
+  }, [fetchData, page, tab, username]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();

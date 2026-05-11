@@ -7,8 +7,8 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
-import { ThemeContext } from "../../context/ThemeContext";
-import type { ThemeContextType } from "../../context/ThemeContext";
+import { ThemeContext } from "../../context/theme";
+import type { ThemeContextType } from "../../context/theme";
 
 function Contact() {
   const [showPopup, setShowPopup] = useState(false);

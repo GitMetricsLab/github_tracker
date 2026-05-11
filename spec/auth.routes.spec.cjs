@@ -1,10 +1,12 @@
-const mongoose = require('mongoose');
+const { createRequire } = require('module');
 const express = require('express');
 const request = require('supertest');
 const session = require('express-session');
-const passport = require('passport');
 const User = require('../backend/models/User');
 const authRoutes = require('../backend/routes/auth');
+const mongoose = User.base;
+const backendRequire = createRequire(require.resolve('../backend/package.json'));
+const passport = backendRequire('passport');
 
 // Setup Express app for testing
 function createTestApp() {
@@ -22,15 +24,14 @@ describe('Auth Routes', () => {
   let app;
 
   beforeAll(async () => {
-    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test');
     app = createTestApp();
   });
 
   afterAll(async () => {
-    await mongoose.connection.db.dropDatabase();
+    if (mongoose.connection.db) {
+      await mongoose.connection.db.dropDatabase();
+    }
     await mongoose.disconnect();
   });
 
@@ -93,4 +94,4 @@ describe('Auth Routes', () => {
     expect(res.status).toBe(200);
     expect(res.body.message).toBe('Logged out successfully');
   });
-}); 
+});

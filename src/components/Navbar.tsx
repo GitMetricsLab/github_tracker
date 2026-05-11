@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import { ThemeContext } from "../context/theme";
 import { Moon, Sun } from 'lucide-react';
 
 

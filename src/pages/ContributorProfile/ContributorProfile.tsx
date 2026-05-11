@@ -8,9 +8,15 @@ type PR = {
   repository_url: string;
 };
 
+type GitHubProfile = {
+  avatar_url: string;
+  login: string;
+  bio: string | null;
+};
+
 export default function ContributorProfile() {
   const { username } = useParams();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<GitHubProfile | null>(null);
   const [prs, setPRs] = useState<PR[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +34,7 @@ export default function ContributorProfile() {
         );
         const prsData = await prsRes.json();
         setPRs(prsData.items);
-      } catch (error) {
+      } catch {
         toast.error("Failed to fetch user data.");
       } finally {
         setLoading(false);

@@ -1,17 +1,16 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../backend/models/User');
+const mongoose = User.base;
 
 describe('User Model', () => {
   beforeAll(async () => {
-    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test');
   });
 
   afterAll(async () => {
-    await mongoose.connection.db.dropDatabase();
+    if (mongoose.connection.db) {
+      await mongoose.connection.db.dropDatabase();
+    }
     await mongoose.disconnect();
   });
 
@@ -47,4 +46,4 @@ describe('User Model', () => {
     const isNotMatch = await user.comparePassword('wrongpassword');
     expect(isNotMatch).toBeFalse();
   });
-}); 
+});

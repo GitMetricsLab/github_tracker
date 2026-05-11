@@ -52,7 +52,7 @@ const navigate = useNavigate();
     //     console.log("Redirecting to login page...");
     //   }, 2000);
       
-    } catch (error) {
+    } catch {
       setMessage("Something went wrong. Please try again.");
     }
   };

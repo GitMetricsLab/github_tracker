@@ -1,8 +1,8 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { ThemeContext } from "../../context/ThemeContext";
-import type { ThemeContextType } from "../../context/ThemeContext";
+import { ThemeContext } from "../../context/theme";
+import type { ThemeContextType } from "../../context/theme";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -36,8 +36,12 @@ const Login: React.FC = () => {
       if (response.data.message === 'Login successful') {
         navigate("/home");
       }
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+    } catch (error: unknown) {
+      if (axios.isAxiosError<{ message?: string }>(error)) {
+        setMessage(error.response?.data?.message || "Something went wrong");
+      } else {
+        setMessage("Something went wrong");
+      }
     } finally {
       setIsLoading(false);
     }

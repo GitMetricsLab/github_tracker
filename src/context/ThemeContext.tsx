@@ -1,13 +1,7 @@
 // src/ThemeContext.tsx
-import { createContext, useMemo, useState, useEffect, ReactNode } from 'react';
+import { useMemo, useState, useEffect, ReactNode } from 'react';
 import { createTheme, ThemeProvider, Theme } from '@mui/material/styles';
-
-interface ThemeContextType {
-  mode: 'light' | 'dark';
-  toggleTheme: () => void;
-}
-
-export const ThemeContext = createContext<ThemeContextType | null>(null);
+import { ThemeContext } from './theme';
 
 const THEME_STORAGE_KEY = 'theme';
 
@@ -46,4 +40,3 @@ const ThemeWrapper = ({ children }: { children: ReactNode }) => {
 };
 
 export default ThemeWrapper;
-export type { ThemeContextType };

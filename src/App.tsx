@@ -13,7 +13,7 @@ function App() {
 
         <Navbar />
 
-        <main className="flex-grow bg-gray-50 dark:bg-gray-800 flex justify-center items-center">
+        <main className="flex-grow bg-white dark:bg-dark flex justify-center items-center">
           <Router />
         </main>
 
@@ -25,7 +25,7 @@ function App() {
           gutter={8}
           containerClassName="mt-12"
           toastOptions={{
-            className: "bg-white dark:bg-gray-800 text-black dark:text-white",
+            className: "bg-white dark:bg-dark-lighter text-black dark:text-white",
             duration: 5000,
             success: {
               duration: 3000,

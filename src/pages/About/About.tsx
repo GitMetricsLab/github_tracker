@@ -44,7 +44,7 @@ const About = () => {
       </section>
 
       {/* Mission Section */}
-      <section className="py-20 px-6 bg-white dark:bg-gray-900 text-center">
+      <section className="py-20 px-6 bg-white dark:bg-dark text-center">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -61,13 +61,13 @@ const About = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 px-6 bg-gray-50 dark:bg-gray-950">
+      <section className="py-24 px-6 bg-gray-50 dark:bg-dark">
         <h2 className="text-4xl font-bold text-center mb-12">What We Do</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {features.map((feature, idx) => (
             <motion.div
               key={idx}
-              className="p-8 bg-white dark:bg-gray-800 shadow-lg rounded-2xl hover:shadow-xl transition duration-300 text-center border border-gray-100 dark:border-gray-700"
+              className="p-8 bg-white dark:bg-dark-lighter shadow-lg rounded-2xl hover:shadow-xl transition duration-300 text-center border border-gray-100 dark:border-dark-border"
               whileHover={{ scale: 1.05 }}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}

@@ -51,7 +51,7 @@ export default function ContributorProfile() {
     );
 
   return (
-    <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-xl">
+    <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-dark-lighter dark:text-white shadow-xl rounded-xl">
       <div className="text-center">
         <img
           src={profile.avatar_url}

@@ -7,9 +7,9 @@ export const useGitHubAuth = () => {
   const [error, setError] = useState('');
 
   const octokit = useMemo(() => {
-    if (!username || !token) return null;
+    if (!token) return null;
     return new Octokit({ auth: token });
-  }, [username, token]);
+  }, [token]);
 
   const getOctokit = () => octokit;
 

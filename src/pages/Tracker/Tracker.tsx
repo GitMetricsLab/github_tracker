@@ -33,7 +33,13 @@ import { useGitHubData } from "../../hooks/useGitHubData";
 import type { GitHubItem } from "../../hooks/useGitHubData";
 
 const ROWS_PER_PAGE = 10;
+const LOOKUP_HISTORY_KEY = "github-tracker-lookup-history";
 const stateOptions = ["all", "open", "closed", "merged"] as const;
+
+interface LookupHistoryItem {
+  username: string;
+  searchedAt: string;
+}
 
 const formatDate = (dateString: string): string =>
   new Intl.DateTimeFormat("en", {
@@ -70,6 +76,15 @@ const getStatusIcon = (item: GitHubItem) => {
   return <IssueOpenedIcon size={18} className="icon-issue-open" />;
 };
 
+const getLookupHistory = (): LookupHistoryItem[] => {
+  try {
+    const savedHistory = localStorage.getItem(LOOKUP_HISTORY_KEY);
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  } catch {
+    return [];
+  }
+};
+
 const Tracker: React.FC = () => {
   const theme = useTheme();
   const {
@@ -99,6 +114,11 @@ const Tracker: React.FC = () => {
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [lookupHistory, setLookupHistory] = useState<LookupHistoryItem[]>([]);
+
+  useEffect(() => {
+    setLookupHistory(getLookupHistory());
+  }, []);
 
   useEffect(() => {
     if (username) {
@@ -158,10 +178,37 @@ const Tracker: React.FC = () => {
     setPrFilter("all");
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const saveLookupHistory = (nextUsername: string) => {
+    const normalizedUsername = nextUsername.trim();
+
+    if (!normalizedUsername) return;
+
+    const nextHistory = [
+      { username: normalizedUsername, searchedAt: new Date().toISOString() },
+      ...lookupHistory.filter(
+        (item) => item.username.toLowerCase() !== normalizedUsername.toLowerCase()
+      ),
+    ].slice(0, 5);
+
+    setLookupHistory(nextHistory);
+    localStorage.setItem(LOOKUP_HISTORY_KEY, JSON.stringify(nextHistory));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    saveLookupHistory(username);
+    await fetchData(username, 1, ROWS_PER_PAGE);
+  };
+
+  const handleHistorySelect = async (historyUsername: string) => {
+    setUsername(historyUsername);
+    setPage(0);
+
+    if (token) {
+      saveLookupHistory(historyUsername);
+      await fetchData(historyUsername, 1, ROWS_PER_PAGE);
+    }
   };
 
   const hasData = issues.length > 0 || prs.length > 0;
@@ -245,6 +292,25 @@ const Tracker: React.FC = () => {
                   >
                     {loading ? "Fetching activity..." : "Fetch activity"}
                   </Button>
+
+                  {lookupHistory.length > 0 && (
+                    <Box>
+                      <Typography color="text.secondary" fontSize={13} fontWeight={700} sx={{ mb: 1 }}>
+                        Recent username history
+                      </Typography>
+                      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                        {lookupHistory.map((item) => (
+                          <Chip
+                            key={`${item.username}-${item.searchedAt}`}
+                            label={`${item.username} · ${formatDate(item.searchedAt)}`}
+                            clickable
+                            variant="outlined"
+                            onClick={() => handleHistorySelect(item.username)}
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+                  )}
                 </Stack>
               </Paper>
             </Stack>

@@ -10,7 +10,7 @@ const previewItems = [
 const Hero = () => {
   return (
     <section className="w-full bg-slate-50 px-6 py-14 dark:bg-gray-950 md:py-20">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="w-full grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm dark:border-blue-900 dark:bg-gray-900 dark:text-blue-300">
             <ShieldCheck className="h-4 w-4" />
@@ -22,8 +22,9 @@ const Hero = () => {
           </h1>
 
           <p className="mt-5 max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-300">
-            GitHub Tracker turns profile activity into a clean dashboard for maintainers,
-            open-source contributors, and teams who need quick contribution context.
+            GitHub Tracker turns profile activity into a clean dashboard for
+            maintainers, open-source contributors, and teams who need quick
+            contribution context.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -66,7 +67,9 @@ const Hero = () => {
                   key={item.label}
                   className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
                 >
-                  <p className={`text-2xl font-black ${item.tone}`}>{item.value}</p>
+                  <p className={`text-2xl font-black ${item.tone}`}>
+                    {item.value}
+                  </p>
                   <p className="mt-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
                     {item.label}
                   </p>
@@ -75,24 +78,32 @@ const Hero = () => {
             </div>
 
             <div className="mt-5 space-y-3">
-              {["Review new UI dashboard", "Fix API rate-limit state", "Improve contributor profile"].map(
-                (title, index) => (
-                  <div
-                    key={title}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
-                  >
-                    <div className="flex items-center gap-3">
-                      <GitPullRequest className={index === 0 ? "h-5 w-5 text-blue-600" : "h-5 w-5 text-emerald-600"} />
-                      <span className="font-semibold text-gray-800 dark:text-gray-100">
-                        {title}
-                      </span>
-                    </div>
-                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                      #{223 + index}
+              {[
+                "Review new UI dashboard",
+                "Fix API rate-limit state",
+                "Improve contributor profile",
+              ].map((title, index) => (
+                <div
+                  key={title}
+                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
+                >
+                  <div className="flex items-center gap-3">
+                    <GitPullRequest
+                      className={
+                        index === 0
+                          ? "h-5 w-5 text-blue-600"
+                          : "h-5 w-5 text-emerald-600"
+                      }
+                    />
+                    <span className="font-semibold text-gray-800 dark:text-gray-100">
+                      {title}
                     </span>
                   </div>
-                )
-              )}
+                  <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                    #{223 + index}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

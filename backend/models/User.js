@@ -16,6 +16,14 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    trackerHistory: {
+      type: Array,
+      default: [],
+    },
+    lastTrackedAt: {
+      type: Date,
+      default: Date.now,
+    },
 });
 
 UserSchema.pre('save', async function (next) {

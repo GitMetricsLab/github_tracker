@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -32,6 +33,7 @@ import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import type { GitHubItem } from "../../hooks/useGitHubData";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const ROWS_PER_PAGE = 10;
 const LOOKUP_HISTORY_KEY = "github-tracker-lookup-history";
 const stateOptions = ["all", "open", "closed", "merged"] as const;
@@ -85,6 +87,37 @@ const getLookupHistory = (): LookupHistoryItem[] => {
   }
 };
 
+const loadTrackerHistoryFromBackend = async (): Promise<
+  LookupHistoryItem[]
+> => {
+  try {
+    const response = await axios.get(`${backendUrl}/api/auth/tracker-history`, {
+      withCredentials: true,
+    });
+    return response.data.trackerHistory || [];
+  } catch (err) {
+    console.log(
+      "Could not load tracker history from backend, using localStorage",
+    );
+    return getLookupHistory();
+  }
+};
+
+const saveTrackerHistoryToBackend = async (
+  username: string,
+  searchedAt: string,
+) => {
+  try {
+    await axios.post(
+      `${backendUrl}/api/auth/tracker-history`,
+      { username, searchedAt },
+      { withCredentials: true },
+    );
+  } catch (err) {
+    console.log("Could not save tracker history to backend");
+  }
+};
+
 const Tracker: React.FC = () => {
   const theme = useTheme();
   const {
@@ -117,7 +150,11 @@ const Tracker: React.FC = () => {
   const [lookupHistory, setLookupHistory] = useState<LookupHistoryItem[]>([]);
 
   useEffect(() => {
-    setLookupHistory(getLookupHistory());
+    const loadHistory = async () => {
+      const history = await loadTrackerHistoryFromBackend();
+      setLookupHistory(history);
+    };
+    loadHistory();
   }, []);
 
   useEffect(() => {
@@ -132,9 +169,13 @@ const Tracker: React.FC = () => {
   const repositories = useMemo(
     () =>
       Array.from(
-        new Set([...issues, ...prs].map((item) => getRepositoryName(item.repository_url)))
+        new Set(
+          [...issues, ...prs].map((item) =>
+            getRepositoryName(item.repository_url),
+          ),
+        ),
       ).sort(),
-    [issues, prs]
+    [issues, prs],
   );
 
   const filteredData = useMemo(() => {
@@ -145,27 +186,67 @@ const Tracker: React.FC = () => {
         .toLowerCase()
         .includes(searchTitle.toLowerCase().trim());
       const matchesRepo =
-        !selectedRepo || getRepositoryName(item.repository_url) === selectedRepo;
+        !selectedRepo ||
+        getRepositoryName(item.repository_url) === selectedRepo;
       const createdAt = new Date(item.created_at);
       const matchesStart = !startDate || createdAt >= new Date(startDate);
       const matchesEnd = !endDate || createdAt <= new Date(endDate);
 
-      return matchesState && matchesTitle && matchesRepo && matchesStart && matchesEnd;
+      return (
+        matchesState &&
+        matchesTitle &&
+        matchesRepo &&
+        matchesStart &&
+        matchesEnd
+      );
     });
-  }, [activeFilter, currentRawData, endDate, searchTitle, selectedRepo, startDate]);
+  }, [
+    activeFilter,
+    currentRawData,
+    endDate,
+    searchTitle,
+    selectedRepo,
+    startDate,
+  ]);
 
   const summary = useMemo(() => {
     const allItems = [...issues, ...prs];
-    const openItems = allItems.filter((item) => getItemStatus(item) === "open").length;
-    const closedItems = allItems.filter((item) => getItemStatus(item) === "closed").length;
-    const mergedItems = allItems.filter((item) => getItemStatus(item) === "merged").length;
+    const openItems = allItems.filter(
+      (item) => getItemStatus(item) === "open",
+    ).length;
+    const closedItems = allItems.filter(
+      (item) => getItemStatus(item) === "closed",
+    ).length;
+    const mergedItems = allItems.filter(
+      (item) => getItemStatus(item) === "merged",
+    ).length;
     const completedItems = closedItems + mergedItems;
 
     return [
-      { label: "Issues", value: totalIssues, helper: "Total found", color: "#0969da" },
-      { label: "Pull requests", value: totalPrs, helper: "Total found", color: "#8250df" },
-      { label: "Open", value: openItems, helper: "On this page", color: "#2ea44f" },
-      { label: "Completed", value: completedItems, helper: "On this page", color: "#cf222e" },
+      {
+        label: "Issues",
+        value: totalIssues,
+        helper: "Total found",
+        color: "#0969da",
+      },
+      {
+        label: "Pull requests",
+        value: totalPrs,
+        helper: "Total found",
+        color: "#8250df",
+      },
+      {
+        label: "Open",
+        value: openItems,
+        helper: "On this page",
+        color: "#2ea44f",
+      },
+      {
+        label: "Completed",
+        value: completedItems,
+        helper: "On this page",
+        color: "#cf222e",
+      },
     ];
   }, [issues, prs, totalIssues, totalPrs]);
 
@@ -178,26 +259,33 @@ const Tracker: React.FC = () => {
     setPrFilter("all");
   };
 
-  const saveLookupHistory = (nextUsername: string) => {
+  const saveLookupHistory = async (nextUsername: string) => {
     const normalizedUsername = nextUsername.trim();
 
     if (!normalizedUsername) return;
 
+    const searchedAt = new Date().toISOString();
     const nextHistory = [
-      { username: normalizedUsername, searchedAt: new Date().toISOString() },
+      { username: normalizedUsername, searchedAt },
       ...lookupHistory.filter(
-        (item) => item.username.toLowerCase() !== normalizedUsername.toLowerCase()
+        (item) =>
+          item.username.toLowerCase() !== normalizedUsername.toLowerCase(),
       ),
     ].slice(0, 5);
 
     setLookupHistory(nextHistory);
     localStorage.setItem(LOOKUP_HISTORY_KEY, JSON.stringify(nextHistory));
+
+    // Save to backend
+    await saveTrackerHistoryToBackend(normalizedUsername, searchedAt);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     setPage(0);
-    saveLookupHistory(username);
+    await saveLookupHistory(username);
     await fetchData(username, 1, ROWS_PER_PAGE);
   };
 
@@ -206,7 +294,7 @@ const Tracker: React.FC = () => {
     setPage(0);
 
     if (token) {
-      saveLookupHistory(historyUsername);
+      await saveLookupHistory(historyUsername);
       await fetchData(historyUsername, 1, ROWS_PER_PAGE);
     }
   };
@@ -225,7 +313,7 @@ const Tracker: React.FC = () => {
             : "linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%)",
       }}
     >
-      <Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 } }}>
+      <Box sx={{ width: "100%", py: { xs: 3, md: 5 } }}>
         <Stack spacing={3}>
           <Paper
             elevation={0}
@@ -237,7 +325,11 @@ const Tracker: React.FC = () => {
               position: "relative",
             }}
           >
-            <Stack direction={{ xs: "column", md: "row" }} spacing={3} alignItems="center">
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={3}
+              alignItems="center"
+            >
               <Box sx={{ flex: 1 }}>
                 <Chip
                   label="Interactive dashboard"
@@ -245,12 +337,19 @@ const Tracker: React.FC = () => {
                   variant="outlined"
                   sx={{ mb: 2, fontWeight: 700 }}
                 />
-                <Typography variant="h3" fontWeight={800} sx={{ letterSpacing: 0 }}>
+                <Typography
+                  variant="h3"
+                  fontWeight={800}
+                  sx={{ letterSpacing: 0 }}
+                >
                   Track GitHub activity without the clutter
                 </Typography>
-                <Typography color="text.secondary" sx={{ mt: 1.5, maxWidth: 760 }}>
-                  Search a profile, filter by state or repository, and scan issues and pull
-                  requests in one focused workspace.
+                <Typography
+                  color="text.secondary"
+                  sx={{ mt: 1.5, maxWidth: 760 }}
+                >
+                  Search a profile, filter by state or repository, and scan
+                  issues and pull requests in one focused workspace.
                 </Typography>
               </Box>
 
@@ -295,10 +394,20 @@ const Tracker: React.FC = () => {
 
                   {lookupHistory.length > 0 && (
                     <Box>
-                      <Typography color="text.secondary" fontSize={13} fontWeight={700} sx={{ mb: 1 }}>
+                      <Typography
+                        color="text.secondary"
+                        fontSize={13}
+                        fontWeight={700}
+                        sx={{ mb: 1 }}
+                      >
                         Recent username history
                       </Typography>
-                      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        flexWrap="wrap"
+                        useFlexGap
+                      >
                         {lookupHistory.map((item) => (
                           <Chip
                             key={`${item.username}-${item.searchedAt}`}
@@ -341,9 +450,17 @@ const Tracker: React.FC = () => {
                   border: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Box>
-                    <Typography color="text.secondary" fontWeight={700} fontSize={13}>
+                    <Typography
+                      color="text.secondary"
+                      fontWeight={700}
+                      fontSize={13}
+                    >
                       {item.label}
                     </Typography>
                     <Typography variant="h4" fontWeight={900}>
@@ -395,7 +512,11 @@ const Tracker: React.FC = () => {
                     <Tab label={`Pull requests (${totalPrs})`} />
                   </Tabs>
 
-                  <Button onClick={clearFilters} variant="outlined" sx={{ borderRadius: 2 }}>
+                  <Button
+                    onClick={clearFilters}
+                    variant="outlined"
+                    sx={{ borderRadius: 2 }}
+                  >
                     Clear filters
                   </Button>
                 </Stack>
@@ -409,9 +530,13 @@ const Tracker: React.FC = () => {
                         label={option[0].toUpperCase() + option.slice(1)}
                         clickable
                         color={activeFilter === option ? "primary" : "default"}
-                        variant={activeFilter === option ? "filled" : "outlined"}
+                        variant={
+                          activeFilter === option ? "filled" : "outlined"
+                        }
                         onClick={() =>
-                          tab === 0 ? setIssueFilter(option) : setPrFilter(option)
+                          tab === 0
+                            ? setIssueFilter(option)
+                            : setPrFilter(option)
                         }
                       />
                     ))}
@@ -474,7 +599,9 @@ const Tracker: React.FC = () => {
               {loading ? (
                 <Stack alignItems="center" spacing={2} sx={{ py: 8 }}>
                   <CircularProgress />
-                  <Typography color="text.secondary">Loading GitHub activity...</Typography>
+                  <Typography color="text.secondary">
+                    Loading GitHub activity...
+                  </Typography>
                 </Stack>
               ) : !hasData ? (
                 <Paper
@@ -520,7 +647,8 @@ const Tracker: React.FC = () => {
                         p: 2,
                         borderRadius: 3,
                         border: `1px solid ${theme.palette.divider}`,
-                        transition: "transform 160ms ease, box-shadow 160ms ease",
+                        transition:
+                          "transform 160ms ease, box-shadow 160ms ease",
                         "&:hover": {
                           transform: "translateY(-2px)",
                           boxShadow: theme.shadows[4],
@@ -533,7 +661,11 @@ const Tracker: React.FC = () => {
                         justifyContent="space-between"
                         alignItems={{ xs: "flex-start", md: "center" }}
                       >
-                        <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                        <Stack
+                          direction="row"
+                          spacing={1.5}
+                          alignItems="flex-start"
+                        >
                           <Box sx={{ mt: 0.5 }}>{getStatusIcon(item)}</Box>
                           <Box>
                             <Link
@@ -549,10 +681,27 @@ const Tracker: React.FC = () => {
                             >
                               {item.title}
                             </Link>
-                            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
-                              <Chip size="small" label={getRepositoryName(item.repository_url)} />
-                              <Chip size="small" label={getItemStatus(item)} variant="outlined" />
-                              <Chip size="small" label={formatDate(item.created_at)} variant="outlined" />
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              flexWrap="wrap"
+                              useFlexGap
+                              sx={{ mt: 1 }}
+                            >
+                              <Chip
+                                size="small"
+                                label={getRepositoryName(item.repository_url)}
+                              />
+                              <Chip
+                                size="small"
+                                label={getItemStatus(item)}
+                                variant="outlined"
+                              />
+                              <Chip
+                                size="small"
+                                label={formatDate(item.created_at)}
+                                variant="outlined"
+                              />
                             </Stack>
                           </Box>
                         </Stack>
@@ -583,7 +732,7 @@ const Tracker: React.FC = () => {
             </Box>
           </Paper>
         </Stack>
-      </Container>
+      </Box>
     </Box>
   );
 };

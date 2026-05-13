@@ -8,12 +8,12 @@ import ThemeWrapper from "./context/ThemeContext";
 function App() {
   return (
     <ThemeWrapper>
-      <div className="relative flex flex-col min-h-screen">
+      <div className="relative flex flex-col min-h-screen w-full">
         <ScrollProgressBar />
 
         <Navbar />
 
-        <main className="flex-grow bg-gray-50 dark:bg-gray-800 flex justify-center items-center">
+        <main className="flex-grow bg-gray-50 dark:bg-gray-800 w-full">
           <Router />
         </main>
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate ,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SignUpFormData {
@@ -10,13 +10,13 @@ interface SignUpFormData {
 }
 
 const SignUp: React.FC = () => {
-  const [formData, setFormData] = useState<SignUpFormData>({ 
-    username: "", 
-    email: "", 
-    password: "" 
+  const [formData, setFormData] = useState<SignUpFormData>({
+    username: "",
+    email: "",
+    password: "",
   });
   const [message, setMessage] = useState<string>("");
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -25,33 +25,34 @@ const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
+      const response = await axios.post(
+        `${backendUrl}/api/auth/signup`,
+        formData,
+        { withCredentials: true },
       );
       setMessage(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
-        navigate("/login");}
+      if (response.data.message === "User created successfully") {
+        navigate("/login");
+      }
 
-    
-    // // Simulate API call (replace with your actual backend integration)
-    // try {
-    //   // Mock successful signup
-    //   setMessage("Account created successfully! Redirecting to login...");
-      
-    //   // In your actual implementation, integrate with your backend here:
-    //   // const response = await fetch(`${backendUrl}/api/auth/signup`, {
-    //   //   method: 'POST',
-    //   //   headers: { 'Content-Type': 'application/json' },
-    //   //   body: JSON.stringify(formData)
-    //   // });
-      
-    //   setTimeout(() => {
-    //     // Navigate to login page in your actual implementation
-    //     console.log("Redirecting to login page...");
-    //   }, 2000);
-      
+      // // Simulate API call (replace with your actual backend integration)
+      // try {
+      //   // Mock successful signup
+      //   setMessage("Account created successfully! Redirecting to login...");
+
+      //   // In your actual implementation, integrate with your backend here:
+      //   // const response = await fetch(`${backendUrl}/api/auth/signup`, {
+      //   //   method: 'POST',
+      //   //   headers: { 'Content-Type': 'application/json' },
+      //   //   body: JSON.stringify(formData)
+      //   // });
+
+      //   setTimeout(() => {
+      //     // Navigate to login page in your actual implementation
+      //     console.log("Redirecting to login page...");
+      //   }, 2000);
     } catch {
       setMessage("Something went wrong. Please try again.");
     }
@@ -68,17 +69,23 @@ const navigate = useNavigate();
       <div className="relative w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
-  <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
-</div>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
+            <img
+              src="/crl-icon.png"
+              alt="Logo"
+              className="w-14 h-14 object-contain"
+            />
+          </div>
           <h1 className="text-4xl font-bold text-white mb-2">GitHubTracker</h1>
           <p className="text-purple-200 text-lg">Join your GitHub journey</p>
         </div>
 
         {/* Sign Up Form */}
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-          <h2 className="text-2xl font-semibold text-white text-center mb-8">Create Account</h2>
-          
+          <h2 className="text-2xl font-semibold text-white text-center mb-8">
+            Create Account
+          </h2>
+
           <div className="space-y-6">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -134,18 +141,20 @@ const navigate = useNavigate();
           </div>
 
           {message && (
-            <div className={`text-center mt-6 p-3 rounded-xl ${
-              message.includes('successfully') 
-                ? 'text-green-300 bg-green-500/20' 
-                : 'text-red-300 bg-red-500/20'
-            }`}>
+            <div
+              className={`text-center mt-6 p-3 rounded-xl ${
+                message.includes("successfully")
+                  ? "text-green-300 bg-green-500/20"
+                  : "text-red-300 bg-red-500/20"
+              }`}
+            >
               {message}
             </div>
           )}
 
           <div className="text-center mt-8">
             <p className="text-purple-200">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link to="/login" className="inline-flex items-center">
                 <button className="text-purple-300 hover:text-white font-medium transition-colors duration-300">
                   Sign in here

@@ -4,24 +4,30 @@ const steps = [
   {
     icon: ScanSearch,
     title: "Enter a GitHub user",
-    description: "Add a username and token to fetch reliable GitHub activity data.",
+    description:
+      "Add a username and token to fetch reliable GitHub activity data.",
   },
   {
     icon: ListFilter,
     title: "Refine the activity",
-    description: "Switch between issues and pull requests, then filter by status, repo, or date.",
+    description:
+      "Switch between issues and pull requests, then filter by status, repo, or date.",
   },
   {
     icon: KeyRound,
     title: "Open the right context",
-    description: "Jump straight to GitHub when a result needs review or follow-up.",
+    description:
+      "Jump straight to GitHub when a result needs review or follow-up.",
   },
 ];
 
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="w-full bg-slate-50 px-6 py-16 dark:bg-gray-950">
-      <div className="mx-auto max-w-7xl">
+    <section
+      id="how-it-works"
+      className="w-full bg-slate-50 px-6 py-16 dark:bg-gray-950"
+    >
+      <div className="w-full">
         <div className="mb-10 text-center">
           <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
             Workflow
@@ -43,7 +49,9 @@ const HowItWorks = () => {
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <Icon className="h-6 w-6" />
                   </div>
-                  <span className="text-sm font-black text-gray-400">0{index + 1}</span>
+                  <span className="text-sm font-black text-gray-400">
+                    0{index + 1}
+                  </span>
                 </div>
                 <h3 className="text-xl font-black text-gray-950 dark:text-white">
                   {step.title}

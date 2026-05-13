@@ -39,4 +39,48 @@ router.get("/logout", (req, res) => {
     });
 });
 
+// Get user tracker history
+router.get("/tracker-history", async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+        const user = await User.findById(req.user.id).select('trackerHistory');
+        res.status(200).json({ trackerHistory: user?.trackerHistory || [] });
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching tracker history', error: err.message });
+    }
+});
+
+// Save tracker search to history
+router.post("/tracker-history", async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: 'Not authenticated' });
+    }
+    const { username, searchedAt } = req.body;
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        // Remove duplicate if exists (keep only unique searches)
+        user.trackerHistory = user.trackerHistory.filter(
+            item => item.username.toLowerCase() !== username.toLowerCase()
+        );
+        
+        // Add new search at the beginning
+        user.trackerHistory.unshift({ username, searchedAt: new Date(searchedAt) });
+        
+        // Keep only last 10 searches
+        user.trackerHistory = user.trackerHistory.slice(0, 10);
+        user.lastTrackedAt = new Date();
+        
+        await user.save();
+        res.status(200).json({ message: 'Tracker history saved', trackerHistory: user.trackerHistory });
+    } catch (err) {
+        res.status(500).json({ message: 'Error saving tracker history', error: err.message });
+    }
+});
+
 module.exports = router;

@@ -1,22 +1,19 @@
 import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/theme";
-import { Moon, Sun } from 'lucide-react';
-
+import { Moon, Sun } from "lucide-react";
 
 const Navbar: React.FC = () => {
-
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const themeContext = useContext(ThemeContext);
 
-  if (!themeContext)
-    return null;
+  if (!themeContext) return null;
 
   const { toggleTheme, mode } = themeContext;
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="w-full px-6 py-4 flex justify-between items-center">
         {/* Logo Section */}
         <Link
           to="/"
@@ -56,7 +53,11 @@ const Navbar: React.FC = () => {
             onClick={toggleTheme}
             className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
           >
-            {mode === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {mode === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
           </button>
         </div>
 

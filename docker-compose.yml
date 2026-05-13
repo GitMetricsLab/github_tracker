@@ -3,14 +3,14 @@ services:
     image: frontend
     container_name: frontend-container
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile.dev
     ports:
       - "5173:5173"
     env_file:
       - .env
     volumes:
-      - .:/app
+      - ./frontend:/app
       - /app/node_modules
     depends_on:
       - backend
@@ -39,7 +39,7 @@ services:
     image: frontend-prod
     container_name: frontend-prod-container
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile.prod
     ports:
       - "3000:3000"

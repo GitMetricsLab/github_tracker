@@ -12,7 +12,10 @@ require('./config/passportConfig');
 const app = express();
 
 // CORS configuration
-app.use(cors('*'));
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
+}));
 
 // Middleware
 app.use(bodyParser.json());
@@ -20,6 +23,11 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: { 
+        httpOnly: true, 
+        secure: false, // set to true in production with HTTPS
+        sameSite: 'lax'
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());

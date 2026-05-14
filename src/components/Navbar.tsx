@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
         {/* Logo Section */}
         <Link
           to="/"
-          className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center"
+          className="text-2xl font-bold hover:text-blue-500 cursor-pointer flex items-center"
         >
           <img src="/crl-icon.png" alt="CRL Icon" className="h-8 mr-2" />
           GitHub Tracker
@@ -30,13 +30,13 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex space-x-6">
           <Link
             to="/"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+            className="text-lg font-medium hover:text-blue-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Home
           </Link>
           <Link
             to="/track"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+            className="text-lg font-medium text-black  hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-blue-400 rounded"
           >
             Tracker
           </Link>
@@ -91,35 +91,35 @@ const Navbar: React.FC = () => {
           <div className="space-y-4 px-6 py-4">
             <Link
               to="/"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              className="block text-lg font-medium hover:text-blue-500 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
               onClick={() => setIsOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/about"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              className="block text-lg font-medium hover:text-blue-500 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
               onClick={() => setIsOpen(false)}
             >
               About
             </Link>
             <Link
               to="/contact"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              className="block text-lg font-medium hover:text-blue-500 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
               onClick={() => setIsOpen(false)}
             >
               Contact
             </Link>
             <Link
               to="/contributors"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              className="block text-lg font-medium hover:text-blue-500 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
               onClick={() => setIsOpen(false)}
             >
               Contributors
             </Link>
             <Link
               to="/login"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              className="block text-lg font-medium hover:text-blue-500 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
               onClick={() => setIsOpen(false)}
             >
               Login

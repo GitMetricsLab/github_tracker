@@ -180,7 +180,6 @@ const Home: React.FC = () => {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               type="password"
-              required
               sx={{ flex: 1, minWidth: 150 }}
             />
             <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>

@@ -57,6 +57,15 @@ describe('Auth Routes', () => {
     expect(res.body.message).toBe('User already exists');
   });
 
+  it('should not sign up a user with existing username', async () => {
+    await new User({ username: 'testuser', email: 'test@example.com', password: 'password123' }).save();
+    const res = await request(app)
+      .post('/auth/signup')
+      .send({ username: 'testuser', email: 'test2@example.com', password: 'password456' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('User already exists');
+  });
+
   it('should login a user with correct credentials', async () => {
     await request(app)
       .post('/auth/signup')

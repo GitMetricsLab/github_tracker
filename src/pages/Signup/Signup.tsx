@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate ,Link } from "react-router-dom";
-import { User, Mail, Lock } from "lucide-react";
+import { User, Mail, Lock,Eye,EyeOff } from "lucide-react";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SignUpFormData {
   username: string;
@@ -16,47 +16,74 @@ const SignUp: React.FC = () => {
     password: "" 
   });
   const [message, setMessage] = useState<string>("");
+  const [errors, setErrors] = useState({
+  username: "",
+  email: "",
+  password: "",
+});
+const [showPassword, setShowPassword] = useState(false);
 const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  const { name, value } = e.target;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
-      );
-      setMessage(response.data.message); // Show success message from backend
+  setFormData({ ...formData, [name]: value });
 
-      // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
-        navigate("/login");}
+  let errorMessage = "";
 
-    
-    // // Simulate API call (replace with your actual backend integration)
-    // try {
-    //   // Mock successful signup
-    //   setMessage("Account created successfully! Redirecting to login...");
-      
-    //   // In your actual implementation, integrate with your backend here:
-    //   // const response = await fetch(`${backendUrl}/api/auth/signup`, {
-    //   //   method: 'POST',
-    //   //   headers: { 'Content-Type': 'application/json' },
-    //   //   body: JSON.stringify(formData)
-    //   // });
-      
-    //   setTimeout(() => {
-    //     // Navigate to login page in your actual implementation
-    //     console.log("Redirecting to login page...");
-    //   }, 2000);
-      
-    } catch (error) {
-      setMessage("Something went wrong. Please try again.");
+  if (name === "username") {
+    if (!value.trim()) {
+      errorMessage = "Username is required";
+    } else if (!/^[A-Za-z\s]+$/.test(value)) {
+      errorMessage = "Only letters are allowed";
     }
-  };
+  }
 
+  if (name === "email") {
+    if (!value.trim()) {
+      errorMessage = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(value)) {
+      errorMessage = "Enter a valid email";
+    }
+  }
+
+  if (name === "password") {
+    if (!value.trim()) {
+      errorMessage = "Password is required";
+    } else if (
+      !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)
+    ) {
+      errorMessage =
+        "Password must be 8+ characters with letters and numbers";
+    }
+  }
+
+  setErrors((prev) => ({
+    ...prev,
+    [name]: errorMessage,
+  }));
+};
+    const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (errors.username || errors.email || errors.password) {
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      `${backendUrl}/api/auth/signup`,
+      formData
+    );
+
+    setMessage(response.data.message);
+
+    if (response.data.message === "User created successfully") {
+      navigate("/login");
+    }
+  } catch (error) {
+    setMessage("Something went wrong. Please try again.");
+  }
+};
   return (
     <div className="relative h-screen w-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 flex items-center justify-center px-4 overflow-hidden">
       {/* Background decorative elements */}
@@ -78,8 +105,8 @@ const navigate = useNavigate();
         {/* Sign Up Form */}
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
           <h2 className="text-2xl font-semibold text-white text-center mb-8">Create Account</h2>
-          
           <div className="space-y-6">
+            <div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-purple-300" />
@@ -93,8 +120,14 @@ const navigate = useNavigate();
                 required
                 className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm transition-all duration-300"
               />
+              </div>
+              {errors.username && (
+                <p className="text-red-300 text-sm mt-2">
+                  {errors.username}
+               </p>
+              )}
             </div>
-
+            <div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Mail className="h-5 w-5 text-purple-300" />
@@ -108,14 +141,21 @@ const navigate = useNavigate();
                 required
                 className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm transition-all duration-300"
               />
+              </div>
+              {errors.email && (
+                <p className="text-red-300 text-sm mt-2">
+                  {errors.email}
+                </p>
+              )}
             </div>
-
+            
+            <div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-purple-300" />
               </div>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
                 value={formData.password}
@@ -123,6 +163,19 @@ const navigate = useNavigate();
                 required
                 className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm transition-all duration-300"
               />
+              <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-purple-300"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+              </div>
+              {errors.password && (
+                <p className="text-red-300 text-sm mt-2">
+                  {errors.password}
+                </p>
+              )}
             </div>
 
             <button

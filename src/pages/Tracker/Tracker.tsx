@@ -182,7 +182,25 @@ const Home: React.FC = () => {
               type="password"
               required
               sx={{ flex: 1, minWidth: 150 }}
+              helperText={
+                <Link
+                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+      fontSize: '0.75rem',
+      color: 'primary.main',
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline',
+      }
+    }}
+                >
+                  How to generate?
+                </Link>
+              }
             />
+
             <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
               Fetch Data
             </Button>

@@ -12,7 +12,15 @@ require('./config/passportConfig');
 const app = express();
 
 // CORS configuration
-app.use(cors('*'));
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true,
+}));
 
 // Middleware
 app.use(bodyParser.json());

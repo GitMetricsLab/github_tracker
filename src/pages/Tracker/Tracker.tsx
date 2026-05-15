@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
 import Dashboard from "../../components/Dashboard";
+import { useDebounce } from "../../hooks/useDebounce";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -79,25 +80,40 @@ const Tracker: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // Debounce search and repo inputs to avoid rapid API calls
+  const debouncedSearch = useDebounce(searchTitle, 500);
+  const debouncedRepo = useDebounce(selectedRepo, 500);
+
   // Fetch data when username, tab, page, or filters change
   useEffect(() => {
     if (username) {
       const type = tab === 0 ? "issue" : "pr";
       const filters = {
-        search: searchTitle,
-        repo: selectedRepo,
+        search: debouncedSearch,
+        repo: debouncedRepo,
         startDate: startDate,
         endDate: endDate,
         state: tab === 0 ? issueFilter : prFilter,
       };
       fetchData(username, page + 1, ROWS_PER_PAGE, type, filters);
     }
-  }, [tab, page, issueFilter, prFilter, searchTitle, selectedRepo, startDate, endDate]);
+  }, [username, tab, page, issueFilter, prFilter, debouncedSearch, debouncedRepo, startDate, endDate, fetchData]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setPage(0);
-    // fetchData is already triggered by useEffect when page changes to 0
+    if (page === 0) {
+      const type = tab === 0 ? "issue" : "pr";
+      const filters = {
+        search: debouncedSearch,
+        repo: debouncedRepo,
+        startDate: startDate,
+        endDate: endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      };
+      fetchData(username, 1, ROWS_PER_PAGE, type, filters);
+    } else {
+      setPage(0);
+    }
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -165,7 +181,7 @@ const Tracker: React.FC = () => {
         <Dashboard 
           totalIssues={totalIssues} 
           totalPrs={totalPrs} 
-          data={tab === 0 ? issues : prs} 
+          data={currentFilteredData} 
           theme={theme}
         />
       )}

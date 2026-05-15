@@ -19,10 +19,8 @@
     "@primer/octicons-react": "^19.15.5",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.7",
-    "express": "^5.2.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.525.0",
-    "mongoose": "^9.6.2",
     "octokit": "^4.0.2",
     "postcss": "^8.4.47",
     "react": "^18.3.1",
@@ -48,12 +46,15 @@
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
+    "express": "^5.2.1",
     "express-session": "^1.18.2",
     "globals": "^15.11.0",
     "jasmine": "^5.9.0",
+    "mongoose": "^9.6.2",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "supertest": "^7.1.4",
+    "typescript-eslint": "^8.59.3",
     "vite": "^5.4.10"
   }
 }

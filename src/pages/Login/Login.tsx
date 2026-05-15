@@ -36,8 +36,12 @@ const Login: React.FC = () => {
       if (response.data.message === 'Login successful') {
         navigate("/home");
       }
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setMessage(error.response?.data?.message || "Something went wrong");
+      } else {
+        setMessage("Something went wrong");
+      }
     } finally {
       setIsLoading(false);
     }

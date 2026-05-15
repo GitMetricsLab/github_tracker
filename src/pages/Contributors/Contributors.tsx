@@ -37,7 +37,7 @@ const ContributorsPage = () => {
           withCredentials: false,
         });
         setContributors(response.data);
-      } catch (err) {
+      } catch {
         setError("Failed to fetch contributors. Please try again later.");
       } finally {
         setLoading(false);

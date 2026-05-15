@@ -34,7 +34,7 @@ const Login: React.FC = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
-        navigate("/home");
+        navigate("/");
       }
     } catch (error: any) {
       setMessage(error.response?.data?.message || "Something went wrong");

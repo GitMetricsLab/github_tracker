@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex space-x-6">
           <Link
             to="/"
-            className="text-lg font-medium hover:text-blue-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+            className="text-lg font-medium hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Home
           </Link>
@@ -42,13 +42,13 @@ const Navbar: React.FC = () => {
           </Link>
           <Link
             to="/contributors"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+            className="text-lg font-medium hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Contributors
           </Link>
           <Link
             to="/login"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+            className="text-lg font-medium hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Login
           </Link>
@@ -91,14 +91,14 @@ const Navbar: React.FC = () => {
           <div className="space-y-4 px-6 py-4">
             <Link
               to="/"
-              className="block text-lg font-medium hover:text-blue-500 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
+              className="block text-lg font-medium hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
               onClick={() => setIsOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/about"
-              className="block text-lg font-medium hover:text-blue-500 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
+              className="block text-lg font-medium hover:text-blue-00 transition-all px-2 py-1 border border-transparent hover:border-black rounded"
               onClick={() => setIsOpen(false)}
             >
               About

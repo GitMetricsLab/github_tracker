@@ -24,7 +24,10 @@ const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("backendUrl:", backendUrl);
+console.log("env:", import.meta.env.VITE_BACKEND_URL);
     try {
+      
       const response = await axios.post(`${backendUrl}/api/auth/signup`,
         formData // Include cookies for session
       );

@@ -20,7 +20,6 @@ import {
   TableRow,
   TablePagination,
   Link,
-  CircularProgress,
   Alert,
   Tabs,
   Tab,
@@ -28,6 +27,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Skeleton,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
@@ -279,11 +280,62 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+    <TableContainer component={Paper}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Title</TableCell>
+            <TableCell align="center">Repository</TableCell>
+            <TableCell align="center">State</TableCell>
+            <TableCell>Created</TableCell>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {[...Array(5)].map((_, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <Skeleton variant="text" width="80%" height={30} />
+              </TableCell>
+
+              <TableCell align="center">
+                <Skeleton variant="text" width="60%" height={30} />
+              </TableCell>
+
+              <TableCell align="center">
+                <Skeleton variant="rounded" width={70} height={25} />
+              </TableCell>
+
+              <TableCell>
+                <Skeleton variant="text" width="70%" height={30} />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Box>
+) : currentFilteredData.length === 0 ? (
+  <Paper
+    elevation={1}
+    sx={{
+      p: 4,
+      textAlign: "center",
+      backgroundColor: theme.palette.background.paper,
+    }}
+  >
+    <Typography variant="h6" gutterBottom>
+      No Data Found
+    </Typography>
+
+    <Typography variant="body2" color="text.secondary">
+      Try adjusting filters or searching for another GitHub user.
+    </Typography>
+  </Paper>
+) : (
+    
+  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
 

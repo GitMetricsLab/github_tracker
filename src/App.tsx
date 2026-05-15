@@ -12,6 +12,9 @@ function App() {
   const isFullscreen = FULLSCREEN_ROUTES.includes(location.pathname);
 
   return (
+    <ThemeWrapper>
+      <div className="relative dark:bg-gray-800 flex flex-col min-h-screen">
+        <ScrollProgressBar />
       <div className="relative flex flex-col min-h-screen">
         {!isFullscreen && <ScrollProgressBar />}
 

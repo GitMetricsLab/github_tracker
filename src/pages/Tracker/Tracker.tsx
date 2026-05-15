@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import Dashboard from "../../components/Dashboard";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -45,7 +46,7 @@ interface GitHubItem {
   html_url: string;
 }
 
-const Home: React.FC = () => {
+const Tracker: React.FC = () => {
 
   const theme = useTheme();
 
@@ -78,17 +79,25 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  // Fetch data when username, tab, page, or filters change
   useEffect(() => {
     if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+      const type = tab === 0 ? "issue" : "pr";
+      const filters = {
+        search: searchTitle,
+        repo: selectedRepo,
+        startDate: startDate,
+        endDate: endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      };
+      fetchData(username, page + 1, ROWS_PER_PAGE, type, filters);
     }
-  }, [tab, page]);
+  }, [tab, page, issueFilter, prFilter, searchTitle, selectedRepo, startDate, endDate]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    // fetchData is already triggered by useEffect when page changes to 0
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -98,44 +107,6 @@ const Home: React.FC = () => {
   const formatDate = (dateString: string): string =>
     new Date(dateString).toLocaleDateString();
 
-  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
-    let filtered = [...data];
-    if (["open", "closed", "merged"].includes(filterType)) {
-      filtered = filtered.filter((item) => {
-        if (filterType === "merged") {
-          return !!item.pull_request?.merged_at
-        }
-        else if (filterType === "closed") {
-          return item.state === "closed" && !item.pull_request?.merged_at
-        }
-        else {
-          //open
-          return item.state === "open"
-        }
-      });
-    }
-    if (searchTitle) {
-      filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(searchTitle.toLowerCase())
-      );
-    }
-    if (selectedRepo) {
-      filtered = filtered.filter((item) =>
-        item.repository_url.includes(selectedRepo)
-      );
-    }
-    if (startDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) >= new Date(startDate)
-      );
-    }
-    if (endDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) <= new Date(endDate)
-      );
-    }
-    return filtered;
-  };
 
   const getStatusIcon = (item: GitHubItem) => {
 
@@ -157,9 +128,8 @@ const Home: React.FC = () => {
   };
 
 
-  // Current data and filtered data according to tab and filters
-  const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  // Current data according to tab
+  const currentFilteredData = tab === 0 ? issues : prs;
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
@@ -189,6 +159,16 @@ const Home: React.FC = () => {
           </Box>
         </form>
       </Paper>
+
+      {/* Dashboard Summary */}
+      {username && (
+        <Dashboard 
+          totalIssues={totalIssues} 
+          totalPrs={totalPrs} 
+          data={tab === 0 ? issues : prs} 
+          theme={theme}
+        />
+      )}
 
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -348,4 +328,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Tracker;

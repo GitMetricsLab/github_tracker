@@ -5,6 +5,7 @@ import {
   GitPullRequestIcon,
   GitPullRequestClosedIcon,
   GitMergeIcon,
+  GitCommitIcon,
 } from '@primer/octicons-react';
 import {
   Container,
@@ -43,6 +44,17 @@ interface GitHubItem {
   pull_request?: { merged_at: string | null };
   repository_url: string;
   html_url: string;
+  commit?: {
+    message: string;
+  };
+  repository?: {
+    html_url: string;
+  };
+  classifiedInfo?: {
+    importance: string;
+    category: string;
+    score: number;
+  };
 }
 
 const Home: React.FC = () => {
@@ -61,8 +73,10 @@ const Home: React.FC = () => {
   const {
     issues,
     prs,
+    commits,
     totalIssues,
     totalPrs,
+    totalCommits,
     loading,
     error: dataError,
     fetchData,
@@ -73,6 +87,7 @@ const Home: React.FC = () => {
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
+  const [commitFilter, setCommitFilter] = useState("all");
   const [searchTitle, setSearchTitle] = useState("");
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -114,15 +129,20 @@ const Home: React.FC = () => {
         }
       });
     }
+    if (["High", "Medium", "Low"].includes(filterType)) {
+      filtered = filtered.filter(item => item.classifiedInfo?.importance === filterType);
+    }
     if (searchTitle) {
-      filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(searchTitle.toLowerCase())
-      );
+      filtered = filtered.filter((item) => {
+        const title = item.commit ? item.commit.message : item.title;
+        return title.toLowerCase().includes(searchTitle.toLowerCase());
+      });
     }
     if (selectedRepo) {
-      filtered = filtered.filter((item) =>
-        item.repository_url.includes(selectedRepo)
-      );
+      filtered = filtered.filter((item) => {
+        const repoUrl = item.repository?.html_url || item.repository_url;
+        return repoUrl.includes(selectedRepo);
+      });
     }
     if (startDate) {
       filtered = filtered.filter(
@@ -138,6 +158,10 @@ const Home: React.FC = () => {
   };
 
   const getStatusIcon = (item: GitHubItem) => {
+
+    if (item.commit) {
+      return <GitCommitIcon size={16} className="icon-commit" />;
+    }
 
     if (item.pull_request) {
 
@@ -158,9 +182,10 @@ const Home: React.FC = () => {
 
 
   // Current data and filtered data according to tab and filters
-  const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
-  const totalCount = tab === 0 ? totalIssues : totalPrs;
+  const currentRawData = tab === 0 ? issues : (tab === 1 ? prs : commits);
+  const currentFilter = tab === 0 ? issueFilter : (tab === 1 ? prFilter : commitFilter);
+  const currentFilteredData = filterData(currentRawData, currentFilter);
+  const totalCount = tab === 0 ? totalIssues : (tab === 1 ? totalPrs : totalCommits);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
@@ -243,17 +268,18 @@ const Home: React.FC = () => {
         >
           <Tab label={`Issues (${totalIssues})`} />
           <Tab label={`Pull Requests (${totalPrs})`} />
+          <Tab label={`Commits (${totalCommits})`} />
         </Tabs>
         <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
+          <InputLabel sx={{ fontSize: "14px" }}>{tab === 2 ? 'Importance' : 'State'}</InputLabel>
           <Select
-            value={tab === 0 ? issueFilter : prFilter}
-            onChange={(e) =>
-              tab === 0
-                ? setIssueFilter(e.target.value)
-                : setPrFilter(e.target.value)
-            }
-            label="State"
+            value={currentFilter}
+            onChange={(e) => {
+              if (tab === 0) setIssueFilter(e.target.value);
+              else if (tab === 1) setPrFilter(e.target.value);
+              else setCommitFilter(e.target.value);
+            }}
+            label={tab === 2 ? 'Importance' : 'State'}
             sx={{
               backgroundColor: theme.palette.background.paper,
               color: theme.palette.text.primary,
@@ -264,10 +290,22 @@ const Home: React.FC = () => {
               },
             }}
           >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="open">Open</MenuItem>
-            <MenuItem value="closed">Closed</MenuItem>
-            {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
+            {tab !== 2 && (
+              <>
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="open">Open</MenuItem>
+                <MenuItem value="closed">Closed</MenuItem>
+                {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
+              </>
+            )}
+            {tab === 2 && (
+              <>
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="High">High</MenuItem>
+                <MenuItem value="Medium">Medium</MenuItem>
+                <MenuItem value="Low">Low</MenuItem>
+              </>
+            )}
           </Select>
         </FormControl>
       </Box>
@@ -291,9 +329,9 @@ const Home: React.FC = () => {
 
               <TableHead>
                 <TableRow>
-                  <TableCell>Title</TableCell>
+                  <TableCell>Title / Message</TableCell>
                   <TableCell align="center">Repository</TableCell>
-                  <TableCell align="center">State</TableCell>
+                  <TableCell align="center">Status / Importance</TableCell>
                   <TableCell>Created</TableCell>
                 </TableRow>
               </TableHead>
@@ -304,24 +342,43 @@ const Home: React.FC = () => {
 
                     <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {getStatusIcon(item)}
-                        <Link
-                            href={item.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            underline="hover"
-                            sx={{ color: theme.palette.primary.main }}
-                        >
-                            {item.title}
-                        </Link>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Link
+                              href={item.html_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                              sx={{ color: theme.palette.primary.main, wordBreak: 'break-word', maxWidth: '300px' }}
+                          >
+                              {item.commit ? item.commit.message.split('\n')[0] : item.title}
+                          </Link>
+                          {item.classifiedInfo && (
+                            <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                              <Box sx={{ fontSize: '0.75rem', px: 1, py: 0.25, borderRadius: '12px', bgcolor: theme.palette.primary.light, color: theme.palette.primary.contrastText }}>
+                                {item.classifiedInfo.category}
+                              </Box>
+                            </Box>
+                          )}
+                        </Box>
                     </TableCell>
 
 
                     <TableCell align="center">
-                      {item.repository_url.split("/").slice(-1)[0]}
+                      {(item.repository?.html_url || item.repository_url || "").split("/").slice(-1)[0]}
                     </TableCell>
 
                     <TableCell align="center">
-                      {item.pull_request?.merged_at ? "merged" : item.state}
+                      {item.commit ? (
+                        <Box component="span" sx={{
+                          px: 1, py: 0.5, borderRadius: '4px', fontSize: '0.8rem',
+                          bgcolor: item.classifiedInfo?.importance === 'High' ? 'error.light' : (item.classifiedInfo?.importance === 'Medium' ? 'warning.light' : 'success.light'),
+                          color: 'black'
+                        }}>
+                          {item.classifiedInfo?.importance}
+                        </Box>
+                      ) : (
+                        item.pull_request?.merged_at ? "merged" : item.state
+                      )}
                     </TableCell>
 
                     <TableCell>{formatDate(item.created_at)}</TableCell>

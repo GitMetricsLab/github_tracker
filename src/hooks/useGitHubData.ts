@@ -1,12 +1,15 @@
 import { useState, useCallback } from 'react';
+import { classifyCommit } from '../utils/commitClassifier';
 
 export const useGitHubData = (getOctokit: () => any) => {
-  const [issues, setIssues] = useState([]);
-  const [prs, setPrs] = useState([]);
+  const [issues, setIssues] = useState<any[]>([]);
+  const [prs, setPrs] = useState<any[]>([]);
+  const [commits, setCommits] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
+  const [totalCommits, setTotalCommits] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
   const fetchPaginated = async (octokit: any, username: string, type: string, page = 1, per_page = 10) => {
@@ -25,6 +28,30 @@ export const useGitHubData = (getOctokit: () => any) => {
     };
   };
 
+  const fetchCommitsPaginated = async (octokit: any, username: string, page = 1, per_page = 10) => {
+    const q = `author:${username}`;
+    const response = await octokit.request('GET /search/commits', {
+      q,
+      sort: 'author-date',
+      order: 'desc',
+      per_page,
+      page,
+      headers: {
+        accept: 'application/vnd.github.cloak-preview+json',
+      },
+    });
+
+    const items = response.data.items.map((item: any) => ({
+      ...item,
+      classifiedInfo: classifyCommit(item.commit.message),
+    }));
+
+    return {
+      items,
+      total: response.data.total_count,
+    };
+  };
+
   const fetchData = useCallback(
     async (username: string, page = 1, perPage = 10) => {
         
@@ -36,15 +63,18 @@ export const useGitHubData = (getOctokit: () => any) => {
       setError('');
 
       try {
-        const [issueRes, prRes] = await Promise.all([
+        const [issueRes, prRes, commitRes] = await Promise.all([
           fetchPaginated(octokit, username, 'issue', page, perPage),
           fetchPaginated(octokit, username, 'pr', page, perPage),
+          fetchCommitsPaginated(octokit, username, page, perPage),
         ]);
 
         setIssues(issueRes.items);
         setPrs(prRes.items);
+        setCommits(commitRes.items);
         setTotalIssues(issueRes.total);
         setTotalPrs(prRes.total);
+        setTotalCommits(commitRes.total);
       } catch (err: any) {
         if (err.status === 403) {
           setError('GitHub API rate limit exceeded. Please wait or use a token.');
@@ -62,8 +92,10 @@ export const useGitHubData = (getOctokit: () => any) => {
   return {
     issues,
     prs,
+    commits,
     totalIssues,
     totalPrs,
+    totalCommits,
     loading,
     error,
     fetchData,

@@ -22,6 +22,7 @@ import {
   Link,
   CircularProgress,
   Alert,
+  Skeleton,
   Tabs,
   Tab,
   Select,
@@ -279,10 +280,72 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
-        </Box>
-      ) : (
+  <TableContainer component={Paper}>
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Title</TableCell>
+          <TableCell align="center">Repository</TableCell>
+          <TableCell align="center">State</TableCell>
+          <TableCell>Created</TableCell>
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {[...Array(6)].map((_, index) => (
+          <TableRow key={index}>
+            <TableCell>
+              <Box display="flex" alignItems="center" gap={1}>
+                <Skeleton
+                  variant="circular"
+                  width={20}
+                  height={20}
+                  animation="wave"
+                />
+
+                <Skeleton
+                  variant="text"
+                  width="80%"
+                  height={30}
+                  animation="wave"
+                />
+              </Box>
+            </TableCell>
+
+            <TableCell align="center">
+              <Skeleton
+                variant="text"
+                width={100}
+                height={25}
+                animation="wave"
+                sx={{ mx: "auto" }}
+              />
+            </TableCell>
+
+            <TableCell align="center">
+              <Skeleton
+                variant="rounded"
+                width={70}
+                height={25}
+                animation="wave"
+                sx={{ mx: "auto" }}
+              />
+            </TableCell>
+
+            <TableCell>
+              <Skeleton
+                variant="text"
+                width={90}
+                height={25}
+                animation="wave"
+              />
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
+) : (
         <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>

@@ -316,7 +316,7 @@ const Home: React.FC = () => {
       </Table>
     </TableContainer>
   </Box>
-) : currentFilteredData.length === 0 ? (
+) : !authError && !dataError && currentFilteredData.length === 0 ? (
   <Paper
     elevation={1}
     sx={{

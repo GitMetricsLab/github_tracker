@@ -1,0 +1,83 @@
+# -------------------------------------
+# Node & Dependency Files
+# -------------------------------------
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# -------------------------------------
+# Build Output
+# -------------------------------------
+dist/
+build/
+backend/dist/
+backend/build/
+
+# -------------------------------------
+# Vite
+# -------------------------------------
+.vite/
+
+# -------------------------------------
+# Environment Variables
+# -------------------------------------
+.env
+.env.*.local
+
+# -------------------------------------
+# Logs & Debug Files
+# -------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# -------------------------------------
+# Temporary Files & Caches
+# -------------------------------------
+tmp/
+temp/
+*.tsbuildinfo
+.npm/
+.yarn/
+.yarn-integrity
+.vscode/.tsbuildinfo
+
+# -------------------------------------
+# Coverage Reports
+# -------------------------------------
+coverage/
+
+# -------------------------------------
+# Docker
+# -------------------------------------
+*.local
+docker-compose.override.yml
+
+# -------------------------------------
+# Editor/IDE Files
+# -------------------------------------
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Visual Studio
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# -------------------------------------
+# OS-Specific & Misc
+# -------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+.AppleDouble

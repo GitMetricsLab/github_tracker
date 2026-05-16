@@ -1,4 +1,4 @@
-export type CommitImportance = 'High' | 'Medium' | 'Low';
+export type CommitImportance = 'High' | 'Medium' | 'Low' | 'Unknown';
 export type CommitCategory = 'Feature' | 'Bugfix' | 'Refactor' | 'Chore' | 'Docs' | 'Test' | 'Unknown';
 
 export interface ClassifiedCommit {
@@ -22,12 +22,12 @@ export function classifyCommit(
     category = 'Bugfix';
   } else if (/refactor\b|clean\b|rework\b/.test(lowerMsg)) {
     category = 'Refactor';
-  } else if (/chore\b|bump\b|update\b|depend\b|config\b|format\b|style\b/.test(lowerMsg)) {
-    category = 'Chore';
   } else if (/doc\b|readme\b|comment\b/.test(lowerMsg)) {
     category = 'Docs';
   } else if (/test\b|mock\b|spec\b/.test(lowerMsg)) {
     category = 'Test';
+  } else if (/chore\b|bump\b|update\b|depend\b|config\b|format\b|style\b/.test(lowerMsg)) {
+    category = 'Chore';
   }
 
   let score = 0;
@@ -58,8 +58,13 @@ export function classifyCommit(
   }
 
   let importance: CommitImportance = 'Medium';
-  if (score >= 6) importance = 'High';
-  else if (score <= 2) importance = 'Low';
+  if (category === 'Unknown' && score === 0) {
+    importance = 'Unknown';
+  } else if (score >= 6) {
+    importance = 'High';
+  } else if (score <= 2) {
+    importance = 'Low';
+  }
 
   return { importance, category, score };
 }

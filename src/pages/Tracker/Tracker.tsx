@@ -110,8 +110,11 @@ const Home: React.FC = () => {
     setPage(newPage);
   };
 
-  const formatDate = (dateString: string): string =>
-    new Date(dateString).toLocaleDateString();
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
+  };
 
   const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
     let filtered = [...data];
@@ -141,7 +144,7 @@ const Home: React.FC = () => {
     if (selectedRepo) {
       filtered = filtered.filter((item) => {
         const repoUrl = item.repository?.html_url || item.repository_url;
-        return repoUrl.includes(selectedRepo);
+        return (repoUrl || '').includes(selectedRepo);
       });
     }
     if (startDate) {
@@ -304,6 +307,7 @@ const Home: React.FC = () => {
                 <MenuItem value="High">High</MenuItem>
                 <MenuItem value="Medium">Medium</MenuItem>
                 <MenuItem value="Low">Low</MenuItem>
+                <MenuItem value="Unknown">Unknown</MenuItem>
               </>
             )}
           </Select>
@@ -371,7 +375,7 @@ const Home: React.FC = () => {
                       {item.commit ? (
                         <Box component="span" sx={{
                           px: 1, py: 0.5, borderRadius: '4px', fontSize: '0.8rem',
-                          bgcolor: item.classifiedInfo?.importance === 'High' ? 'error.light' : (item.classifiedInfo?.importance === 'Medium' ? 'warning.light' : 'success.light'),
+                          bgcolor: item.classifiedInfo?.importance === 'High' ? 'error.light' : (item.classifiedInfo?.importance === 'Medium' ? 'warning.light' : (item.classifiedInfo?.importance === 'Low' ? 'success.light' : 'grey.300')),
                           color: 'black'
                         }}>
                           {item.classifiedInfo?.importance}

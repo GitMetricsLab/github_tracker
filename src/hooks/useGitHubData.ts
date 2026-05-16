@@ -43,6 +43,7 @@ export const useGitHubData = (getOctokit: () => any) => {
 
     const items = response.data.items.map((item: any) => ({
       ...item,
+      created_at: item.commit.author?.date || item.commit.committer?.date,
       classifiedInfo: classifyCommit(item.commit.message),
     }));
 
@@ -66,7 +67,10 @@ export const useGitHubData = (getOctokit: () => any) => {
         const [issueRes, prRes, commitRes] = await Promise.all([
           fetchPaginated(octokit, username, 'issue', page, perPage),
           fetchPaginated(octokit, username, 'pr', page, perPage),
-          fetchCommitsPaginated(octokit, username, page, perPage),
+          fetchCommitsPaginated(octokit, username, page, perPage).catch((err) => {
+            console.error('Commit fetch failed:', err);
+            return { items: [], total: 0 };
+          }),
         ]);
 
         setIssues(issueRes.items);

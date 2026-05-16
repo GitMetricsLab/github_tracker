@@ -20,7 +20,7 @@ const HowItWorks = () => {
 
   return (
     <section id="how-it-works" className="px-6 py-10 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
-      <div className="mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">How It Works</h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -30,7 +30,7 @@ const HowItWorks = () => {
 
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, index) => (
-            <div key={index} className="text-center">
+            <div key={index} className="text-center bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                 {step.number}
               </div>

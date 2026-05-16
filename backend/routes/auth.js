@@ -1,12 +1,14 @@
 const express = require("express");
 const passport = require("passport");
 const User = require("../models/User");
+const { signupSchema, loginSchema } = require("../validators/authValidator");
+const { validateRequest } = require("../validators/validationRequest");
 const router = express.Router();
 
 // Signup route
-router.post("/signup", async (req, res) => {
+router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
-    const { username,  email, password } = req.body;
+    const { username,  email, password } = req.validated;
 
     try {
         const existingUser = await User.findOne( {email} );
@@ -23,7 +25,7 @@ router.post("/signup", async (req, res) => {
 });
 
 // Login route
-router.post("/login", passport.authenticate('local'), (req, res) => {
+router.post("/login", validateRequest(loginSchema), passport.authenticate('local'), (req, res) => {
     res.status(200).json( { message: 'Login successful', user: req.user } );
 });
 

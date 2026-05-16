@@ -3,11 +3,9 @@ import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
-import ThemeWrapper from "./context/ThemeContext";
 
 function App() {
   return (
-    <ThemeWrapper>
       <div className="relative flex flex-col min-h-screen">
         <ScrollProgressBar />
 
@@ -37,7 +35,6 @@ function App() {
           }}
         />
       </div>
-    </ThemeWrapper>
   );
 }
 

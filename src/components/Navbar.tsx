@@ -41,6 +41,12 @@ const Navbar: React.FC = () => {
             Tracker
           </Link>
           <Link
+            to="/issues"
+            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+          >
+            Issues
+          </Link>
+          <Link
             to="/contributors"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
@@ -116,6 +122,13 @@ const Navbar: React.FC = () => {
               onClick={() => setIsOpen(false)}
             >
               Contributors
+            </Link>
+            <Link
+              to="/issues"
+              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Issues
             </Link>
             <Link
               to="/login"

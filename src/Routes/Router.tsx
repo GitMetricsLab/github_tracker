@@ -5,7 +5,7 @@ import Contact from "../pages/Contact/Contact";
 import Contributors from "../pages/Contributors/Contributors";
 import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
-import ForgotPassword from "../pages/ForgotPassword/ForgotPassword.tsx";
+import ForgotPassword from "../pages/ForgotPassword/Forgotpassword.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
 

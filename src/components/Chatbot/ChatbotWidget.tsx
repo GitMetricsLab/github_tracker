@@ -1,26 +1,25 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { getBotResponse, defaultMessage } from "./chatbotData";
-
+ 
 interface Message {
   id: number;
   role: "bot" | "user";
   text: string;
   time: string;
 }
-
+ 
 function getTime() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
-
-// Simple markdown-like renderer for bold, code blocks, inline code, links, lists
+ 
 function renderMarkdown(text: string): ReactNode {
   const lines = text.split("\n");
-  const elements: JSX.Element[] = [];
+  const elements: ReactNode[] = [];
   let key = 0;
-
+ 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-
+ 
     // Code block start
     if (line.startsWith("```")) {
       const codeLines: string[] = [];
@@ -49,7 +48,7 @@ function renderMarkdown(text: string): ReactNode {
       );
       continue;
     }
-
+ 
     // Table row
     if (line.startsWith("|")) {
       const cells = line.split("|").filter((c) => c.trim() !== "");
@@ -74,7 +73,7 @@ function renderMarkdown(text: string): ReactNode {
       );
       continue;
     }
-
+ 
     // List item
     if (line.match(/^[-*•]\s/) || line.match(/^\d+\.\s/)) {
       elements.push(
@@ -85,13 +84,13 @@ function renderMarkdown(text: string): ReactNode {
       );
       continue;
     }
-
+ 
     // Empty line → spacer
     if (line.trim() === "") {
       elements.push(<div key={key++} style={{ height: "4px" }} />);
       continue;
     }
-
+ 
     // Normal line
     elements.push(
       <div key={key++} style={{ margin: "2px 0", fontSize: "13px", lineHeight: "1.5" }}>
@@ -99,10 +98,10 @@ function renderMarkdown(text: string): ReactNode {
       </div>
     );
   }
-
+ 
   return <>{elements}</>;
 }
-
+ 
 function inlineFormat(text: string): ReactNode[] {
   // Handles **bold**, `inline code`, [link](url), ✅ emoji checkboxes
   const parts: (JSX.Element | string)[] = [];
@@ -110,7 +109,7 @@ function inlineFormat(text: string): ReactNode[] {
   let last = 0;
   let match;
   let key = 0;
-
+ 
   while ((match = regex.exec(text)) !== null) {
     if (match.index > last) parts.push(text.slice(last, match.index));
     if (match[1]) {
@@ -132,67 +131,74 @@ function inlineFormat(text: string): ReactNode[] {
         </code>
       );
     } else if (match[3] && match[4]) {
-      parts.push(
-        <a
-          key={key++}
-          href={match[4]}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: "#38bdf8", textDecoration: "underline" }}
-        >
-          {match[3]}
-        </a>
-      );
+      const href = match[4];
+      const isSafe = href.startsWith("http://") || href.startsWith("https://") || href.startsWith("/");
+      if (!isSafe) {
+        parts.push(<span key={key++} style={{ color: "#38bdf8" }}>{match[3]}</span>);
+      } else {
+        parts.push(
+          <a
+            key={key++}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#38bdf8", textDecoration: "underline" }}
+          >
+            {match[3]}
+          </a>
+        );
+      }
     }
     last = match.index + match[0].length;
   }
   if (last < text.length) parts.push(text.slice(last));
   return parts;
 }
-
+ 
 export default function ChatbotWidget() {
   const [open, setOpen] = useState(false);
+  const nextId = useRef(2);
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, role: "bot", text: defaultMessage, time: getTime() },
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-
+ 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing, open]);
-
+ 
   const sendMessage = () => {
     const trimmed = input.trim();
     if (!trimmed) return;
-
-    const userMsg: Message = { id: Date.now(), role: "user", text: trimmed, time: getTime() };
+ 
+    const userMsg: Message = { id: nextId.current++, role: "user", text: trimmed, time: getTime() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setTyping(true);
-
+ 
     setTimeout(() => {
       const botReply = getBotResponse(trimmed);
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, role: "bot", text: botReply, time: getTime() },
+        { id: nextId.current++, role: "bot", text: botReply, time: getTime() },
       ]);
       setTyping(false);
     }, 700);
   };
-
+ 
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") sendMessage();
   };
-
+ 
   const quickQuestions = [
     "How do I get a GitHub token?",
     "How do I set up the project?",
     "What does this app do?",
     "How do I fix MongoDB errors?",
   ];
-
+ 
   return (
     <>
       {/* Floating bubble */}
@@ -228,7 +234,7 @@ export default function ChatbotWidget() {
       >
         {open ? "✕" : "🤖"}
       </button>
-
+ 
       {/* Chat window */}
       {open && (
         <div
@@ -262,7 +268,7 @@ export default function ChatbotWidget() {
             .chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
             .chat-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.4); border-radius: 4px; }
           `}</style>
-
+ 
           {/* Header */}
           <div
             style={{
@@ -298,7 +304,7 @@ export default function ChatbotWidget() {
               ✕
             </button>
           </div>
-
+ 
           {/* Messages */}
           <div
             className="chat-scrollbar"
@@ -339,7 +345,7 @@ export default function ChatbotWidget() {
                 >
                   {msg.role === "bot" ? "🤖" : "👤"}
                 </div>
-
+ 
                 {/* Bubble */}
                 <div style={{ maxWidth: "78%" }}>
                   <div
@@ -370,7 +376,7 @@ export default function ChatbotWidget() {
                 </div>
               </div>
             ))}
-
+ 
             {/* Typing indicator */}
             {typing && (
               <div style={{ display: "flex", gap: "8px", alignItems: "flex-end" }}>
@@ -410,7 +416,7 @@ export default function ChatbotWidget() {
             )}
             <div ref={bottomRef} />
           </div>
-
+ 
           {/* Quick questions */}
           {messages.length <= 1 && (
             <div style={{ padding: "0 12px 8px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
@@ -420,14 +426,14 @@ export default function ChatbotWidget() {
                   onClick={() => {
                     setInput(q);
                     setTimeout(() => {
-                      const userMsg: Message = { id: Date.now(), role: "user", text: q, time: getTime() };
+                      const userMsg: Message = { id: nextId.current++, role: "user", text: q, time: getTime() };
                       setMessages((prev) => [...prev, userMsg]);
                       setInput("");
                       setTyping(true);
                       setTimeout(() => {
                         setMessages((prev) => [
                           ...prev,
-                          { id: Date.now() + 1, role: "bot", text: getBotResponse(q), time: getTime() },
+                          { id: nextId.current++, role: "bot", text: getBotResponse(q), time: getTime() },
                         ]);
                         setTyping(false);
                       }, 700);
@@ -451,7 +457,7 @@ export default function ChatbotWidget() {
               ))}
             </div>
           )}
-
+ 
           {/* Input bar */}
           <div
             style={{

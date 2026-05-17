@@ -189,8 +189,8 @@ export default function ChatbotWidget() {
   };
  
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") sendMessage();
-  };
+  if (e.key === "Enter" && !e.nativeEvent.isComposing) sendMessage();
+};
  
   const quickQuestions = [
     "How do I get a GitHub token?",
@@ -242,8 +242,8 @@ export default function ChatbotWidget() {
             position: "fixed",
             bottom: "100px",
             right: "28px",
-            width: "360px",
-            maxHeight: "560px",
+            width: "min(360px, calc(100vw - 32px))",
+maxHeight: "min(560px, calc(100vh - 120px))",
             borderRadius: "16px",
             background: "linear-gradient(160deg, #0f172a 0%, #1e293b 100%)",
             border: "1px solid rgba(99,102,241,0.3)",
@@ -471,6 +471,8 @@ export default function ChatbotWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
+              onFocus={(e) => { e.currentTarget.style.boxShadow = "0 0 0 2px rgba(99,102,241,0.6)"; }}
+              onBlur={(e) => { e.currentTarget.style.boxShadow = "none"; }}
               placeholder="Ask me anything..."
               style={{
                 flex: 1,

@@ -100,12 +100,6 @@ export const useGitHubData = (getOctokit: () => Octokit | null) => {
           } else {
             setError(error.message || 'Failed to fetch data');
           }
-        setIssues(issueRes.items);
-        setPrs(prRes.items);
-        setTotalIssues(issueRes.total);
-        setTotalPrs(prRes.total);
-        setRateLimited(false);
-      } catch (err: any) {
         const errorMessage = err.message?.toLowerCase() || "";
         if (err.status === 403) {
           setError('GitHub API rate limit exceeded. Please provide a PAT to continue.');

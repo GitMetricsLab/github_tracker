@@ -2,13 +2,13 @@ import { useState, useMemo, useEffect } from 'react';
 import { Octokit } from '@octokit/core';
 
 export const useGitHubAuth = () => {
-  const [username, setUsername] = useState(() => localStorage.getItem('tracker_username') || '');
-  const [token, setToken] = useState(() => localStorage.getItem('tracker_token') || '');
+  const [username, setUsername] = useState(() => sessionStorage.getItem('tracker_username') || '');
+  const [token, setToken] = useState(() => sessionStorage.getItem('tracker_token') || '');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('tracker_username', username);
-    localStorage.setItem('tracker_token', token);
+    sessionStorage.setItem('tracker_username', username);
+    sessionStorage.setItem('tracker_token', token);
   }, [username, token]);
 
   const octokit = useMemo(() => {

@@ -4,6 +4,24 @@ const ScrollProgressBar = () => {
   const [scrollWidth, setScrollWidth] = useState(0);
   const [isAnimating, setIsAnimating] = useState(true); // Tracks if the page load animation is active
 
+  const handleScroll = () => {
+    const { documentElement } = document;
+    const scrollTop = documentElement.scrollTop;
+    const scrollableHeight =
+      documentElement.scrollHeight - documentElement.clientHeight;
+
+    if (scrollableHeight <= 0) {
+      setScrollWidth(0);
+      return;
+    }
+
+    const width = Math.min(
+      100,
+      Math.max(0, (scrollTop / scrollableHeight) * 100),
+    );
+    setScrollWidth(width);
+  };
+
   useEffect(() => {
     // Simulate the page load animation
     const animationTimeout = setTimeout(() => {
@@ -14,21 +32,13 @@ const ScrollProgressBar = () => {
     return () => clearTimeout(animationTimeout);
   }, []);
 
-  const handleScroll = () => {
-    const scrollTop = document.documentElement.scrollTop;
-    const scrollHeight =
-      document.documentElement.scrollHeight -
-      document.documentElement.clientHeight;
-    const width = (scrollTop / scrollHeight) * 100;
-    setScrollWidth(width);
-  };
-
   useEffect(() => {
-    if (!isAnimating) {
-      window.addEventListener("scroll", handleScroll);
-    }
+    // Always listen for scroll events
+    window.addEventListener("scroll", handleScroll);
+    // Call handleScroll once on mount to set initial position
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isAnimating]);
+  }, []);
 
   return (
     <>
@@ -56,10 +66,10 @@ const ScrollProgressBar = () => {
             top: 0,
             left: 0,
             width: `${scrollWidth}%`,
-            height: "5px", // Thicker line for scroll progress
-            backgroundColor: "grey",
+            height: "3px",
+            backgroundColor: "#3b82f6",
             zIndex: 100,
-            transition: "width 0.2s ease",
+            transition: "width 0.1s ease",
           }}
         />
       )}

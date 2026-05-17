@@ -1,49 +1,107 @@
+const steps = [
+  {
+    number: "01",
+    title: "Search Users",
+    description:
+      "Enter a GitHub username to load their public activity — issues, pull requests, and contribution data.",
+  },
+  {
+    number: "02",
+    title: "Monitor Activity",
+    description:
+      "View insights on commits, pull requests, issues, and other GitHub activities in a structured table.",
+  },
+  {
+    number: "03",
+    title: "Analyze Insights",
+    description:
+      "Filter by status, date, and repository. Export or share reports to understand development patterns.",
+  },
+];
 
-const HowItWorks = () => {
-  const steps = [
-    {
-      number: 1,
-      title: 'Search Users',
-      description: 'Enter GitHub usernames or search for users by name. Add them to your tracking dashboard.'
-    },
-    {
-      number: 2,
-      title: 'Monitor Activity',
-      description: 'Watch insights of commits, pull requests, issues, and other GitHub activities.'
-    },
-    {
-      number: 3,
-      title: 'Analyze Insights',
-      description: 'Review detailed analytics, export reports, and gain valuable insights into development patterns.'
-    }
-  ];
+const HowItWorks = () => (
+  <section
+    className="gt-section transition-theme"
+    style={{ backgroundColor: "var(--color-bg)" }}
+  >
+    <div className="gt-container">
+      {/* Header */}
+      <div className="mb-16">
+        <p className="gt-label mb-3">How it works</p>
+        <h2 style={{ color: "var(--color-text)" }}>Simple three-step process</h2>
+      </div>
 
-  return (
-    <section id="how-it-works" className="px-6 py-10 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
-      <div className="mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">How It Works</h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Get started in minutes with our simple three-step process
-          </p>
-        </div>
+      {/* Steps */}
+      <div className="grid md:grid-cols-3 gap-0 relative">
+        {steps.map((step, i) => (
+          <div
+            key={i}
+            className="relative"
+            style={{
+              padding: "0 0 0 0",
+            }}
+          >
+            {/* Connector line (desktop) */}
+            {i < steps.length - 1 && (
+              <div
+                className="hidden md:block absolute top-8 right-0 w-px"
+                style={{ height: "calc(100% - 4rem)", backgroundColor: "var(--color-border)" }}
+              />
+            )}
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {steps.map((step, index) => (
-            <div key={index} className="text-center">
-              <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+            <div style={{ paddingRight: i < steps.length - 1 ? "48px" : "0", paddingLeft: i > 0 ? "48px" : "0" }}>
+              {/* Number */}
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  letterSpacing: "0.1em",
+                  color: "var(--color-primary)",
+                  marginBottom: "16px",
+                }}
+              >
                 {step.number}
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{step.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              </p>
+
+              {/* Divider */}
+              <div
+                style={{
+                  width: "32px",
+                  height: "2px",
+                  backgroundColor: "var(--color-accent)",
+                  marginBottom: "20px",
+                }}
+              />
+
+              <h3
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 700,
+                  fontSize: "20px",
+                  color: "var(--color-text)",
+                  marginBottom: "12px",
+                }}
+              >
+                {step.title}
+              </h3>
+              <p style={{ fontSize: "15px", color: "var(--color-text-2)", lineHeight: 1.65 }}>
                 {step.description}
               </p>
             </div>
-          ))}
-        </div>
+
+            {/* Mobile separator */}
+            {i < steps.length - 1 && (
+              <div
+                className="md:hidden my-10"
+                style={{ height: "1px", backgroundColor: "var(--color-border)" }}
+              />
+            )}
+          </div>
+        ))}
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default HowItWorks;

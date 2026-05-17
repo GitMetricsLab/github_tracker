@@ -1,87 +1,122 @@
-import { motion } from "framer-motion";
 import { Lightbulb, Users, Settings, Search } from "lucide-react";
 
 const features = [
   {
-    icon: <Search size={40} className="text-indigo-600 dark:text-indigo-400" />,
+    icon: Search,
     title: "Simple Issue Tracking",
     description: "Track your GitHub issues seamlessly with intuitive filters and search options.",
   },
   {
-    icon: <Users size={40} className="text-indigo-600 dark:text-indigo-400" />,
+    icon: Users,
     title: "Team Collaboration",
-    description: "Collaborate with your team in real-time, manage issues and pull requests effectively.",
+    description: "Collaborate with your team, manage issues and pull requests effectively.",
   },
   {
-    icon: <Settings size={40} className="text-indigo-600 dark:text-indigo-400" />,
+    icon: Settings,
     title: "Customizable Settings",
     description: "Customize your issue tracking workflow to match your team's needs.",
   },
 ];
 
-const About = () => {
-  return (
-    <div className="bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 text-black dark:text-white min-h-screen">
-      
-      {/* Hero Section */}
-      <section className="py-24 text-center relative overflow-hidden">
-        <motion.h1 
-          className="text-5xl font-extrabold mb-4 drop-shadow-sm"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          About Us
-        </motion.h1>
-        <motion.p 
-          className="text-xl max-w-xl mx-auto text-gray-600 dark:text-gray-300"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          Welcome to <strong>GitHub Tracker</strong> — your smart solution to manage GitHub issues without chaos.
-        </motion.p>
-      </section>
+const About = () => (
+  <div className="min-h-screen w-full transition-theme" style={{ backgroundColor: "var(--color-bg)" }}>
 
-      {/* Mission Section */}
-      <section className="py-20 px-6 bg-white dark:bg-gray-900 text-center">
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Lightbulb size={48} className="mx-auto text-indigo-600 dark:text-indigo-400 mb-4" />
-          <h2 className="text-4xl font-bold mb-6">Our Mission</h2>
-          <p className="text-lg max-w-3xl mx-auto text-gray-700 dark:text-gray-300 leading-relaxed">
-            We aim to provide an efficient and user-friendly way to track GitHub issues and pull requests.
-            Our goal is to make it easy for developers to stay organized and focused on their projects
-            without getting bogged down by the details.
-          </p>
-        </motion.div>
-      </section>
+    {/* Hero */}
+    <section
+      className="transition-theme"
+      style={{
+        borderBottom: "1px solid var(--color-border)",
+        padding: "80px 24px",
+        backgroundColor: "var(--color-bg-2)",
+      }}
+    >
+      <div className="gt-container">
+        <p className="gt-label mb-4">About</p>
+        <h1 style={{ color: "var(--color-text)", maxWidth: "600px", marginBottom: "20px" }}>
+          Built to simplify GitHub activity tracking
+        </h1>
+        <p style={{ fontSize: "17px", color: "var(--color-text-2)", maxWidth: "520px", lineHeight: 1.7 }}>
+          Welcome to <strong style={{ color: "var(--color-text)" }}>GitHub Tracker</strong> — your smart solution to monitor GitHub issues and pull requests without chaos.
+        </p>
+      </div>
+    </section>
 
-      {/* Features Section */}
-      <section className="py-24 px-6 bg-gray-50 dark:bg-gray-950">
-        <h2 className="text-4xl font-bold text-center mb-12">What We Do</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-          {features.map((feature, idx) => (
-            <motion.div
-              key={idx}
-              className="p-8 bg-white dark:bg-gray-800 shadow-lg rounded-2xl hover:shadow-xl transition duration-300 text-center border border-gray-100 dark:border-gray-700"
-              whileHover={{ scale: 1.05 }}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.2, duration: 0.6 }}
-            >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
-            </motion.div>
-          ))}
+    {/* Mission */}
+    <section className="gt-section transition-theme" style={{ backgroundColor: "var(--color-bg)" }}>
+      <div className="gt-container">
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <p className="gt-label mb-4">Our Mission</p>
+            <h2 style={{ color: "var(--color-text)", marginBottom: "20px" }}>
+              Focus on the work, not the tool
+            </h2>
+            <p style={{ fontSize: "16px", color: "var(--color-text-2)", lineHeight: 1.75 }}>
+              We aim to provide an efficient and user-friendly way to track GitHub issues and pull requests.
+              Our goal is to make it easy for developers to stay organized and focused on their projects
+              without getting bogged down by the details.
+            </p>
+          </div>
+          <div
+            className="flex items-center justify-center rounded p-16"
+            style={{ backgroundColor: "var(--color-bg-2)", border: "1px solid var(--color-border)" }}
+          >
+            <Lightbulb size={64} style={{ color: "var(--color-text-3)", strokeWidth: 1 }} />
+          </div>
         </div>
-      </section>
-    </div>
-  );
-};
+      </div>
+    </section>
+
+    {/* Features */}
+    <section
+      className="gt-section transition-theme"
+      style={{ backgroundColor: "var(--color-bg-2)", borderTop: "1px solid var(--color-border)" }}
+    >
+      <div className="gt-container">
+        <div className="mb-12">
+          <p className="gt-label mb-3">What we do</p>
+          <h2 style={{ color: "var(--color-text)" }}>Core capabilities</h2>
+        </div>
+
+        <div
+          className="grid md:grid-cols-3 gap-px"
+          style={{ backgroundColor: "var(--color-border)" }}
+        >
+          {features.map((f, i) => {
+            const Icon = f.icon;
+            return (
+              <div
+                key={i}
+                className="transition-theme"
+                style={{
+                  backgroundColor: "var(--color-surface)",
+                  padding: "40px 32px",
+                  boxShadow: "var(--shadow-sm)",
+                }}
+              >
+                <div
+                  className="flex items-center justify-center w-10 h-10 rounded mb-6"
+                  style={{ backgroundColor: "var(--color-bg-3)", color: "var(--color-text)" }}
+                >
+                  <Icon size={18} strokeWidth={1.75} />
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "17px",
+                    color: "var(--color-text)", marginBottom: "10px",
+                  }}
+                >
+                  {f.title}
+                </h3>
+                <p style={{ fontSize: "15px", color: "var(--color-text-2)", lineHeight: 1.65 }}>
+                  {f.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  </div>
+);
 
 export default About;

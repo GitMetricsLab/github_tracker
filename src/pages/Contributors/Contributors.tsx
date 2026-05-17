@@ -73,70 +73,73 @@ const ContributorsPage = () => {
         <Grid container spacing={4}>
           {contributors.map((contributor) => (
             <Grid item xs={12} sm={6} md={3} key={contributor.id}>
-                <Card
-                  sx={{
-                    textAlign: "center",
-                    p: 2,
-                    borderRadius: "10px",
-                    border: "1px solid #E0E0E0",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                    transition: "transform 0.3s ease-in-out",
-                    "&:hover": {
-                      transform: "scale(1.05)",
-                      boxShadow: "0 8px 15px rgba(0,0,0,0.2)",
-                      borderColor: "#C0C0C0",
-                      outlineColor: "#B3B3B3",
-                    },
-                  }}
+              <Card
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: "10px",
+                  border: "1px solid #E0E0E0",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                  transition: "transform 0.3s ease-in-out",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    boxShadow: "0 8px 15px rgba(0,0,0,0.2)",
+                    borderColor: "#C0C0C0",
+                    outlineColor: "#B3B3B3",
+                  },
+                }}
+              >
+                <Link
+                  to={`/contributor/${contributor.login}`}
+                  style={{ textDecoration: "none" }}
                 >
-                    <Link
-                        to={`/contributor/${contributor.login}`}
-                        style={{ textDecoration: "none" }}
-                    >
-                    <Avatar
-                        src={contributor.avatar_url}
-                        alt={contributor.login}
-                        sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}
-                    />
-                    <CardContent>
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                        {contributor.login}
-                        </Typography>
+                  <Avatar
+                    src={contributor.avatar_url}
+                    alt={contributor.login}
+                    sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}
+                  />
+                  <CardContent>
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      {contributor.login}
+                    </Typography>
 
-                        <Typography variant="body2" color="text.secondary">
-                        {contributor.contributions} Contributions
-                        </Typography>
-                        {/*
+                    <Typography variant="body2" color="text.secondary">
+                      {contributor.contributions} Contributions
+                    </Typography>
+                    {/*
                         <Typography variant="body2" sx={{ mt: 2 }}>
                         Thank you for your valuable contributions to our
                         community!
                         </Typography> */}
-                    </CardContent>
-                    </Link>
+                  </CardContent>
+                </Link>
 
-                    <Box sx={{ mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            startIcon={<FaGithub />}
-                            href={contributor.html_url}
-                            target="_blank"
-                            sx={{
-                                backgroundColor: "#333333",
-                                textTransform: "none",
-                                color: "#FFFFFF",
-                                "&:hover": {
-                                backgroundColor: "#555555",
-                                },
-                            }}
-                            >
-                            GitHub
-                        </Button>
-                    </Box>
-                </Card>
+                <Box sx={{ mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<FaGithub />}
+                    href={contributor.html_url}
+                    target="_blank"
+                    sx={{
+                      backgroundColor: "#333333",
+                      textTransform: "none",
+                      color: "#FFFFFF",
+                      "&:hover": {
+                        backgroundColor: "#555555",
+                      },
+                    }}
+                  >
+                    GitHub
+                  </Button>
+                </Box>
+              </Card>
             </Grid>
           ))}
         </Grid>
       </Container>
+      <div style={{ textAlign: "center", padding: "20px", color: "var(--color-bg)", fontSize: "5px" }}>
+        Frontend UI Redesigned by github.com/Firoziya
+      </div>
     </div>
   );
 };

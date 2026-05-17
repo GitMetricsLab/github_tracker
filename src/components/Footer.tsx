@@ -1,32 +1,92 @@
-import { FaGithub } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { FaGithub } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { GitBranch } from "lucide-react";
 
 function Footer() {
   return (
-    <footer className="dark:text-white bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-2 px-6 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center p-3">
-          <div className="flex items-center space-x-2 md:mb-0">
-            <a
-                href="https://github.com/GitMetricsLab/github_tracker"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center hover:text-gray-300 transition-colors"
+    <footer
+      className="transition-theme"
+      style={{
+        backgroundColor: "var(--color-surface)",
+        borderTop: "1px solid var(--color-border)",
+        boxShadow: "0 -2px 4px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div className="gt-container px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row justify-between items-center py-8 gap-6">
+          {/* Brand */}
+          <div className="flex items-center gap-2.5">
+            <span
+              className="flex items-center justify-center w-7 h-7 rounded"
+              style={{ backgroundColor: "var(--color-accent)", color: "var(--color-bg)" }}
             >
-                <FaGithub className="h-5 w-5 mr-1" />
-                GitHub Tracker
-            </a>
+              <GitBranch size={14} strokeWidth={2.5} />
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 700,
+                fontSize: "15px",
+                color: "var(--color-text)",
+              }}
+            >
+              GitHub<span style={{ color: "var(--color-primary)" }}>Tracker</span>
+            </span>
           </div>
-          <div className="flex space-x-6 text-gray-600 dark:text-gray-300">
-            <Link to='/contact' className="hover:text-gray-900 dark:hover:text-white transition-colors">Contact Us</Link>
-            <Link to='/about' className="hover:text-gray-900 dark:hover:text-white transition-colors">About</Link>
-          </div>
+
+          {/* Links */}
+          <nav
+            className="flex flex-wrap justify-center gap-6"
+            aria-label="Footer navigation"
+          >
+            {[
+              { to: "/", label: "Home" },
+              { to: "/track", label: "Tracker" },
+              { to: "/about", label: "About" },
+              { to: "/contact", label: "Contact" },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="text-sm font-medium transition-theme"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  color: "var(--color-text-3)",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-3)")}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* GitHub */}
+          <a
+            href="https://github.com/GitMetricsLab/github_tracker"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm transition-theme"
+            style={{ fontFamily: "var(--font-display)", color: "var(--color-text-3)", fontWeight: 500 }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-3)")}
+            aria-label="View on GitHub"
+          >
+            <FaGithub size={16} />
+            <span>View on GitHub</span>
+          </a>
         </div>
-        <div className="p-2 border-t border-gray-200 dark:border-gray-800 text-center text-gray-600 dark:text-gray-400">
-            <p className="text-xs md:text-sm font-semibold">
-                &copy; {new Date().getFullYear()}{" "}
-                <span className="font-semibold">GitHub Tracker</span>. All rights reserved.
-            </p>
+
+        <div
+          className="py-4 text-center"
+          style={{ borderTop: "1px solid var(--color-border)" }}
+        >
+          <p
+            className="text-xs"
+            style={{ fontFamily: "var(--font-display)", color: "var(--color-text-3)" }}
+          >
+            © {new Date().getFullYear()} GitHub Tracker. MIT License.
+          </p>
         </div>
       </div>
     </footer>

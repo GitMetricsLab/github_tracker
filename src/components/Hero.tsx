@@ -1,34 +1,101 @@
-import { Search } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Search, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const Hero = () => {
-  return (
-    <section className="relative bg-gradient-to-br px-6 py-10">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-            Track GitHub Activity
-            <span className="block text-blue-600">Like Never Before</span>
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Monitor and analyze GitHub user activity with powerful insights. Perfect for developers,
-            project managers, and teams who want to understand contribution patterns and repository engagement.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg flex items-center space-x-2">
-              <Search className="h-5 w-5" />
-              <Link to='/track'>Start Tracking</Link>
-            </button>
-            {/*
-            <button className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center space-x-2">
-              <span>View Demo</span>
-              <ArrowRight className="h-5 w-5" />
-            </button>*/}
-          </div>
+const Hero = () => (
+  <section
+    className="transition-theme"
+    style={{
+      backgroundColor: "var(--color-bg)",
+      borderBottom: "1px solid var(--color-border)",
+      padding: "96px 24px",
+    }}
+  >
+    <div className="gt-container">
+      <div className="max-w-3xl">
+        {/* Label */}
+        <p className="gt-label mb-6">Open Source · GitHub Analytics</p>
+
+        {/* Headline */}
+        <h1
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 800,
+            color: "var(--color-text)",
+            lineHeight: 1.1,
+            marginBottom: "24px",
+          }}
+        >
+          Track GitHub Activity{" "}
+          <span style={{ color: "var(--color-primary)" }}>Like Never Before</span>
+        </h1>
+
+        {/* Sub */}
+        <p
+          style={{
+            fontSize: "18px",
+            color: "var(--color-text-2)",
+            maxWidth: "560px",
+            lineHeight: 1.7,
+            marginBottom: "48px",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          Monitor commits, pull requests, and issues across repositories.
+          Built for developers and project managers who care about contribution patterns.
+        </p>
+
+        {/* CTAs */}
+        <div className="flex flex-wrap gap-3">
+          <Link to="/track" className="gt-btn gt-btn-primary flex items-center gap-2">
+            <Search size={16} />
+            Start Tracking
+          </Link>
+          <Link to="/about" className="gt-btn gt-btn-outline flex items-center gap-2">
+            Learn more
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        {/* Stats strip */}
+        <div
+          className="flex flex-wrap gap-8 mt-16 pt-8"
+          style={{ borderTop: "1px solid var(--color-border)" }}
+        >
+          {[
+            { value: "100%", label: "Open source" },
+            { value: "Public API", label: "No data stored" },
+            { value: "Real-time", label: "GitHub data" },
+          ].map((s) => (
+            <div key={s.label}>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 700,
+                  fontSize: "20px",
+                  color: "var(--color-text)",
+                  lineHeight: 1,
+                  marginBottom: "4px",
+                }}
+              >
+                {s.value}
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "12px",
+                  color: "var(--color-text-3)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                {s.label}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default Hero;

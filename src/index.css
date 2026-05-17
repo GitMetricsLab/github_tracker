@@ -1,20 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── CSS Custom Properties ─── */
+:root {
+  /* Light Theme */
+  --color-bg:        #FFFFFF;
+  --color-bg-2:      #F7F7F7;
+  --color-bg-3:      #EEEEEE;
+  --color-surface:   #FFFFFF;
+  --color-border:    #E0E0E0;
+  --color-text:      #111111;
+  --color-text-2:    #444444;
+  --color-text-3:    #777777;
+  --color-accent:    #1A1A1A;
+  --color-accent-2:  #333333;
+  --color-primary:   #0F62FE;
+  --color-primary-h: #0043CE;
+  --color-success:   #198038;
+  --color-error:     #DA1E28;
 
-.icon-merged {
-  color: #2ea44f; /* Or use your theme color */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:  0 2px 4px rgba(0,0,0,0.10);
+  --shadow-lg:  0 4px 12px rgba(0,0,0,0.10);
+  --shadow-xl:  0 8px 24px rgba(0,0,0,0.12);
+
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+
+  --font-display: 'Montserrat', sans-serif;
+  --font-body:    'Open Sans', sans-serif;
+
+  --transition: 200ms ease;
 }
-.icon-pr-open {
-  color: #0969da;
+
+/* remove scroll bar for all browsers */
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
-.icon-pr-closed {
-  color: #cf222e;
+
+
+
+.dark {
+  /* Dark Theme */
+  --color-bg:        #000000;
+  --color-bg-2:      #111111;
+  --color-bg-3:      #1A1A1A;
+  --color-surface:   #111111;
+  --color-border:    #2A2A2A;
+  --color-text:      #F5F5F5;
+  --color-text-2:    #BBBBBB;
+  --color-text-3:    #777777;
+  --color-accent:    #F5F5F5;
+  --color-accent-2:  #CCCCCC;
+  --color-primary:   #4589FF;
+  --color-primary-h: #74AAFF;
+  --color-success:   #42BE65;
+  --color-error:     #FF8389;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:  0 2px 4px rgba(0,0,0,0.5);
+  --shadow-lg:  0 4px 12px rgba(0,0,0,0.5);
+  --shadow-xl:  0 8px 24px rgba(0,0,0,0.6);
 }
-.icon-issue-open {
-  color: #2ea44f;
+
+/* ─── Base Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
-.icon-issue-closed {
-  color: #cf222e;
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color var(--transition), color var(--transition);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+h1 { font-size: clamp(28px, 5vw, 48px); }
+h2 { font-size: clamp(24px, 4vw, 36px); }
+h3 { font-size: clamp(20px, 3vw, 28px); }
+h4 { font-size: 20px; }
+
+p { font-size: 16px; color: var(--color-text-2); }
+a { color: var(--color-primary); text-decoration: none; transition: color var(--transition); }
+a:hover { color: var(--color-primary-h); }
+
+/* ─── Utility Classes ─── */
+.gt-surface {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.gt-section {
+  padding: 80px 24px;
+}
+
+.gt-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.gt-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+
+.gt-divider {
+  height: 1px;
+  background-color: var(--color-border);
+}
+
+/* ─── Form Elements ─── */
+.gt-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-text);
+  background-color: var(--color-bg-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  -webkit-appearance: none;
+}
+
+.gt-input::placeholder { color: var(--color-text-3); }
+.gt-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.15);
+}
+.dark .gt-input:focus {
+  box-shadow: 0 0 0 3px rgba(69, 137, 255, 0.2);
+}
+
+.gt-input-icon { position: relative; }
+.gt-input-icon .gt-input { padding-left: 44px; }
+.gt-input-icon .icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-3);
+  pointer-events: none;
+}
+
+.gt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.gt-btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+}
+.dark .gt-btn-primary { background-color: var(--color-text); color: var(--color-bg); }
+.gt-btn-primary:hover { opacity: 0.85; box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.gt-btn-primary:active { transform: translateY(0); }
+
+.gt-btn-outline {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+.gt-btn-outline:hover { background-color: var(--color-bg-2); border-color: var(--color-text-3); }
+
+.gt-btn-ghost {
+  background: transparent;
+  color: var(--color-text-2);
+  border: none;
+}
+.gt-btn-ghost:hover { background-color: var(--color-bg-2); color: var(--color-text); }
+
+/* ─── Status Icons (GitHub) ─── */
+.icon-merged      { color: #8250df; }
+.icon-pr-open     { color: var(--color-primary); }
+.icon-pr-closed   { color: var(--color-error); }
+.icon-issue-open  { color: var(--color-success); }
+.icon-issue-closed{ color: var(--color-error); }
+
+/* ─── Badge ─── */
+.gt-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.gt-badge-open    { background: rgba(25, 128, 56, 0.1); color: var(--color-success); }
+.gt-badge-closed  { background: rgba(218, 30, 40, 0.1); color: var(--color-error); }
+.gt-badge-merged  { background: rgba(130, 80, 223, 0.1); color: #8250df; }
+
+/* ─── Scroll Progress Bar ─── */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  z-index: 9999;
+  transition: width 50ms linear;
+}
+
+/* ─── Auth page layout ─── */
+.auth-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: var(--color-bg);
+}
+@media (max-width: 768px) {
+  .auth-layout { grid-template-columns: 1fr; }
+  .auth-panel-left { display: none; }
+}
+
+/* ─── Smooth transitions ─── */
+.transition-theme {
+  transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+}
+
+/* ─── Mobile nav open/close ─── */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.nav-mobile-open { animation: slideDown 200ms ease; }
+
+/* ─── Focus visible ─── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ─── Table styles for MUI override ─── */
+.MuiTableCell-root {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+.MuiTableHead-root .MuiTableCell-root {
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-3) !important;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .gt-section { padding: 48px 16px; }
 }

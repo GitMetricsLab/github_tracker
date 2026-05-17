@@ -3,41 +3,49 @@ import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
-import ThemeWrapper from "./context/ThemeContext";
 
 function App() {
   return (
-    <ThemeWrapper>
-      <div className="relative flex flex-col min-h-screen">
-        <ScrollProgressBar />
+    <div
+      className="relative flex flex-col min-h-screen transition-theme"
+      style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
+    >
+      <ScrollProgressBar />
+      <Navbar />
 
-        <Navbar />
+      <main className="flex-grow" style={{ backgroundColor: "var(--color-bg)" }}>
+        <Router />
+      </main>
 
-        <main className="flex-grow bg-gray-50 dark:bg-gray-800 flex justify-center items-center">
-          <Router />
-        </main>
+      <Footer />
 
-        <Footer />
-
-        <Toaster
-          position="top-center"
-          reverseOrder={false}
-          gutter={8}
-          containerClassName="mt-12"
-          toastOptions={{
-            className: "bg-white dark:bg-gray-800 text-black dark:text-white",
-            duration: 5000,
-            success: {
-              duration: 3000,
-              iconTheme: {
-                primary: "green",
-                secondary: "white",
-              },
-            },
-          }}
-        />
-      </div>
-    </ThemeWrapper>
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        gutter={8}
+        containerStyle={{ top: 72 }}
+        toastOptions={{
+          style: {
+            fontFamily: "var(--font-body)",
+            fontSize: "14px",
+            backgroundColor: "var(--color-surface)",
+            color: "var(--color-text)",
+            border: "1px solid var(--color-border)",
+            boxShadow: "var(--shadow-lg)",
+            borderRadius: "var(--radius-md)",
+            padding: "12px 16px",
+          },
+          duration: 4000,
+          success: {
+            duration: 3000,
+            iconTheme: { primary: "#198038", secondary: "#fff" },
+          },
+          error: {
+            iconTheme: { primary: "#DA1E28", secondary: "#fff" },
+          },
+        }}
+      />
+    </div>
   );
 }
 

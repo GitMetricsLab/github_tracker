@@ -8,7 +8,6 @@ function Home() {
         <Hero />
         <Features />
         <HowItWorks />
-
     </div>
   )
 }

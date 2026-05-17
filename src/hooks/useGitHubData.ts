@@ -119,6 +119,7 @@ export const useGitHubData = (getOctokit: () => Octokit | null) => {
             'Unable to fetch GitHub data. Please verify the username, token, or network connection.'
           );
         }
+        }
       } finally {
         if (requestId === lastRequestId.current) {
           setLoading(false);

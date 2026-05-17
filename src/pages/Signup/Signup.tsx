@@ -47,14 +47,6 @@ const SignUp: React.FC = () => {
       if (response.data.message === 'User created successfully') {
         navigate("/login");
       }
-    } catch {
-      setMessage("Something went wrong. Please try again.");
-      const response = await axios.post(`${backendUrl}/api/auth/signup`, formData);
-      setMessage(response.data.message);
-
-      if (response.data.message === "User created successfully") {
-        navigate("/login");
-      }
     } catch (error: any) {
       setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
     } finally {

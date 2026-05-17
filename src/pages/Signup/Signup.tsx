@@ -82,7 +82,7 @@ const SignUp: React.FC = () => {
         />
       </div>
 
-      <div className="relative w-full max-w-md px-6">
+      <div className="relative w-full max-w-md px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,12 +112,13 @@ const SignUp: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className={`rounded-3xl p-10 shadow-2xl border ${
+          className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${
             mode === "dark"
               ? "bg-white/10 backdrop-blur-xl border-white/20 text-white"
               : "bg-white border-gray-200 text-black"
           }`}
         >
+          
           <h2
             className={`text-2xl font-bold text-center mb-8 ${
               mode === "dark" ? "text-white" : "text-gray-800"
@@ -205,7 +206,7 @@ const SignUp: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Creating account..." : "Create Account"}
             </button>

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Octokit } from '@octokit/core';
+import { Octokit } from 'octokit';
 
 export const useGitHubAuth = () => {
   const [username, setUsername] = useState(() => sessionStorage.getItem('tracker_username') || '');

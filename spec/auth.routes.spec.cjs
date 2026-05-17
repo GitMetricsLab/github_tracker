@@ -22,10 +22,7 @@ describe('Auth Routes', () => {
   let app;
 
   beforeAll(async () => {
-    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test');
     app = createTestApp();
   });
 

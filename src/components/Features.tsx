@@ -60,8 +60,10 @@ const Features = () => {
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
-              <div key={index} className="bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl hover:shadow-lg transition-all duration-300">
-                <div className={`${feature.bgColor} w-12 h-12 rounded-lg flex items-center justify-center mb-6`}>
+              <div key={index} className="bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl transition-all duration-300
+  hover:-translate-y-2 hover:shadow-2xl hover:bg-blue-100 
+  dark:hover:bg-gray-600">
+                <div className={`${feature.bgColor} w-12 h-12 rounded-lg flex items-center justify-center mb-6 transition-transform duration-300`}>
                   <IconComponent className={`h-6 w-6 ${feature.iconColor}`} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{feature.title}</h3>

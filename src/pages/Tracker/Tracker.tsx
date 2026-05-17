@@ -185,7 +185,7 @@ const Home: React.FC = () => {
               // Helper link to guide users on generating a GitHub Personal Access Token
               helperText={
                 <Link
-                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                href="https://github.com/settings/tokens/new"
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{

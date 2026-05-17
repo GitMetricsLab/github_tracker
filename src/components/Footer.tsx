@@ -18,7 +18,7 @@ function Footer() {
       bg-white 
       /* Dark Mode: Retained matching deep navy navbar theme background */
       dark:bg-[#0f172a]
-      font-sans select-none"
+      font-sans select-none before:absolute before:inset-0 before:bg-gradient-to-b before:from-blue-500/5 before:to-transparent before:pointer-events-none"
     >
       <div className="max-w-7xl mx-auto px-8 pt-16 pb-10 relative z-10">
         
@@ -102,7 +102,7 @@ function Footer() {
               />
               <button
                 type="submit"
-                className="px-5 py-3 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm active:scale-[0.98] transition-all flex items-center justify-center space-x-1.5 whitespace-nowrap"
+                className="px-5 py-3 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm active:scale-[0.98] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 flex items-center justify-center space-x-1.5 whitespace-nowrap"
               >
                 <span>Subscribe</span>
                 <FaArrowRight className="h-3.5 w-3.5" />
@@ -133,7 +133,7 @@ function Footer() {
               href="https://github.com/GitMetricsLab/github_tracker" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-200"
+              className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
               aria-label="GitHub Repository"
             >
               <FaGithub className="h-7 w-7" />
@@ -142,7 +142,7 @@ function Footer() {
               href="https://x.com/your_handle" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-colors duration-200" 
+              className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
               aria-label="Twitter"
             >
               <FaTwitter className="h-7 w-7" />
@@ -151,7 +151,7 @@ function Footer() {
               href="https://discord.gg/your_invite" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-zinc-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-zinc-100 transition-colors duration-200" 
+              className="text-zinc-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110" 
               aria-label="Discord"
             >
               <FaDiscord className="h-7 w-7" />

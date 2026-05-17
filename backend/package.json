@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine spec/**/*.spec.cjs"
+
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,8 @@
     "express-session": "^1.18.1",
     "mongoose": "^8.8.2",
     "passport": "^0.7.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

@@ -71,6 +71,8 @@ export const useGitHubData = (getOctokit: () => Octokit | null) => {
       const octokit = getOctokit();
       if (!octokit || !username || rateLimited) return;
 
+      if (!octokit || !username) return;
+
       const requestId = ++lastRequestId.current;
       setLoading(true);
       setError('');
@@ -98,6 +100,30 @@ export const useGitHubData = (getOctokit: () => Octokit | null) => {
           } else {
             setError(error.message || 'Failed to fetch data');
           }
+        setIssues(issueRes.items);
+        setPrs(prRes.items);
+        setTotalIssues(issueRes.total);
+        setTotalPrs(prRes.total);
+        setRateLimited(false);
+      } catch (err: any) {
+        const errorMessage = err.message?.toLowerCase() || "";
+        if (err.status === 403) {
+          setError('GitHub API rate limit exceeded. Please provide a PAT to continue.');
+          setRateLimited(true); 
+        } else if (errorMessage.includes("do not exist")){
+          setError('User not found. Please check the spelling of the GitHub username.');
+        } else if (err.status === 401 || errorMessage.includes("permission")){
+          setError('Private repository detected. Please input PAT.');
+        }else if(err.status===404){
+          setError('Resource not found.');
+        }
+        else if (errorMessage.includes("validation failed")) {
+          setError('Invalid GitHub username or insufficient permissions.');
+        }
+        else {
+          setError(
+            'Unable to fetch GitHub data. Please verify the username, token, or network connection.'
+          );
         }
       } finally {
         if (requestId === lastRequestId.current) {
@@ -105,7 +131,7 @@ export const useGitHubData = (getOctokit: () => Octokit | null) => {
         }
       }
     },
-    [getOctokit, rateLimited]
+    [getOctokit]
   );
 
   return {

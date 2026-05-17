@@ -22,10 +22,7 @@ describe('Auth Routes', () => {
   let app;
 
   beforeAll(async () => {
-    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test');
     app = createTestApp();
   });
 
@@ -53,6 +50,15 @@ describe('Auth Routes', () => {
     const res = await request(app)
       .post('/auth/signup')
       .send({ username: 'testuser2', email: 'test@example.com', password: 'password456' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('User already exists');
+  });
+
+  it('should not sign up a user with existing username', async () => {
+    await new User({ username: 'testuser', email: 'test@example.com', password: 'password123' }).save();
+    const res = await request(app)
+      .post('/auth/signup')
+      .send({ username: 'testuser', email: 'test2@example.com', password: 'password456' });
     expect(res.status).toBe(400);
     expect(res.body.message).toBe('User already exists');
   });

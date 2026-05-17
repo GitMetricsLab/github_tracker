@@ -22,7 +22,6 @@ import {
   TableRow,
   TablePagination,
   Link,
-  CircularProgress,
   Alert,
   Tabs,
   Tab,
@@ -30,6 +29,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Skeleton,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
@@ -166,9 +167,27 @@ const Tracker: React.FC = () => {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               type="password"
-              required
               sx={{ flex: 1, minWidth: 150 }}
+              // Helper link to guide users on generating a GitHub Personal Access Token
+              helperText={
+                <Link
+                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+      fontSize: '0.75rem',
+      color: 'primary.main',
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline',
+      }
+    }}
+                >
+                  How to generate?
+                </Link>
+              }
             />
+
             <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
               Fetch Data
             </Button>
@@ -275,11 +294,62 @@ const Tracker: React.FC = () => {
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+    <TableContainer component={Paper}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Title</TableCell>
+            <TableCell align="center">Repository</TableCell>
+            <TableCell align="center">State</TableCell>
+            <TableCell>Created</TableCell>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {[...Array(5)].map((_, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <Skeleton variant="text" width="80%" height={30} />
+              </TableCell>
+
+              <TableCell align="center">
+                <Skeleton variant="text" width="60%" height={30} />
+              </TableCell>
+
+              <TableCell align="center">
+                <Skeleton variant="rounded" width={70} height={25} />
+              </TableCell>
+
+              <TableCell>
+                <Skeleton variant="text" width="70%" height={30} />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Box>
+) : !authError && !dataError && currentFilteredData.length === 0 ? (
+  <Paper
+    elevation={1}
+    sx={{
+      p: 4,
+      textAlign: "center",
+      backgroundColor: theme.palette.background.paper,
+    }}
+  >
+    <Typography variant="h6" gutterBottom>
+      No Data Found
+    </Typography>
+
+    <Typography variant="body2" color="text.secondary">
+      Try adjusting filters or searching for another GitHub user.
+    </Typography>
+  </Paper>
+) : (
+    
+  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
 

@@ -4,6 +4,7 @@ import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
 import ThemeWrapper from "./context/ThemeContext";
+import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         </main>
 
         <Footer />
+
+        <ChatbotWidget />
 
         <Toaster
           position="top-center"

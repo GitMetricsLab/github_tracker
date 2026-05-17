@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate ,Link } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
-console.log("Backend URL:", backendUrl);
+
 interface SignUpFormData {
   username: string;
   email: string;

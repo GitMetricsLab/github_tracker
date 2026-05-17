@@ -22,6 +22,12 @@
   }
 }
 
+/* remove scroll bar for all browsers */
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 .how-it-works-flow-line {
   display: block;
   height: 2px;

@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "docker:dev": "docker compose --profile dev up --build",
-    "docker:prod": "docker compose --profile prod up -d --build"
+    "docker:prod": "docker compose --profile prod up -d --build",
+    "test": "jasmine"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
@@ -19,8 +20,10 @@
     "@primer/octicons-react": "^19.15.5",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.7",
+    "express": "^5.2.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.525.0",
+    "mongoose": "^9.6.2",
     "octokit": "^4.0.2",
     "postcss": "^8.4.47",
     "react": "^18.3.1",
@@ -40,7 +43,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
-    "bcryptjs": "^3.0.2",
+    "bcryptjs": "^3.0.3",
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",

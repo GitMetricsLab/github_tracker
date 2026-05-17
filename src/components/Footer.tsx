@@ -1,32 +1,81 @@
-import { FaGithub } from 'react-icons/fa';
+import { FaGithub, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="dark:text-white bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-2 px-6 transition-colors duration-300">
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center p-3">
-          <div className="flex items-center space-x-2 md:mb-0">
-            <a
-                href="https://github.com/GitMetricsLab/github_tracker"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center hover:text-gray-300 transition-colors"
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+          {/* Project Info */}
+          <div className="flex flex-col items-start">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">GitHub Tracker</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              Track and analyze GitHub repositories with ease.
+            </p>
+          </div>
+
+          {/* Quick Links */}
+          <div className="flex flex-col space-y-2">
+            <h4 className="font-semibold text-gray-900 dark:text-white">Quick Links</h4>
+            <Link
+              to="/"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
             >
-                <FaGithub className="h-5 w-5 mr-1" />
-                GitHub Tracker
+              Home
+            </Link>
+            <Link
+              to="/about"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+            >
+              About
+            </Link>
+            <Link
+              to="/contact"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+            >
+              Contact Us
+            </Link>
+          </div>
+
+          {/* Social Links */}
+          <div className="flex flex-col space-y-2">
+            <h4 className="font-semibold text-gray-900 dark:text-white">Connect With Us</h4>
+            <a
+              href="https://github.com/GitMetricsLab/github_tracker"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+            >
+              <FaGithub className="h-5 w-5 mr-2" />
+              GitHub
+            </a>
+            <a
+              href="https://twitter.com/example"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+            >
+              <FaTwitter className="h-5 w-5 mr-2" />
+              Twitter
+            </a>
+            <a
+              href="https://linkedin.com/company/example"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+            >
+              <FaLinkedin className="h-5 w-5 mr-2" />
+              LinkedIn
             </a>
           </div>
-          <div className="flex space-x-6 text-gray-600 dark:text-gray-300">
-            <Link to='/contact' className="hover:text-gray-900 dark:hover:text-white transition-colors">Contact Us</Link>
-            <Link to='/about' className="hover:text-gray-900 dark:hover:text-white transition-colors">About</Link>
-          </div>
         </div>
-        <div className="p-2 border-t border-gray-200 dark:border-gray-800 text-center text-gray-600 dark:text-gray-400">
-            <p className="text-xs md:text-sm font-semibold">
-                &copy; {new Date().getFullYear()}{" "}
-                <span className="font-semibold">GitHub Tracker</span>. All rights reserved.
-            </p>
+
+        {/* Footer Bottom */}
+        <div className="border-t border-gray-200 dark:border-gray-800 pt-4 text-center text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm">
+            &copy; {new Date().getFullYear()} GitHub Tracker. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

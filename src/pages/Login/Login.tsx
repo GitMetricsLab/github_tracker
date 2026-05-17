@@ -140,7 +140,7 @@ const Login: React.FC = () => {
           )}
 
           {/* Footer Text */}
-          <div className="text-center mt-8 ">
+          <div className="text-center mt-8 pb-8">
             <p className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}>
               Don't have an account?
               <Link

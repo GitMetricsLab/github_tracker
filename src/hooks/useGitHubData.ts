@@ -36,15 +36,28 @@ export const useGitHubData = (getOctokit: () => any) => {
       setError('');
 
       try {
-        const [issueRes, prRes] = await Promise.all([
+        const [issueRes, prRes] = await Promise.allSettled([
           fetchPaginated(octokit, username, 'issue', page, perPage),
           fetchPaginated(octokit, username, 'pr', page, perPage),
         ]);
 
-        setIssues(issueRes.items);
-        setPrs(prRes.items);
-        setTotalIssues(issueRes.total);
-        setTotalPrs(prRes.total);
+        if (issueRes.status === 'fulfilled') {
+          setIssues(issueRes.value.items);
+          setTotalIssues(issueRes.value.total);
+        }
+
+        if (prRes.status === 'fulfilled') {
+          setPrs(prRes.value.items);
+          setTotalPrs(prRes.value.total);
+        }
+
+        if (
+          issueRes.status === 'rejected' ||
+          prRes.status === 'rejected'
+        ) {
+          setError('Some GitHub data could not be fetched completely.');
+        }
+
         setRateLimited(false);
       } catch (err: any) {
         const errorMessage = err.message?.toLowerCase() || "";
@@ -53,13 +66,20 @@ export const useGitHubData = (getOctokit: () => any) => {
           setRateLimited(true); 
         } else if (errorMessage.includes("do not exist")){
           setError('User not found. Please check the spelling of the GitHub username.');
-        } else if (err.status === 401 || errorMessage.includes("permission")){
+        } 
+        else if (errorMessage.includes("validation failed")) {
+          setError('Invalid GitHub username or insufficient permissions.');
+        }
+        else if (err.status === 401 || errorMessage.includes("permission")){
           setError('Private repository detected. Please input PAT.');
         }else if(err.status===404){
           setError('Resource not found.');
         }
-        else{
-          setError(err.message || 'Failed to fetch data');
+        
+        else {
+          setError(
+            'Unable to fetch GitHub data. Please verify the username, token, or network connection.'
+          );
         }
       } finally {
         setLoading(false);

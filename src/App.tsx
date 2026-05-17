@@ -4,7 +4,6 @@ import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
-import ThemeWrapper from "./context/ThemeContext";
 
 const FULLSCREEN_ROUTES = ["/signup", "/login"];
 
@@ -13,7 +12,6 @@ function App() {
   const isFullscreen = FULLSCREEN_ROUTES.includes(location.pathname);
 
   return (
-    <ThemeWrapper>
       <div className="relative flex flex-col min-h-screen">
         {!isFullscreen && <ScrollProgressBar />}
 
@@ -43,7 +41,6 @@ function App() {
           }}
         />
       </div>
-    </ThemeWrapper>
   );
 }
 

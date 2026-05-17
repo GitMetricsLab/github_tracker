@@ -58,8 +58,13 @@ export const useGitHubData = (getOctokit: () => any) => {
         }else if(err.status===404){
           setError('Resource not found.');
         }
-        else{
-          setError(err.message || 'Failed to fetch data');
+        else if (errorMessage.includes("validation failed")) {
+          setError('Invalid GitHub username or insufficient permissions.');
+        }
+        else {
+          setError(
+            'Unable to fetch GitHub data. Please verify the username, token, or network connection.'
+          );
         }
       } finally {
         setLoading(false);

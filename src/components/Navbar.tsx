@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
           </Link>
           <Link
             to="/track"
-            className="text-lg font-medium text-black  hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-blue-400 rounded"
+            className="text-lg font-medium text-black dark:text-white  hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-blue-400 rounded"
           >
             Tracker
           </Link>

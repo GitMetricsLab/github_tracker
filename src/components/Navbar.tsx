@@ -42,7 +42,7 @@ const Navbar: React.FC = () => {
           </Link>
           <Link
             to="/contributors"
-            className="text-lg font-medium hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+            className="text-lg font-medium hover:text-blue-600 transition-all px-2 py-1 border border-transparent hover:border-blue-400 rounded"
           >
             Contributors
           </Link>

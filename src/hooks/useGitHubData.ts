@@ -34,6 +34,10 @@ export const useGitHubData = (getOctokit: () => any) => {
 
       setLoading(true);
       setError('');
+      setIssues([]);
+      setPrs([]);
+      setTotalIssues(0);
+      setTotalPrs(0);
 
       try {
         const [issueRes, prRes] = await Promise.allSettled([
@@ -49,6 +53,18 @@ export const useGitHubData = (getOctokit: () => any) => {
         if (prRes.status === 'fulfilled') {
           setPrs(prRes.value.items);
           setTotalPrs(prRes.value.total);
+        }
+
+        if (
+          issueRes.status === 'rejected' &&
+          prRes.status === 'rejected'
+        ) {
+          const error =
+            issueRes.reason ??
+            prRes.reason ??
+            new Error('Failed to fetch GitHub data');
+
+          throw error;
         }
 
         if (

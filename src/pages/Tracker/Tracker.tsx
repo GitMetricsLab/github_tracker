@@ -166,8 +166,23 @@ const Home: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
       {/* Auth Form */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
-        <form onSubmit={handleSubmit}>
+<Paper
+  elevation={1}
+  sx={{
+    p: 2,
+    mb: 4,
+    backgroundColor:
+      theme.palette.mode === "dark"
+        ? "rgba(30, 41, 59, 0.65)"
+        : theme.palette.background.paper,
+    backdropFilter: "blur(8px)",
+    border:
+      theme.palette.mode === "dark"
+        ? "1px solid rgba(148, 163, 184, 0.15)"
+        : "none",
+  }}
+>
+          <form onSubmit={handleSubmit}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
               label="GitHub Username"
@@ -335,14 +350,22 @@ const Home: React.FC = () => {
     </TableContainer>
   </Box>
 ) : !authError && !dataError && currentFilteredData.length === 0 ? (
-  <Paper
-    elevation={1}
-    sx={{
-      p: 4,
-      textAlign: "center",
-      backgroundColor: theme.palette.background.paper,
-    }}
-  >
+ <Paper
+  elevation={1}
+  sx={{
+    p: 4,
+    textAlign: "center",
+    backgroundColor:
+      theme.palette.mode === "dark"
+        ? "rgba(30, 41, 59, 0.65)"
+        : theme.palette.background.paper,
+    backdropFilter: "blur(8px)",
+    border:
+      theme.palette.mode === "dark"
+        ? "1px solid rgba(148, 163, 184, 0.15)"
+        : "none",
+  }}
+>
     <Typography variant="h6" gutterBottom>
       No Data Found
     </Typography>
@@ -355,8 +378,20 @@ const Home: React.FC = () => {
     
   <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
-          <TableContainer component={Paper}>
-
+<TableContainer
+  component={Paper}
+  sx={{
+    backgroundColor:
+      theme.palette.mode === "dark"
+        ? "rgba(30, 41, 59, 0.65)"
+        : theme.palette.background.paper,
+    backdropFilter: "blur(8px)",
+    border:
+      theme.palette.mode === "dark"
+        ? "1px solid rgba(148, 163, 184, 0.15)"
+        : "none",
+  }}
+>
             <Table size="small">
 
               <TableHead>

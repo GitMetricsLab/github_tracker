@@ -30,8 +30,8 @@ app.use('/api/auth', authRoutes);
 
 /**
  * Structured logger -- gates output behind NODE_ENV so that
- * verbose logs are suppressed in production (NODE_ENV=production)
- * and tests (NODE_ENV=test) while remaining available in development.
+ * logs are suppressed in tests (NODE_ENV=test).
+ * In development and production, JSON logs are emitted.
  *
  * Each log entry is emitted as a JSON line for easy ingestion by
  * log-aggregation tools (Datadog, CloudWatch, ELK, etc.).

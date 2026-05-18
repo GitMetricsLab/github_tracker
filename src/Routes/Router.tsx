@@ -7,7 +7,7 @@ import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
-import Activity from "../pages/ctivity.tsx"; // ✅ add
+import Activity from "../pages/Activity.tsx"; 
 
 const Router = () => {
   return (

@@ -7,7 +7,7 @@ export default function Activity() {
           Live GitHub Activity
         </h1>
 
-        <ActivityFeed username="aparna24bce11388" />
+        <ActivityFeed username="octocat" />
       </div>
     </div>
   );

@@ -20,7 +20,6 @@ import {
   TableRow,
   TablePagination,
   Link,
-  CircularProgress,
   Alert,
   Skeleton,
   Tabs,
@@ -29,6 +28,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Skeleton,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
@@ -181,9 +182,27 @@ const Home: React.FC = () => {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               type="password"
-              required
               sx={{ flex: 1, minWidth: 150 }}
+              // Helper link to guide users on generating a GitHub Personal Access Token
+              helperText={
+                <Link
+                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+      fontSize: '0.75rem',
+      color: 'primary.main',
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline',
+      }
+    }}
+                >
+                  How to generate?
+                </Link>
+              }
             />
+
             <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
               Fetch Data
             </Button>
@@ -279,7 +298,7 @@ const Home: React.FC = () => {
         </Alert>
       )}
 
-      {loading ? (
+  {loading ? (
   <TableContainer component={Paper}>
     <Table size="small">
       <TableHead>
@@ -345,8 +364,25 @@ const Home: React.FC = () => {
       </TableBody>
     </Table>
   </TableContainer>
+) : !authError && !dataError && currentFilteredData.length === 0 ? (
+  <Paper
+    elevation={1}
+    sx={{
+      p: 4,
+      textAlign: "center",
+      backgroundColor: theme.palette.background.paper,
+    }}
+  >
+    <Typography variant="h6" gutterBottom>
+      No Data Found
+    </Typography>
+
+    <Typography variant="body2" color="text.secondary">
+      Try adjusting filters or searching for another GitHub user.
+    </Typography>
+  </Paper>
 ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
 

@@ -17,9 +17,9 @@ app.use(cors('*'));
 // Middleware
 app.use(bodyParser.json());
 app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -28,12 +28,45 @@ app.use(passport.session());
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+/**
+ * Structured logger -- gates output behind NODE_ENV so that
+ * verbose logs are suppressed in production (NODE_ENV=production)
+ * and tests (NODE_ENV=test) while remaining available in development.
+ *
+ * Each log entry is emitted as a JSON line for easy ingestion by
+ * log-aggregation tools (Datadog, CloudWatch, ELK, etc.).
+ */
+const logger = {
+        _write(level, message, meta = {}) {
+                    // Suppress all logging in test environments
+            if (process.env.NODE_ENV === 'test') return;
+
+            const entry = {
+                            timestamp: new Date().toISOString(),
+                            level,
+                            message,
+                            ...meta,
+            };
+
+            if (level === 'error') {
+                            // Errors go to stderr so they can be captured separately
+                        process.stderr.write(JSON.stringify(entry) + '\n');
+            } else {
+                            // info / warn go to stdout
+                        process.stdout.write(JSON.stringify(entry) + '\n');
+            }
+        },
+        info(message, meta)  { this._write('info',  message, meta); },
+        warn(message, meta)  { this._write('warn',  message, meta); },
+        error(message, meta) { this._write('error', message, meta); },
+};
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {}).then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(process.env.PORT, () => {
-        console.log(`Server running on port ${process.env.PORT}`);
-    });
+        logger.info('Connected to MongoDB');
+        app.listen(process.env.PORT, () => {
+                    logger.info('Server started', { port: process.env.PORT });
+        });
 }).catch((err) => {
-    console.log('MongoDB connection error:', err);
+        logger.error('MongoDB connection error', { error: err.message, stack: err.stack });
 });

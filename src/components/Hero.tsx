@@ -1,7 +1,7 @@
 import { Search, GitBranch, GitCommit, GitPullRequest, Layout } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Fixed array declaration for stability
+// Fixed array declaration for data structure rendering stability
 const MATRIX_CELLS = Array.from({ length: 21 }, (_, i) => i);
 
 const Hero = () => {
@@ -22,7 +22,7 @@ const Hero = () => {
           <div className="lg:col-span-6 text-left space-y-6 max-w-2xl mx-auto lg:mx-0">
             <h1 className="text-4xl md:text-5xl xl:text-6xl font-extrabold tracking-tight leading-none text-slate-900 dark:text-slate-100">
               Track GitHub Activity
-              <span className="block mt-2 bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 dark:from-blue-400 dark:via-cyan-400 dark:to-teal-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(56,189,248,0.2)]">
+              <span className="block mt-2 bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 dark:from-blue-400 dark:via-cyan-400 dark:to-teal-400 bg-clip-text text-transparent [filter:drop-shadow(0_0_30px_rgba(56,189,248,0.3))]">
                 Like Never Before
               </span>
             </h1>
@@ -75,16 +75,17 @@ const Hero = () => {
                   <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Contribution Matrix</div>
                   <div className="grid grid-cols-7 gap-1.5 w-max">
                     {MATRIX_CELLS.map((cellIndex) => {
-                      // Stable indexing pattern to avoid flashing visual layouts on state updates
-                      const intensitiesDark = ['bg-slate-800', 'bg-emerald-900/60', 'bg-emerald-700', 'bg-emerald-500', 'bg-emerald-400'];
+                      // Fully qualified class names to ensure they aren't removed by Tailwind's compilation process
                       const intensitiesLight = ['bg-slate-200', 'bg-emerald-200', 'bg-emerald-300', 'bg-emerald-500', 'bg-emerald-600'];
+                      const intensitiesDark = ['dark:bg-slate-800', 'dark:bg-emerald-900/60', 'dark:bg-emerald-700', 'dark:bg-emerald-500', 'dark:bg-emerald-400'];
+                      
+                      const lightClass = intensitiesLight[cellIndex % intensitiesLight.length];
+                      const darkClass = intensitiesDark[cellIndex % intensitiesDark.length];
                       
                       return (
                         <div 
                           key={cellIndex} 
-                          className={`w-3 h-3 rounded-[2px] transition-all duration-300 hover:scale-125 
-                            ${intensitiesLight[cellIndex % intensitiesLight.length]} 
-                            dark:${intensitiesDark[cellIndex % intensitiesDark.length]}`} 
+                          className={`w-3 h-3 rounded-[2px] transition-all duration-300 hover:scale-125 ${lightClass} ${darkClass}`} 
                         />
                       );
                     })}
@@ -93,16 +94,25 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Floating Git Icon Nodes with Safe Tailwind standard bounce animations */}
-            <div className="absolute -top-4 left-6 md:left-12 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce">
+            {/* Floating Git Icon Nodes using native inline styles for correct staggered delays */}
+            <div 
+              style={{ animationDelay: '0s' }}
+              className="absolute -top-4 left-6 md:left-12 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce"
+            >
               <GitBranch className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
 
-            <div className="absolute bottom-12 left-2 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce [animation-delay:1s]">
+            <div 
+              style={{ animationDelay: '1s' }}
+              className="absolute bottom-12 left-2 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce"
+            >
               <GitCommit className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             </div>
 
-            <div className="absolute top-12 right-6 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce [animation-delay:0.5s]">
+            <div 
+              style={{ animationDelay: '0.5s' }}
+              className="absolute top-12 right-6 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce"
+            >
               <GitPullRequest className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
 

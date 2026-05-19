@@ -13,6 +13,13 @@ require('./config/passportConfig');
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Trust proxy for production deployments
+if (isProduction) {
+    app.set('trust proxy', 1);
+}
+
 /* =========================
    Security Middleware
 ========================= */
@@ -72,7 +79,11 @@ app.use(bodyParser.json());
 
 const sessionSecret = process.env.SESSION_SECRET;
 
-if (!sessionSecret) {
+if (isProduction && !sessionSecret) {
+    throw new Error('SESSION_SECRET is required in production');
+}
+
+if (!isProduction && !sessionSecret) {
     console.warn('⚠ SESSION_SECRET is missing in .env');
 }
 
@@ -82,7 +93,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isProduction,
         sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
@@ -108,11 +119,18 @@ app.use('/api/auth', authRoutes);
 ========================= */
 
 const PORT = process.env.PORT || 5000;
+
 const MONGO_URI =
     process.env.MONGO_URI ||
-    'mongodb://127.0.0.1:27017/githubTracker';
+    (!isProduction
+        ? 'mongodb://127.0.0.1:27017/githubTracker'
+        : undefined);
 
-if (!process.env.MONGO_URI) {
+if (isProduction && !process.env.MONGO_URI) {
+    throw new Error('MONGO_URI is required in production');
+}
+
+if (!isProduction && !process.env.MONGO_URI) {
     console.warn('⚠ MONGO_URI missing in .env');
 }
 

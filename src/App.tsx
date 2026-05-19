@@ -1,23 +1,27 @@
+import { useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
-import ThemeWrapper from "./context/ThemeContext";
+
+const FULLSCREEN_ROUTES = ["/signup", "/login"];
 
 function App() {
+  const location = useLocation();
+  const isFullscreen = FULLSCREEN_ROUTES.includes(location.pathname);
+
   return (
-    <ThemeWrapper>
       <div className="relative flex flex-col min-h-screen">
-        <ScrollProgressBar />
+        {!isFullscreen && <ScrollProgressBar />}
 
-        <Navbar />
+        {!isFullscreen && <Navbar />}
 
-        <main className="flex-grow bg-gray-50 dark:bg-gray-800 flex justify-center items-center">
+        <main className={`flex justify-center items-center ${isFullscreen ? "flex-1" : "flex-grow bg-gray-50 dark:bg-gray-800"}`}>
           <Router />
         </main>
 
-        <Footer />
+        {!isFullscreen && <Footer />}
 
         <Toaster
           position="top-center"
@@ -37,7 +41,6 @@ function App() {
           }}
         />
       </div>
-    </ThemeWrapper>
   );
 }
 

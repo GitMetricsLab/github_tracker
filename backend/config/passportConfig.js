@@ -49,7 +49,6 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
                     const avatar = profile.photos?.[0]?.value || "";
 
                     let user = await User.findOne({ githubId: profile.id });
-                    console.log(user);
                     if (!user && primaryEmail) {
                         user = await User.findOne({ email: primaryEmail });
                     }
@@ -64,7 +63,6 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
                             email: primaryEmail,
                             avatar,
                         });
-                        console.log("New User\n", user);
                     } else {
                         user.githubId = user.githubId || profile.id;
                         user.email = user.email || primaryEmail;

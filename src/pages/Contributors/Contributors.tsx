@@ -78,14 +78,14 @@ const ContributorsPage = () => {
                     textAlign: "center",
                     p: 2,
                     borderRadius: "10px",
-                    border: "1px solid #E0E0E0",
+                    border: 1,
+                    borderColor: "divider",
                     boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                    transition: "transform 0.3s ease-in-out",
+                    transition: "transform 0.3s ease-in-out, border-color 0.3s",
                     "&:hover": {
                       transform: "scale(1.05)",
                       boxShadow: "0 8px 15px rgba(0,0,0,0.2)",
-                      borderColor: "#C0C0C0",
-                      outlineColor: "#B3B3B3",
+                      borderColor: "text.disabled",
                     },
                   }}
                 >

@@ -166,7 +166,7 @@ const Home: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
       {/* Auth Form */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
+      <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper, border: 1, borderColor: "divider" }}>
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
@@ -299,7 +299,7 @@ const Home: React.FC = () => {
 
       {loading ? (
   <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} sx={{ border: 1, borderColor: "divider" }}>
       <Table size="small">
         <TableHead>
           <TableRow>
@@ -341,6 +341,8 @@ const Home: React.FC = () => {
       p: 4,
       textAlign: "center",
       backgroundColor: theme.palette.background.paper,
+      border: 1,
+      borderColor: "divider",
     }}
   >
     <Typography variant="h6" gutterBottom>
@@ -355,7 +357,7 @@ const Home: React.FC = () => {
     
   <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} sx={{ border: 1, borderColor: "divider" }}>
 
             <Table size="small">
 

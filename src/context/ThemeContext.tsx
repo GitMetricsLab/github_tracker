@@ -32,7 +32,19 @@ const ThemeWrapper = ({ children }: { children: ReactNode }) => {
   };
 
   const muiTheme: Theme = useMemo(
-    () => createTheme({ palette: { mode } }),
+    () =>
+      createTheme({
+        palette: {
+          mode,
+          ...(mode === 'dark' && {
+            background: {
+              default: '#1f2937', // Tailwind gray-800
+              paper: '#374151',   // Tailwind gray-700 for natural elevation
+            },
+            divider: 'rgba(255, 255, 255, 0.12)', // Subtle border
+          }),
+        },
+      }),
     [mode]
   );
 

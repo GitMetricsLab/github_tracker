@@ -5,35 +5,143 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 // Passport configuration
 require('./config/passportConfig');
 
 const app = express();
 
-// CORS configuration
-app.use(cors('*'));
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Middleware
+// Trust proxy for production deployments
+if (isProduction) {
+    app.set('trust proxy', 1);
+}
+
+/* =========================
+   Security Middleware
+========================= */
+
+// Helmet security headers
+app.use(helmet());
+
+// Rate Limiter
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 mins
+    max: 100,
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use('/api', limiter);
+
+/* =========================
+   CORS Configuration
+========================= */
+
+const rawAllowedOrigins =
+    process.env.ALLOWED_ORIGINS ||
+    process.env.CLIENT_URL ||
+    'http://localhost:5173';
+
+const allowedOrigins = rawAllowedOrigins
+    .split(',')
+    .map(origin => origin.trim());
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow server-to-server requests
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+}));
+
+/* =========================
+   Body Parser
+========================= */
+
 app.use(bodyParser.json());
+
+/* =========================
+   Session Configuration
+========================= */
+
+const sessionSecret = process.env.SESSION_SECRET;
+
+if (isProduction && !sessionSecret) {
+    throw new Error('SESSION_SECRET is required in production');
+}
+
+if (!isProduction && !sessionSecret) {
+    console.warn('⚠ SESSION_SECRET is missing in .env');
+}
+
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: sessionSecret || 'dev-secret',
     resave: false,
     saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24, // 1 day
+    },
 }));
+
+/* =========================
+   Passport Middleware
+========================= */
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
+/* =========================
+   Routes
+========================= */
+
 const authRoutes = require('./routes/auth');
+
 app.use('/api/auth', authRoutes);
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {}).then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(process.env.PORT, () => {
-        console.log(`Server running on port ${process.env.PORT}`);
+/* =========================
+   MongoDB Connection
+========================= */
+
+const PORT = process.env.PORT || 5000;
+
+const MONGO_URI =
+    process.env.MONGO_URI ||
+    (!isProduction
+        ? 'mongodb://127.0.0.1:27017/githubTracker'
+        : undefined);
+
+if (isProduction && !process.env.MONGO_URI) {
+    throw new Error('MONGO_URI is required in production');
+}
+
+if (!isProduction && !process.env.MONGO_URI) {
+    console.warn('⚠ MONGO_URI missing in .env');
+}
+
+mongoose.connect(MONGO_URI)
+    .then(() => {
+        console.log('✅ Connected to MongoDB');
+
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+        });
+    })
+    .catch((err) => {
+        console.error('❌ MongoDB connection error:', err);
     });
-}).catch((err) => {
-    console.log('MongoDB connection error:', err);
-});

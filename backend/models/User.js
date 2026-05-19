@@ -9,13 +9,26 @@ const UserSchema = new mongoose.Schema({
     },
     email: {
       type: String,
-      required: true,
+      required: function requiredEmail() {
+        return !this.githubId;
+      },
       unique: true,
+      sparse: true,
     },
     password: {
       type: String,
-      required: true,
+      required: function requiredPassword() {
+        return !this.githubId;
+      },
     },
+    githubId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    avatar: {
+    type: String,
+  },
 });
 
 UserSchema.pre('save', async function (next) {
@@ -34,6 +47,9 @@ UserSchema.pre('save', async function (next) {
 
 // Compare passwords during login
 UserSchema.methods.comparePassword = async function (enteredPassword) {
+  if (!this.password)
+    return false;
+
     return await bcrypt.compare(enteredPassword, this.password);
 };
 

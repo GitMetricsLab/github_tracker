@@ -2,6 +2,15 @@ import { FaGithub, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 function Footer() {
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Removed raw console logging of emails to protect user data privacy (PII leak fix)
+    alert('Thank you for subscribing!');
+    setEmail('');
+  };
+
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-6 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
@@ -69,6 +78,7 @@ function Footer() {
               LinkedIn
             </a>
           </div>
+
         </div>
 
         {/* Footer Bottom */}
@@ -77,6 +87,7 @@ function Footer() {
             &copy; {new Date().getFullYear()} GitHub Tracker. All rights reserved.
           </p>
         </div>
+
       </div>
     </footer>
   );

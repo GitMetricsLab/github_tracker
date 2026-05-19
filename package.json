@@ -7,6 +7,8 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "vitest",
+    "test:backend": "jasmine spec/**/*.spec.cjs",
     "preview": "vite preview",
     "docker:dev": "docker compose --profile dev up --build",
     "docker:prod": "docker compose --profile prod up -d --build",
@@ -17,7 +19,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.6",
     "@mui/material": "^5.15.6",
-    "@primer/octicons-react": "^19.15.5",
+    "@primer/octicons-react": "^19.25.0",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.7",
     "express": "^5.2.1",
@@ -35,6 +37,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jasmine": "^5.1.8",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.23",
@@ -50,10 +55,13 @@
     "eslint-plugin-react-refresh": "^0.4.14",
     "express-session": "^1.18.2",
     "globals": "^15.11.0",
-    "jasmine": "^5.9.0",
+    "jasmine": "^5.13.0",
+    "jasmine-spec-reporter": "^7.0.0",
+    "jsdom": "^29.1.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "supertest": "^7.1.4",
-    "vite": "^5.4.10"
+    "supertest": "^7.2.2",
+    "vite": "^5.4.10",
+    "vitest": "^4.1.6"
   }
 }

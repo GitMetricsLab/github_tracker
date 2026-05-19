@@ -78,6 +78,7 @@ const Home: React.FC = () => {
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [suggestions, setSuggestions] = useState<{ id: number; login: string }[]>([]);
 
   // Fetch data when username, tab, or page changes
   useEffect(() => {
@@ -157,6 +158,28 @@ const Home: React.FC = () => {
     return <IssueOpenedIcon size={16} className="icon-issue-open" />;
   };
 
+useEffect(() => {
+  if (!username) {
+    setSuggestions([]);
+    return;
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch(
+        `https://api.github.com/search/users?q=${username}`
+      );
+
+      const data = await res.json();
+
+      setSuggestions(data.items?.slice(0, 5) || []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+ 
+  fetchUsers();
+}, [username]);
 
   // Current data and filtered data according to tab and filters
   const currentRawData = tab === 0 ? issues : prs;
@@ -168,14 +191,61 @@ const Home: React.FC = () => {
       {/* Auth Form */}
       <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
         <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              label="GitHub Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-            />
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "flex-start" }}>
+            <Box
+              sx={{
+                position: "relative",
+                flex: 1,
+                minWidth: 250,
+              }}
+            >
+              <TextField
+                fullWidth
+                label="GitHub Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+
+              {suggestions.length > 0 && (
+                <Paper
+                  elevation={3}
+                  sx={{
+                    position: "absolute",
+                    top: "60px",
+                    left: 0,
+                    right: 0,
+                    backgroundColor: "#fff",
+                    zIndex: 9999,
+                    borderRadius: 1,
+                    maxHeight: 220,
+                    overflowY: "auto",
+                  }}
+                >
+                  {suggestions.map((user) => (
+                    <Box
+                      key={user.id}
+                      onClick={() => {
+                        setUsername(user.login);
+                        setSuggestions([]);
+                      }}
+                      sx={{
+                        px: 2,
+                        py: 1.5,
+                        cursor: "pointer",
+                        borderBottom: "1px solid #eee",
+                        "&:hover": {
+                          backgroundColor: "#f5f5f5",
+                        },
+                      }}
+                    >
+                      {user.login}
+                    </Box>
+                  ))}
+                </Paper>
+              )}
+            </Box>
+
             <TextField
               label="Personal Access Token"
               value={token}
@@ -202,7 +272,8 @@ const Home: React.FC = () => {
               }
             />
 
-            <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
+            <Button type="submit" variant="contained" sx={{ minWidth: "120px",height: "56px",whiteSpace: "nowrap", }}>
+              
               Fetch Data
             </Button>
           </Box>

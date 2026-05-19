@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FaGithub, FaTwitter, FaDiscord, FaArrowRight } from 'react-icons/fa';
+import { FaGithub, FaDiscord, FaArrowRight } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 
 function Footer() {
@@ -143,9 +144,9 @@ function Footer() {
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-colors duration-200" 
-              aria-label="Twitter"
+              aria-label="X"
             >
-              <FaTwitter className="h-7 w-7" />
+              <FaXTwitter className="h-7 w-7" />
             </a>
             <a 
               href="https://discord.gg/your_invite" 

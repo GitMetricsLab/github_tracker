@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react"
+import Dashboard from "../../components/Dashboard";
+import { useDebounce } from "../../hooks/useDebounce";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -21,6 +23,7 @@ import {
   TablePagination,
   Link,
   Alert,
+  Skeleton,
   Tabs,
   Tab,
   Select,
@@ -46,7 +49,7 @@ interface GitHubItem {
   html_url: string;
 }
 
-const Home: React.FC = () => {
+const Tracker: React.FC = () => {
 
   const theme = useTheme();
 
@@ -79,17 +82,40 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  // Debounce search and repo inputs to avoid rapid API calls
+  const debouncedSearch = useDebounce(searchTitle, 500);
+  const debouncedRepo = useDebounce(selectedRepo, 500);
+
+  // Fetch data when username, tab, page, or filters change
   useEffect(() => {
     if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+      const type = tab === 0 ? "issue" : "pr";
+      const filters = {
+        search: debouncedSearch,
+        repo: debouncedRepo,
+        startDate: startDate,
+        endDate: endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      };
+      fetchData(username, page + 1, ROWS_PER_PAGE, type, filters);
     }
-  }, [tab, page]);
+  }, [username, tab, page, issueFilter, prFilter, debouncedSearch, debouncedRepo, startDate, endDate, fetchData]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    if (page === 0) {
+      const type = tab === 0 ? "issue" : "pr";
+      const filters = {
+        search: debouncedSearch,
+        repo: debouncedRepo,
+        startDate: startDate,
+        endDate: endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      };
+      fetchData(username, 1, ROWS_PER_PAGE, type, filters);
+    } else {
+      setPage(0);
+    }
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -99,44 +125,6 @@ const Home: React.FC = () => {
   const formatDate = (dateString: string): string =>
     new Date(dateString).toLocaleDateString();
 
-  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
-    let filtered = [...data];
-    if (["open", "closed", "merged"].includes(filterType)) {
-      filtered = filtered.filter((item) => {
-        if (filterType === "merged") {
-          return !!item.pull_request?.merged_at
-        }
-        else if (filterType === "closed") {
-          return item.state === "closed" && !item.pull_request?.merged_at
-        }
-        else {
-          //open
-          return item.state === "open"
-        }
-      });
-    }
-    if (searchTitle) {
-      filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(searchTitle.toLowerCase())
-      );
-    }
-    if (selectedRepo) {
-      filtered = filtered.filter((item) =>
-        item.repository_url.includes(selectedRepo)
-      );
-    }
-    if (startDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) >= new Date(startDate)
-      );
-    }
-    if (endDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) <= new Date(endDate)
-      );
-    }
-    return filtered;
-  };
 
   const getStatusIcon = (item: GitHubItem) => {
 
@@ -158,9 +146,8 @@ const Home: React.FC = () => {
   };
 
 
-  // Current data and filtered data according to tab and filters
-  const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  // Current data according to tab
+  const currentFilteredData = tab === 0 ? issues : prs;
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
@@ -208,6 +195,16 @@ const Home: React.FC = () => {
           </Box>
         </form>
       </Paper>
+
+      {/* Dashboard Summary */}
+      {username && (
+        <Dashboard 
+          totalIssues={totalIssues} 
+          totalPrs={totalPrs} 
+          data={currentFilteredData} 
+          theme={theme}
+        />
+      )}
 
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -297,43 +294,72 @@ const Home: React.FC = () => {
         </Alert>
       )}
 
-      {loading ? (
-  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-    <TableContainer component={Paper}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Title</TableCell>
-            <TableCell align="center">Repository</TableCell>
-            <TableCell align="center">State</TableCell>
-            <TableCell>Created</TableCell>
+  {loading ? (
+  <TableContainer component={Paper}>
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Title</TableCell>
+          <TableCell align="center">Repository</TableCell>
+          <TableCell align="center">State</TableCell>
+          <TableCell>Created</TableCell>
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {[...Array(6)].map((_, index) => (
+          <TableRow key={index}>
+            <TableCell>
+              <Box display="flex" alignItems="center" gap={1}>
+                <Skeleton
+                  variant="circular"
+                  width={20}
+                  height={20}
+                  animation="wave"
+                />
+
+                <Skeleton
+                  variant="text"
+                  width="80%"
+                  height={30}
+                  animation="wave"
+                />
+              </Box>
+            </TableCell>
+
+            <TableCell align="center">
+              <Skeleton
+                variant="text"
+                width={100}
+                height={25}
+                animation="wave"
+                sx={{ mx: "auto" }}
+              />
+            </TableCell>
+
+            <TableCell align="center">
+              <Skeleton
+                variant="rounded"
+                width={70}
+                height={25}
+                animation="wave"
+                sx={{ mx: "auto" }}
+              />
+            </TableCell>
+
+            <TableCell>
+              <Skeleton
+                variant="text"
+                width={90}
+                height={25}
+                animation="wave"
+              />
+            </TableCell>
           </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {[...Array(5)].map((_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <Skeleton variant="text" width="80%" height={30} />
-              </TableCell>
-
-              <TableCell align="center">
-                <Skeleton variant="text" width="60%" height={30} />
-              </TableCell>
-
-              <TableCell align="center">
-                <Skeleton variant="rounded" width={70} height={25} />
-              </TableCell>
-
-              <TableCell>
-                <Skeleton variant="text" width="70%" height={30} />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </Box>
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
 ) : !authError && !dataError && currentFilteredData.length === 0 ? (
   <Paper
     elevation={1}
@@ -352,7 +378,6 @@ const Home: React.FC = () => {
     </Typography>
   </Paper>
 ) : (
-    
   <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
@@ -418,4 +443,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Tracker;

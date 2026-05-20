@@ -164,8 +164,8 @@ const Home: React.FC = () => {
     }
     if (searchTitle) filtered = filtered.filter((i) => i.title.toLowerCase().includes(searchTitle.toLowerCase()));
     if (selectedRepo) filtered = filtered.filter((i) => i.repository_url.includes(selectedRepo));
-    if (startDate) filtered = filtered.filter((i) => new Date(i.created_at) >= new Date(startDate));
-    if (endDate) filtered = filtered.filter((i) => new Date(i.created_at) <= new Date(endDate));
+    if (startDate) filtered = filtered.filter((i) => i.created_at.slice(0, 10) >= startDate);
+    if (endDate) filtered = filtered.filter((i) => i.created_at.slice(0, 10) <= endDate);
     return filtered;
   };
 

@@ -23,6 +23,7 @@ import {
   TablePagination,
   Link,
   Alert,
+  Skeleton,
   Tabs,
   Tab,
   Select,
@@ -98,17 +99,40 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  // Debounce search and repo inputs to avoid rapid API calls
+  const debouncedSearch = useDebounce(searchTitle, 500);
+  const debouncedRepo = useDebounce(selectedRepo, 500);
+
+  // Fetch data when username, tab, page, or filters change
   useEffect(() => {
     if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+      const type = tab === 0 ? "issue" : "pr";
+      const filters = {
+        search: debouncedSearch,
+        repo: debouncedRepo,
+        startDate: startDate,
+        endDate: endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      };
+      fetchData(username, page + 1, ROWS_PER_PAGE, type, filters);
     }
-  }, [tab, page]);
+  }, [username, tab, page, issueFilter, prFilter, debouncedSearch, debouncedRepo, startDate, endDate, fetchData]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    if (page === 0) {
+      const type = tab === 0 ? "issue" : "pr";
+      const filters = {
+        search: debouncedSearch,
+        repo: debouncedRepo,
+        startDate: startDate,
+        endDate: endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      };
+      fetchData(username, 1, ROWS_PER_PAGE, type, filters);
+    } else {
+      setPage(0);
+    }
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -652,4 +676,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Tracker;

@@ -1,8 +1,9 @@
 {
-  "name": "my-react-tailwind-app",
+  "name": "GitHub Tracker",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
@@ -11,9 +12,9 @@
     "test:backend": "jasmine spec/**/*.spec.cjs",
     "preview": "vite preview",
     "docker:dev": "docker compose --profile dev up --build",
-    "docker:prod": "docker compose --profile prod up -d --build",
-    "test": "jasmine"
+    "docker:prod": "docker compose --profile prod up -d --build"
   },
+
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
@@ -36,6 +37,7 @@
     "recharts": "^3.8.1",
     "tailwindcss": "^3.4.14"
   },
+
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@testing-library/jest-dom": "^6.9.1",
@@ -47,29 +49,33 @@
     "@types/react-dom": "^18.3.7",
     "@types/react-redux": "^7.1.34",
     "@types/react-router-dom": "^5.3.3",
+
     "@vitejs/plugin-react-swc": "^3.5.0",
+
     "autoprefixer": "^10.4.20",
     "bcryptjs": "^3.0.3",
+
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
-    "express": "^5.2.1",
+
     "express-session": "^1.18.2",
+
     "globals": "^15.11.0",
-    "jasmine": "^5.9.0",
-    "mongoose": "^9.6.2",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "supertest": "^7.1.4",
-    "typescript-eslint": "^8.59.3",
-    "vite": "^5.4.10",
+
     "jasmine": "^5.13.0",
     "jasmine-spec-reporter": "^7.0.0",
+
     "jsdom": "^29.1.1",
+
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
+
     "supertest": "^7.2.2",
+
+    "typescript-eslint": "^8.59.3",
+
     "vite": "^5.4.10",
     "vitest": "^4.1.6"
   }

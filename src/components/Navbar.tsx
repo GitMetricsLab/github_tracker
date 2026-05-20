@@ -1,10 +1,11 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, Menu, X, UserPlus } from "lucide-react";
+import { Moon, Sun, Menu, X, Github } from "lucide-react";
 
 const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const themeContext = useContext(ThemeContext);
 
   if (!themeContext) return null;
@@ -12,124 +13,34 @@ const Navbar: React.FC = () => {
   const { toggleTheme, mode } = themeContext;
 
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
-    `px-5 py-2 rounded-full text-lg font-semibold transition-all duration-300 ${
+    `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
       isActive
-        ? "text-blue-600 bg-blue-100/60 dark:bg-blue-900/40 shadow-sm"
-        : "text-slate-600 dark:text-gray-300 hover:text-blue-500"
+        ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
+        : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
     }`;
 
+  const closeMenu = () => setIsOpen(false);
+
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo Section */}
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300 backdrop-blur">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+        {/* Logo */}
         <Link
           to="/"
-          className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center"
+          className="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white"
         >
-          <img src="/crl-icon.png" alt="CRL Icon" className="h-8 mr-2" />
-          GitHub Tracker
+          <img
+            src="/crl-icon.png"
+            alt="CRL Icon"
+            className="h-8 w-8 object-contain"
+          />
+
+          <span>GitHub Tracker</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6">
-          <Link
-            to="/"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
-            Home
-          </Link>
-          <Link
-            to="/track"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
-            Tracker
-          </Link>
-          <Link
-            to="/contributors"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
-            Contributors
-          </Link>
-          <Link
-            to="/login"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
-            Login
-          </Link>
-          <button
-            onClick={toggleTheme}
-            className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
-          >
-            {mode === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="relative w-8 h-8 flex flex-col space-y-[5px] items-center group focus:outline-none"
-          >
-            <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
-                isOpen ? "rotate-45 translate-y-2" : ""
-              }`}
-            ></span>
-            <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-opacity duration-300 ${
-                isOpen ? "opacity-0" : ""
-              }`}
-            ></span>
-            <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
-                isOpen ? "-rotate-45 -translate-y-2" : ""
-              }`}
-            ></span>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Links */}
-      {isOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-800 text-black dark:text-white">
-          <div className="space-y-4 px-6 py-4">
-            <Link
-              to="/"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-              onClick={() => setIsOpen(false)}
-            >
-              Home
-            </Link>
-          </div>
-
-          <div className="lg:hidden flex items-center space-x-3">
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-slate-500 dark:text-gray-400"
-            >
-              {mode === "dark" ? (
-                <Sun className="h-6 w-6" />
-              ) : (
-                <Moon className="h-6 w-6" />
-              )}
-            </button>
-
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2.5 rounded-2xl bg-white/80 dark:bg-gray-800"
-            >
-              {isOpen ? (
-                <X className="h-7 w-7" />
-              ) : (
-                <Menu className="h-7 w-7" />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isOpen && (
-        <div className="lg:hidden px-5 py-6 space-y-4 bg-indigo-50 dark:bg-gray-900">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-3">
           <NavLink to="/" className={navLinkStyles}>
             Home
           </NavLink>
@@ -141,6 +52,93 @@ const Navbar: React.FC = () => {
           <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
           </NavLink>
+
+          <NavLink to="/login" className={navLinkStyles}>
+            Login
+          </NavLink>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="ml-2 p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Theme"
+          >
+            {mode === "dark" ? (
+              <Sun className="h-5 w-5 text-yellow-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-slate-700" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Controls */}
+        <div className="md:hidden flex items-center gap-2">
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Theme"
+          >
+            {mode === "dark" ? (
+              <Sun className="h-5 w-5 text-yellow-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-white" />
+            )}
+          </button>
+
+          {/* Menu Toggle */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Menu"
+          >
+            {isOpen ? (
+              <X className="h-6 w-6 text-slate-900 dark:text-white" />
+            ) : (
+              <Menu className="h-6 w-6 text-slate-900 dark:text-white" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+          <div className="px-6 py-5 flex flex-col gap-3">
+
+            <NavLink
+              to="/"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Home
+            </NavLink>
+
+            <NavLink
+              to="/track"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Tracker
+            </NavLink>
+
+            <NavLink
+              to="/contributors"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Contributors
+            </NavLink>
+
+            <NavLink
+              to="/login"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Login
+            </NavLink>
+          </div>
         </div>
       )}
     </nav>

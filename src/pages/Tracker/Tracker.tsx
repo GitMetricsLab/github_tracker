@@ -23,7 +23,6 @@ import {
   TablePagination,
   Link,
   Alert,
-  Skeleton,
   Tabs,
   Tab,
   Select,
@@ -52,6 +51,7 @@ import {
   FilterList,
   ClearAll,
 } from "@mui/icons-material";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const ROWS_PER_PAGE = 10;
 
@@ -65,7 +65,7 @@ interface GitHubItem {
   html_url: string;
 }
 
-const Home: React.FC = () => {
+const Tracker: React.FC = () => {
   const theme = useTheme();
   const [showToken, setShowToken] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
@@ -75,7 +75,6 @@ const Home: React.FC = () => {
     setUsername,
     token,
     setToken,
-    error: authError,
     getOctokit,
   } = useGitHubAuth();
 
@@ -338,11 +337,12 @@ const Home: React.FC = () => {
                 variant="contained"
                 disabled={loading}
                 sx={{
-                  minWidth: "140px",
+                  minWidth: "100px",
                   borderRadius: 2,
                   textTransform: "none",
                   fontSize: "1rem",
                   px: 3,
+                  height: "80px"
                 }}
               >
                 {loading ? "Loading..." : "Fetch Data"}
@@ -514,13 +514,6 @@ const Home: React.FC = () => {
         </FormControl>
       </Box>
 
-      {/* Error Alerts */}
-      {(authError || dataError) && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          {authError || dataError}
-        </Alert>
-      )}
-
       {/* Content Area */}
       {loading ? (
         <Card elevation={0} sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 2 }}>
@@ -559,7 +552,7 @@ const Home: React.FC = () => {
             </Table>
           </TableContainer>
         </Card>
-      ) : !authError && !dataError && currentFilteredData.length === 0 ? (
+      ) : !dataError && currentFilteredData.length === 0 ? (
         <Card
           elevation={0}
           sx={{

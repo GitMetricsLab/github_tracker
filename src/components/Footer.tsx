@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { FaGithub, FaTwitter, FaDiscord, FaArrowRight } from 'react-icons/fa';
+import { FaGithub } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 function Footer() {
@@ -33,62 +32,18 @@ function Footer() {
               </div>
               <span className="font-bold text-zinc-900 dark:text-zinc-50">
                 GitHub Tracker
-              </span>
-            </Link>
-            <p className="text-sm leading-relaxed max-w-sm text-zinc-500 dark:text-zinc-400 font-medium">
-              A clean and intuitive dashboard built to monitor repository health metrics, analyze contribution trends, and streamline your open-source workflows.
+            </a>
+
+            <p className="text-sm leading-6 text-gray-600 dark:text-gray-400 max-w-sm">
+              Track repositories, analyze contributions, and explore GitHub
+              insights with a clean and intuitive interface.
             </p>
           </div>
 
-          {/* Column 2: Navigation Categories */}
-          <div className="lg:col-span-4 grid grid-cols-2 gap-8">
-            
-            {/* Resources Category */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-400 uppercase tracking-widest">
-                Resources
-              </h3>
-              <ul className="space-y-3 text-sm font-semibold">
-                <li>
-                  <Link to="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">About Us</Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Contact Support</Link>
-                </li>
-                <li>
-                  <a 
-                    href="https://github.com/GitMetricsLab/github_tracker/blob/main/CONTRIBUTING.md" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                  >
-                    Contributing
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Legal Category */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-400 uppercase tracking-widest">
-                Legal
-              </h3>
-              <ul className="space-y-3 text-sm font-medium">
-                <li>
-                  <Link to="/privacy" className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Privacy Policy</Link>
-                </li>
-                <li>
-                  <Link to="/terms" className="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Terms of Service</Link>
-                </li>
-              </ul>
-            </div>
-
-          </div>
-
-          {/* Column 3: Subscription Form matched directly to design layout */}
-          <div className="lg:col-span-3 flex flex-col space-y-4">
-            <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-400 uppercase tracking-widest">
-              Get latest update
+          {/* Navigation Links */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-white">
+              Quick Links
             </h3>
             
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-stretch gap-2 w-full max-w-sm lg:max-w-none">
@@ -110,21 +65,23 @@ function Footer() {
             </form>
           </div>
 
-        </div>
+            <div className="flex flex-col space-y-2">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <FaEnvelope className="h-3.5 w-3.5" />
+                Contact Us
+              </Link>
 
-        {/* Lower Tray Area: Exact positioning architecture from your layout image */}
-        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 text-xs font-semibold text-zinc-400 dark:text-zinc-500">
-          
-          {/* Sub Navigation Tray Links */}
-          <div className="flex items-center space-x-6 order-2 sm:order-1">
-            <Link to="/terms" className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Terms & condition</Link>
-            <span className="text-zinc-200 dark:text-zinc-800">|</span>
-            <Link to="/privacy" className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Privacy Policy</Link>
-          </div>
-
-          {/* Copyright block centered on screen layout */}
-          <div className="sm:absolute sm:left-1/2 sm:-translate-x-1/2 order-3 text-center">
-            &copy; {new Date().getFullYear()} <span className="font-bold text-zinc-500 dark:text-zinc-400">GitHub Tracker</span>. All rights reserved.
+              <Link
+                to="/about"
+                className="inline-flex items-center gap-2 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <FaInfoCircle className="h-3.5 w-3.5" />
+                About
+              </Link>
+            </div>
           </div>
           
           {/* Social Icons (Right Aligned) - Icon sizes increased to h-5 w-5 */}
@@ -157,9 +114,13 @@ function Footer() {
               <FaDiscord className="h-7 w-7" />
             </a>
           </div>
-
         </div>
-
+        <div className="p-2 border-t border-gray-200 dark:border-gray-800 text-center text-gray-600 dark:text-gray-400">
+            <p className="text-xs md:text-sm font-semibold">
+                &copy; {new Date().getFullYear()}{" "}
+                <span className="font-semibold">GitHub Tracker</span>. All rights reserved.
+            </p>
+        </div>
       </div>
     </footer>
   );

@@ -8,6 +8,7 @@ import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Custom404 from "../pages/404.tsx";
 import Home from "../pages/Home/Home.tsx";
+import Activity from "../pages/Activity.tsx"; 
 
 const Router = () => {
   return (
@@ -21,6 +22,9 @@ const Router = () => {
       <Route path="/contributors" element={<Contributors />} />
       <Route path="/contributor/:username" element={<ContributorProfile />} />
       <Route path="*" element={<Custom404 />} />
+
+      {/* ✅ new route */}
+      <Route path="/activity" element={<Activity />} />
     </Routes>
   );
 };

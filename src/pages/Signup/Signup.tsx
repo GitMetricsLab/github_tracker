@@ -100,9 +100,43 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className={`relative h-screen w-screen flex items-center justify-center px-4 overflow-hidden ${mode === "dark" ? "bg-black" : "bg-white"}`}>
-      <div className="relative w-full max-w-md px-6">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-10">
+    <div
+      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
+        mode === "dark"
+          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+      }`}
+    >
+      <div className="absolute inset-0">
+        <div
+          className={`absolute -top-40 -right-40 w-96 h-96 ${
+            mode === "dark" ? "bg-purple-500" : "bg-purple-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
+        />
+        <div
+          className={`absolute -bottom-40 -left-40 w-96 h-96 ${
+            mode === "dark" ? "bg-blue-500" : "bg-blue-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
+        />
+        <div
+          className={`absolute top-40 left-40 w-96 h-96 ${
+            mode === "dark" ? "bg-pink-500" : "bg-pink-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
+        />
+        <div
+          className={`absolute top-1/2 right-1/4 w-64 h-64 ${
+            mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"
+          } rounded-full blur-2xl opacity-20 animate-pulse delay-1000`}
+        />
+      </div>
+
+      <div className="relative w-full max-w-md px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
             <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
           </div>
@@ -110,8 +144,24 @@ const SignUp: React.FC = () => {
           <p className={`text-lg font-medium ${mode === "dark" ? "text-slate-300" : "text-gray-700"}`}>Join your GitHub journey</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className={`rounded-3xl p-10 shadow-2xl border ${mode === "dark" ? "bg-white/10 backdrop-blur-xl border-white/20 text-white" : "bg-white border-gray-200 text-black"}`}>
-          <h2 className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"}`}>Create Account</h2>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${
+            mode === "dark"
+              ? "bg-white/10 backdrop-blur-xl border-white/20 text-white"
+              : "bg-white border-gray-200 text-black"
+          }`}
+        >
+          
+          <h2
+            className={`text-2xl font-bold text-center mb-8 ${
+              mode === "dark" ? "text-white" : "text-gray-800"
+            }`}
+          >
+            Create Account
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -154,9 +204,12 @@ const SignUp: React.FC = () => {
               {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
             </div>
 
-            <button type="submit" disabled={isLoading}
-              className={`w-full font-semibold py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 shadow-lg ${mode === "dark" ? "bg-white text-black hover:bg-gray-100" : "bg-black text-white hover:bg-gray-800"} ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}>
-              {isLoading ? "Creating Account..." : "Create Account"}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 

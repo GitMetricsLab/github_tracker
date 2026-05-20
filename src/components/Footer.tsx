@@ -12,17 +12,25 @@ function Footer() {
   };
 
   return (
-    <footer className="dark:text-white bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-2 px-6 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center p-3">
-          <div className="flex items-center space-x-2 md:mb-0">
-            <a
-                href="https://github.com/GitMetricsLab/github_tracker"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center hover:text-gray-300 transition-colors"
-            >
-                <FaGithub className="h-5 w-5 mr-1" />
+    <footer className="w-full relative overflow-hidden transition-colors duration-300 border-t border-zinc-200 dark:border-zinc-800/80
+      /* Light Mode: Restored your original crisp daylight background */
+      bg-white 
+      /* Dark Mode: Retained matching deep navy navbar theme background */
+      dark:bg-[#0f172a]
+      font-sans select-none before:absolute before:inset-0 before:bg-gradient-to-b before:from-blue-500/5 before:to-transparent before:pointer-events-none"
+    >
+      <div className="max-w-7xl mx-auto px-8 pt-16 pb-10 relative z-10">
+        
+        {/* Upper Area: Clean Layout Grid from the image */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-zinc-200 dark:border-zinc-800/60">
+          
+          {/* Column 1: Brand Presentation */}
+          <div className="lg:col-span-5 flex flex-col space-y-4">
+            <Link to="/" className="flex items-center space-x-3 text-xl font-bold tracking-tight group w-fit">
+              <div className="p-2.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 rounded-xl shadow-sm group-hover:scale-105 transition-transform duration-200">
+                <FaGithub className="h-5 w-5" />
+              </div>
+              <span className="font-bold text-zinc-900 dark:text-zinc-50">
                 GitHub Tracker
             </a>
 
@@ -37,6 +45,25 @@ function Footer() {
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-white">
               Quick Links
             </h3>
+            
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-stretch gap-2 w-full max-w-sm lg:max-w-none">
+              <input
+                type="email"
+                required
+                placeholder="Enter email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-grow text-sm px-4 py-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 transition-all"
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm active:scale-[0.98] transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 flex items-center justify-center space-x-1.5 whitespace-nowrap"
+              >
+                <span>Subscribe</span>
+                <FaArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </form>
+          </div>
 
             <div className="flex flex-col space-y-2">
               <Link
@@ -56,9 +83,36 @@ function Footer() {
               </Link>
             </div>
           </div>
-          <div className="flex space-x-6 text-gray-600 dark:text-gray-300">
-            <Link to='/contact' className="hover:text-gray-900 dark:hover:text-white transition-colors">Contact Us</Link>
-            <Link to='/about' className="hover:text-gray-900 dark:hover:text-white transition-colors">About</Link>
+          
+          {/* Social Icons (Right Aligned) - Icon sizes increased to h-5 w-5 */}
+          <div className="flex items-center space-x-5 order-1 sm:order-3">
+            <a 
+              href="https://github.com/GitMetricsLab/github_tracker" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              aria-label="GitHub Repository"
+            >
+              <FaGithub className="h-7 w-7" />
+            </a>
+            <a 
+              href="https://x.com/your_handle" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              aria-label="Twitter"
+            >
+              <FaTwitter className="h-7 w-7" />
+            </a>
+            <a 
+              href="https://discord.gg/your_invite" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-zinc-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110" 
+              aria-label="Discord"
+            >
+              <FaDiscord className="h-7 w-7" />
+            </a>
           </div>
         </div>
         <div className="p-2 border-t border-gray-200 dark:border-gray-800 text-center text-gray-600 dark:text-gray-400">

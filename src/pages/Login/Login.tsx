@@ -126,6 +126,20 @@ const Login: React.FC = () => {
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
+            <div className="flex flex-col gap-3 mt-4">
+              <a
+                href={`${backendUrl}/api/auth/google`}
+                className="w-full text-center bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-2xl font-semibold transition-all duration-300"
+              >
+                Continue with Google
+              </a>
+              <a
+                href={`${backendUrl}/api/auth/github`}
+                className="w-full text-center bg-zinc-800 hover:bg-zinc-900 text-white py-3 px-6 rounded-2xl font-semibold transition-all duration-300"
+              >
+                Continue with GitHub
+              </a>
+            </div>
           </form>
 
           {/* Message */}

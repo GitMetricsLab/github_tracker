@@ -19,6 +19,9 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', async function () {
+    if (this.password === "OAUTH_USER_EXTERNAL_PROVIDER") {
+        return;
+    }
     if (!this.isModified('password'))
         return;
 
@@ -28,6 +31,9 @@ UserSchema.pre('save', async function () {
 
 // Compare passwords during login
 UserSchema.methods.comparePassword = async function (enteredPassword) {
+    if (this.password === "OAUTH_USER_EXTERNAL_PROVIDER") {
+        return false;
+    }
     return await bcrypt.compare(enteredPassword, this.password);
 };
 

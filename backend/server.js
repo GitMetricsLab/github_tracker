@@ -5,7 +5,7 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const cors = require('cors');
-
+const MongoStore = require('connect-mongo');
 // Passport configuration
 require('./config/passportConfig');
 
@@ -20,6 +20,13 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions'
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());

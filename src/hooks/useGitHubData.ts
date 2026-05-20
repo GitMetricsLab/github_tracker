@@ -76,44 +76,64 @@ export const useGitHubData = (getOctokit: () => Octokit | null) => {
       const requestId = ++lastRequestId.current;
       setLoading(true);
       setError('');
+      setIssues([]);
+      setPrs([]);
+      setTotalIssues(0);
+      setTotalPrs(0);
 
       try {
-        // We fetch BOTH even if one tab is active to keep totals synchronized as requested
-        const [issueRes, prRes] = await Promise.all([
-          fetchPaginated(octokit, username, 'issue', activeTab === 'issue' ? page : 1, perPage, filters),
-          fetchPaginated(octokit, username, 'pr', activeTab === 'pr' ? page : 1, perPage, filters),
+        const [issueRes, prRes] = await Promise.allSettled([
+          fetchPaginated(octokit, username, 'issue', page, perPage),
+          fetchPaginated(octokit, username, 'pr', page, perPage),
         ]);
 
-        // Only update state if this is still the latest request
-        if (requestId === lastRequestId.current) {
-          setIssues(issueRes.items);
-          setTotalIssues(issueRes.total);
-          setPrs(prRes.items);
-          setTotalPrs(prRes.total);
+        if (issueRes.status === 'fulfilled') {
+          setIssues(issueRes.value.items);
+          setTotalIssues(issueRes.value.total);
         }
-      } catch (err: unknown) {
-        if (requestId === lastRequestId.current) {
-          const error = err as { status?: number; message?: string };
-          if (error.status === 403) {
-            setError('GitHub API rate limit exceeded. Please wait or use a token.');
-            setRateLimited(true);
-          } else {
-            setError(error.message || 'Failed to fetch data');
-          }
+
+        if (prRes.status === 'fulfilled') {
+          setPrs(prRes.value.items);
+          setTotalPrs(prRes.value.total);
+        }
+
+        if (
+          issueRes.status === 'rejected' &&
+          prRes.status === 'rejected'
+        ) {
+          const error =
+            issueRes.reason ??
+            prRes.reason ??
+            new Error('Failed to fetch GitHub data');
+
+          throw error;
+        }
+
+        if (
+          issueRes.status === 'rejected' ||
+          prRes.status === 'rejected'
+        ) {
+          setError('Some GitHub data could not be fetched completely.');
+        }
+
+        setRateLimited(false);
+      } catch (err: any) {
         const errorMessage = err.message?.toLowerCase() || "";
         if (err.status === 403) {
           setError('GitHub API rate limit exceeded. Please provide a PAT to continue.');
           setRateLimited(true); 
         } else if (errorMessage.includes("do not exist")){
           setError('User not found. Please check the spelling of the GitHub username.');
-        } else if (err.status === 401 || errorMessage.includes("permission")){
+        } 
+        else if (errorMessage.includes("validation failed")) {
+          setError('Invalid GitHub username or insufficient permissions.');
+        }
+        else if (err.status === 401 || errorMessage.includes("permission")){
           setError('Private repository detected. Please input PAT.');
         }else if(err.status===404){
           setError('Resource not found.');
         }
-        else if (errorMessage.includes("validation failed")) {
-          setError('Invalid GitHub username or insufficient permissions.');
-        }
+        
         else {
           setError(
             'Unable to fetch GitHub data. Please verify the username, token, or network connection.'

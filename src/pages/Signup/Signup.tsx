@@ -38,10 +38,13 @@ const SignUp: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`, formData);
-      setMessage(response.data.message);
+      const response = await axios.post(`${backendUrl}/api/auth/signup`,
+        formData // Include cookies for session
+      );
+      setMessage(response.data.message); // Show success message from backend
 
-      if (response.data.message === "User created successfully") {
+      // Navigate to login page after successful signup
+      if (response.data.message === 'User created successfully') {
         navigate("/login");
       }
     } catch (error: any) {

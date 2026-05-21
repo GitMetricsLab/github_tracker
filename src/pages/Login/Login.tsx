@@ -134,7 +134,8 @@ const Login: React.FC = () => {
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
-          <GoogleLogin
+          <div className="mt-10 flex justify-center ">
+          <GoogleLogin theme="outline" size="medium" shape= "pill" logo_alignment="center" width="10px"
             onSuccess={(credentialResponse) => {
               const token = credentialResponse.credential;
               if (!token) {
@@ -147,6 +148,7 @@ const Login: React.FC = () => {
               }
             }}
           />
+          </div>
           {/* Message */}
           {message && (
             <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${

@@ -55,7 +55,6 @@ const Home: React.FC = () => {
     setUsername,
     token,
     setToken,
-    error: authError,
     getOctokit,
   } = useGitHubAuth();
 
@@ -82,14 +81,26 @@ const Home: React.FC = () => {
   // Fetch data when username, tab, or page changes
   useEffect(() => {
     if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+      fetchData(username, page + 1, ROWS_PER_PAGE, tab === 0 ? "issue" : "pr", {
+        search: searchTitle,
+        repo: selectedRepo,
+        startDate,
+        endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      });
     }
-  }, [tab, page]);
+  }, [tab, page, issueFilter, prFilter]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    fetchData(username, 1, ROWS_PER_PAGE, tab === 0 ? "issue" : "pr", {
+      search: searchTitle,
+      repo: selectedRepo,
+      startDate,
+      endDate,
+      state: tab === 0 ? issueFilter : prFilter,
+    });
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -98,45 +109,6 @@ const Home: React.FC = () => {
 
   const formatDate = (dateString: string): string =>
     new Date(dateString).toLocaleDateString();
-
-  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
-    let filtered = [...data];
-    if (["open", "closed", "merged"].includes(filterType)) {
-      filtered = filtered.filter((item) => {
-        if (filterType === "merged") {
-          return !!item.pull_request?.merged_at
-        }
-        else if (filterType === "closed") {
-          return item.state === "closed" && !item.pull_request?.merged_at
-        }
-        else {
-          //open
-          return item.state === "open"
-        }
-      });
-    }
-    if (searchTitle) {
-      filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(searchTitle.toLowerCase())
-      );
-    }
-    if (selectedRepo) {
-      filtered = filtered.filter((item) =>
-        item.repository_url.includes(selectedRepo)
-      );
-    }
-    if (startDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) >= new Date(startDate)
-      );
-    }
-    if (endDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) <= new Date(endDate)
-      );
-    }
-    return filtered;
-  };
 
   const getStatusIcon = (item: GitHubItem) => {
 
@@ -158,16 +130,15 @@ const Home: React.FC = () => {
   };
 
 
-  // Current data and filtered data according to tab and filters
-  const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  // Current data according to tab
+  const currentFilteredData = tab === 0 ? issues : prs;
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
-      {/* Auth Form */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
+        {/* Auth Form */}
+        <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
               label="GitHub Username"
@@ -236,43 +207,43 @@ const Home: React.FC = () => {
                     alignSelf: "flex-start",
             }}
             >
-                Fetch Data
+                Fetch Data / Apply Filters
             </Button>
           </Box>
-        </form>
-      </Paper>
+        </Paper>
 
-      {/* Filters */}
-      <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
-        <TextField
-          label="Search Title"
-          value={searchTitle}
-          onChange={(e) => setSearchTitle(e.target.value)}
-          sx={{ minWidth: 200 }}
-        />
-        <TextField
-          label="Repository"
-          value={selectedRepo}
-          onChange={(e) => setSelectedRepo(e.target.value)}
-          sx={{ minWidth: 200 }}
-        />
-        <TextField
-          label="Start Date"
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          sx={{ minWidth: 150 }}
-        />
-        <TextField
-          label="End Date"
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          sx={{ minWidth: 150 }}
-        />
-      </Box>
+        {/* Filters */}
+        <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
+          <TextField
+            label="Search Title"
+            value={searchTitle}
+            onChange={(e) => setSearchTitle(e.target.value)}
+            sx={{ minWidth: 200 }}
+          />
+          <TextField
+            label="Repository"
+            value={selectedRepo}
+            onChange={(e) => setSelectedRepo(e.target.value)}
+            sx={{ minWidth: 200 }}
+          />
+          <TextField
+            label="Start Date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 150 }}
+          />
+          <TextField
+            label="End Date"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 150 }}
+          />
+        </Box>
+      </form>
 
       {/* Tabs + State Filter */}
       <Box
@@ -300,11 +271,14 @@ const Home: React.FC = () => {
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
           <Select
             value={tab === 0 ? issueFilter : prFilter}
-            onChange={(e) =>
-              tab === 0
-                ? setIssueFilter(e.target.value)
-                : setPrFilter(e.target.value)
-            }
+            onChange={(e) => {
+              setPage(0);
+              if (tab === 0) {
+                setIssueFilter(e.target.value);
+              } else {
+                setPrFilter(e.target.value);
+              }
+            }}
             label="State"
             sx={{
               backgroundColor: theme.palette.background.paper,
@@ -324,9 +298,9 @@ const Home: React.FC = () => {
         </FormControl>
       </Box>
 
-      {(authError || dataError) && (
+      {dataError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {authError || dataError}
+          {dataError}
         </Alert>
       )}
 

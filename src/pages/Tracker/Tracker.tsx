@@ -93,11 +93,13 @@ const Home: React.FC = () => {
 
   // Auto-fetch data
   useEffect(() => {
-    if (debouncedUsername?.trim()) {
+    const trimmedUsername = debouncedUsername?.trim() ?? "";
+
+    if (trimmedUsername.length >= 2) {
       setPage(0);
 
       fetchData(
-        debouncedUsername,
+        trimmedUsername,
         1,
         ROWS_PER_PAGE,
         tab === 0 ? "issue" : "pr",

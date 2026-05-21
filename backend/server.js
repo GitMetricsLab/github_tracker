@@ -11,8 +11,24 @@ require('./config/passportConfig');
 
 const app = express();
 
-// CORS configuration
-app.use(cors('*'));
+// CORS — restrict to known frontend origins only
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
+    .split(',')
+    .map(o => o.trim());
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow server-to-server requests (no Origin header) and explicit allowlist
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+}));
 
 // Middleware
 app.use(bodyParser.json());

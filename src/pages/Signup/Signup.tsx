@@ -131,17 +131,6 @@ const SignUp: React.FC = () => {
       </div>
 
       <div className="relative w-full max-w-md px-4 sm:px-6">
-        <div className="flex justify-end mb-6">
-          <Link
-            to="/track"
-            className="group relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-semibold rounded-full bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 dark:from-blue-500 dark:via-cyan-400 dark:to-teal-400 text-slate-900 dark:text-white transition-all shadow-md dark:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-lg dark:hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] transform hover:-translate-y-0.5"
-          >
-            <span className="relative px-5 py-2.5 transition-all duration-75 bg-white dark:bg-[#030712] rounded-full group-hover:bg-opacity-0">
-              Back to dashboard
-            </span>
-          </Link>
-        </div>
-
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

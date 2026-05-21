@@ -136,15 +136,18 @@ const Login: React.FC = () => {
           </form>
           <div className="mt-10 flex justify-center ">
           <GoogleLogin theme="outline" size="medium" shape= "pill" logo_alignment="center" width="10px"
-            onSuccess={(credentialResponse) => {
+            onSuccess={async (credentialResponse) => {
               const token = credentialResponse.credential;
               if (!token) {
                 return;
               }
               try {
-                localStorage.setItem("token", token);
-                navigate("/");
+                const res = await axios.post(`${backendUrl}/api/auth/google`, { credential: token });
+              +  localStorage.setItem("token", res.data.token); 
+              +  navigate("/");
               } catch (err) {
+                setMessage("Login failed. Please try again.");
+
               }
             }}
           />

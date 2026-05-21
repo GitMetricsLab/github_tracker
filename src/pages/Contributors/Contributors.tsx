@@ -188,6 +188,7 @@ const ContributorsPage = () => {
                     startIcon={<FaGithub />}
                     href={contributor.html_url}
                     target="_blank"
+                    rel="noopener noreferrer"
                     sx={{
                       backgroundColor: "#333333",
                       textTransform: "none",

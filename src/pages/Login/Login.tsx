@@ -34,10 +34,14 @@ const Login: React.FC = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
-        navigate("/home");
+        navigate("/");
       }
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setMessage(error.response?.data?.message || "Something went wrong");
+      } else {
+        setMessage("Something went wrong");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +63,7 @@ const Login: React.FC = () => {
         <div className={`absolute top-1/2 right-1/4 w-64 h-64 ${mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"} rounded-full blur-2xl opacity-20 animate-pulse delay-1000`} />
       </div>
 
-      <div className="relative w-full max-w-md px-6">
+      <div className="relative w-full max-w-md px-4 sm:px-6">
         {/* Branding */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
@@ -79,7 +83,7 @@ const Login: React.FC = () => {
         </div>
 
         {/* Form Card */}
-        <div className={`rounded-3xl p-10 shadow-2xl border ${mode === "dark" ? "bg-white/10 backdrop-blur-xl border-white/20 text-white" : "bg-white border-gray-200 text-black"}`}>
+        <div className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${mode === "dark" ? "bg-white/10 backdrop-blur-xl border-white/20 text-white" : "bg-white border-gray-200 text-black"}`}>
           <h2 className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"}`}>
             Welcome Back
           </h2>
@@ -122,7 +126,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>

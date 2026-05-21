@@ -32,6 +32,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import { KeyIcon } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
 
@@ -182,9 +183,60 @@ const Home: React.FC = () => {
               type="password"
               required
               sx={{ flex: 1, minWidth: 150 }}
+              helperText={
+                <Box
+                    component="span"
+                    sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    fontSize: "0.75rem",
+                    }}
+                >
+                    <Link
+                    href="https://github.com/settings/tokens/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                        fontSize: "0.75rem",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                    }}
+                    >
+                    <KeyIcon size={12} />
+                    Generate new token
+                    </Link>
+
+                    <Box component="span" sx={{ opacity: 0.6 }}>
+                    •
+                    </Box>
+
+                    <Link
+                    href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                        fontSize: "0.75rem",
+                        textDecoration: "none",
+                    }}
+                    >
+                    Learn more
+                    </Link>
+                </Box>
+              }
             />
-            <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
-              Fetch Data
+            <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                    minWidth: "100px",
+                    minHeight: "55px",
+                    alignSelf: "flex-start",
+            }}
+            >
+                Fetch Data
             </Button>
           </Box>
         </form>

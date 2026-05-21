@@ -9,6 +9,77 @@
 .bg-glow {
   @apply absolute -z-10 blur-[100px] opacity-20 dark:opacity-30;
 }
+@keyframes how-it-works-dash-flow {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 72px 0;
+  }
+}
+
+@keyframes how-it-works-dash-flow-vertical {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 0 72px;
+  }
+}
+
+.how-it-works-flow-line {
+  display: block;
+  height: 2px;
+  border-radius: 9999px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(96, 165, 250, 0.78) 0,
+    rgba(96, 165, 250, 0.78) 14px,
+    rgba(96, 165, 250, 0.08) 14px,
+    rgba(96, 165, 250, 0.08) 26px
+  );
+  background-size: 28px 2px;
+  animation: how-it-works-dash-flow 10s linear infinite;
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.24);
+}
+
+.how-it-works-flow-line.light {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.6) 0,
+    rgba(59, 130, 246, 0.6) 12px,
+    rgba(59, 130, 246, 0.12) 12px,
+    rgba(59, 130, 246, 0.12) 24px
+  );
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.14);
+}
+
+.how-it-works-flow-line.vertical {
+  width: 2px;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(96, 165, 250, 0.78) 0,
+    rgba(96, 165, 250, 0.78) 14px,
+    rgba(96, 165, 250, 0.08) 14px,
+    rgba(96, 165, 250, 0.08) 26px
+  );
+  background-size: 2px 28px;
+  animation: how-it-works-dash-flow-vertical 10s linear infinite;
+}
+
+.how-it-works-flow-line.vertical.light {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.6) 0,
+    rgba(59, 130, 246, 0.6) 12px,
+    rgba(59, 130, 246, 0.12) 12px,
+    rgba(59, 130, 246, 0.12) 24px
+  );
+}
+
 
 .icon-merged {
   color: #2ea44f; /* Or use your theme color */

@@ -10,6 +10,11 @@ const Features = () => {
       iconColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
       darkBg: 'dark:bg-blue-900/20'
+      description: 'Comprehensive charts and graphs showing commit patterns, contribution streaks, and repository activity over time.',
+      bgColor: 'bg-blue-100',
+      iconColor: 'text-blue-600',
+      hoverColor: 'hover:bg-blue-400/50 dark:hover:bg-blue-900/30',
+      borderColor: 'hover:border-blue-200 dark:hover:border-blue-700'
     },
     {
       icon: Users,
@@ -18,6 +23,11 @@ const Features = () => {
       iconColor: 'text-green-600',
       bgColor: 'bg-green-50',
       darkBg: 'dark:bg-green-900/20'
+      description: 'Monitor multiple GitHub users simultaneously and compare their activity levels and contribution patterns.',
+      bgColor: 'bg-green-100',
+      iconColor: 'text-green-600',
+      hoverColor: 'hover:bg-green-400/50 dark:hover:bg-green-900/30',
+      borderColor: 'hover:border-green-200 dark:hover:border-green-700'
     },
     {
       icon: Search,
@@ -26,6 +36,11 @@ const Features = () => {
       iconColor: 'text-purple-600',
       bgColor: 'bg-purple-50',
       darkBg: 'dark:bg-purple-900/20'
+      description: 'Quickly find and add users to your tracking list with intelligent search and auto-suggestions.',
+      bgColor: 'bg-purple-100',
+      iconColor: 'text-purple-600',
+      hoverColor: 'hover:bg-purple-400/50 dark:hover:bg-purple-900/30',
+      borderColor: 'hover:border-purple-200 dark:hover:border-purple-700'
     },
     {
       icon: Zap,
@@ -50,6 +65,29 @@ const Features = () => {
       iconColor: 'text-indigo-600',
       bgColor: 'bg-indigo-50',
       darkBg: 'dark:bg-indigo-900/20'
+      description: 'Get instant notifications and updates when tracked users make new contributions or repositories.',
+      bgColor: 'bg-orange-100',
+      iconColor: 'text-orange-600',
+      hoverColor: 'hover:bg-orange-400/50 dark:hover:bg-orange-900/30',
+      borderColor: 'hover:border-orange-200 dark:hover:border-orange-700'
+    },
+    {
+      icon: Shield,
+      title: 'Privacy First',
+      description: 'All data is fetched from public GitHub APIs. We don\'t store personal information or require GitHub access.',
+      bgColor: 'bg-red-100',
+      iconColor: 'text-red-600',
+      hoverColor: 'hover:bg-red-400/50 dark:hover:bg-red-900/30',
+      borderColor: 'hover:border-red-200 dark:hover:border-red-700'
+    },
+    {
+      icon: Globe,
+      title: 'Export & Share',
+      description: 'Export activity reports and share insights with your team through various formats and integrations.',
+      bgColor: 'bg-indigo-100',
+      iconColor: 'text-indigo-600',
+      hoverColor: 'hover:bg-indigo-400/50 dark:hover:bg-indigo-900/30',
+      borderColor: 'hover:border-indigo-200 dark:hover:border-indigo-700'
     }
   ];
 
@@ -113,6 +151,12 @@ const Features = () => {
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              <div key={index} className={`group h-72 w-full bg-gray-100 dark:bg-gray-800 ${feature.hoverColor} ${feature.borderColor} rounded-2xl shadow-md hover:shadow-2xl hover:shadow-blue-500/20 border dark:border-gray-800 transform hover:-translate-y-3 hover:scale-105 backdrop-blur-sm transition-all duration-300 ease-linear p-6`}>
+                <div className={`${feature.bgColor} w-12 h-12 rounded-lg flex items-center justify-center mb-6 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110`}>
+                  <IconComponent className={`h-6 w-6 ${feature.iconColor}`} />
+                </div>
+                <h3 className="  text-2xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-black dark:group-hover:text-white transition-colors duration-300">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-base font-semibold leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300">
                   {feature.description}
                 </p>
               </motion.div>

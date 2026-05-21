@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const bodyParser = require('body-parser');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const cors = require('cors');
 
@@ -23,6 +24,19 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Rate limiting — 10 attempts per 15-minute window per IP on auth endpoints
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'Too many attempts, please try again after 15 minutes.' },
+    skipSuccessfulRequests: true,
+});
+
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/signup', authLimiter);
 
 // Routes
 const authRoutes = require('./routes/auth');

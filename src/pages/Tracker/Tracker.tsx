@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
   GitPullRequestIcon,
   GitPullRequestClosedIcon,
   GitMergeIcon,
-} from '@primer/octicons-react';
+} from "@primer/octicons-react";
 import {
   Container,
   Box,
@@ -47,7 +47,6 @@ interface GitHubItem {
 }
 
 const Home: React.FC = () => {
-
   const theme = useTheme();
 
   const {
@@ -104,69 +103,75 @@ const Home: React.FC = () => {
     if (["open", "closed", "merged"].includes(filterType)) {
       filtered = filtered.filter((item) => {
         if (filterType === "merged") {
-          return !!item.pull_request?.merged_at
-        }
-        else if (filterType === "closed") {
-          return item.state === "closed" && !item.pull_request?.merged_at
-        }
-        else {
+          return !!item.pull_request?.merged_at;
+        } else if (filterType === "closed") {
+          return item.state === "closed" && !item.pull_request?.merged_at;
+        } else {
           //open
-          return item.state === "open"
+          return item.state === "open";
         }
       });
     }
     if (searchTitle) {
       filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(searchTitle.toLowerCase())
+        item.title.toLowerCase().includes(searchTitle.toLowerCase()),
       );
     }
     if (selectedRepo) {
       filtered = filtered.filter((item) =>
-        item.repository_url.includes(selectedRepo)
+        item.repository_url.includes(selectedRepo),
       );
     }
     if (startDate) {
       filtered = filtered.filter(
-        (item) => new Date(item.created_at) >= new Date(startDate)
+        (item) => new Date(item.created_at) >= new Date(startDate),
       );
     }
     if (endDate) {
       filtered = filtered.filter(
-        (item) => new Date(item.created_at) <= new Date(endDate)
+        (item) => new Date(item.created_at) <= new Date(endDate),
       );
     }
     return filtered;
   };
 
   const getStatusIcon = (item: GitHubItem) => {
-
     if (item.pull_request) {
+      if (item.pull_request.merged_at)
+        return <GitMergeIcon size={16} className="icon-merged" />;
 
-        if (item.pull_request.merged_at)
-            return <GitMergeIcon size={16} className="icon-merged" />;
+      if (item.state === "closed")
+        return (
+          <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />
+        );
 
-        if (item.state === 'closed')
-            return <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />;
-
-        return <GitPullRequestIcon size={16} className="icon-pr-open" />;
+      return <GitPullRequestIcon size={16} className="icon-pr-open" />;
     }
 
-    if (item.state === 'closed')
-        return <IssueClosedIcon size={16} className="icon-issue-closed" />;
+    if (item.state === "closed")
+      return <IssueClosedIcon size={16} className="icon-issue-closed" />;
 
     return <IssueOpenedIcon size={16} className="icon-issue-open" />;
   };
 
-
   // Current data and filtered data according to tab and filters
   const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  const currentFilteredData = filterData(
+    currentRawData,
+    tab === 0 ? issueFilter : prFilter,
+  );
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
+    <Container
+      maxWidth="lg"
+      sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}
+    >
       {/* Auth Form */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
+      <Paper
+        elevation={1}
+        sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}
+      >
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
@@ -185,58 +190,58 @@ const Home: React.FC = () => {
               sx={{ flex: 1, minWidth: 150 }}
               helperText={
                 <Box
-                    component="span"
-                    sx={{
+                  component="span"
+                  sx={{
                     display: "flex",
                     alignItems: "center",
                     gap: 1,
                     fontSize: "0.75rem",
-                    }}
+                  }}
                 >
-                    <Link
+                  <Link
                     href="https://github.com/settings/tokens/new"
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 0.5,
+                      fontSize: "0.75rem",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 0.5,
                     }}
-                    >
+                  >
                     <KeyIcon size={12} />
                     Generate new token
-                    </Link>
+                  </Link>
 
-                    <Box component="span" sx={{ opacity: 0.6 }}>
+                  <Box component="span" sx={{ opacity: 0.6 }}>
                     •
-                    </Box>
+                  </Box>
 
-                    <Link
+                  <Link
                     href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
+                      fontSize: "0.75rem",
+                      textDecoration: "none",
                     }}
-                    >
+                  >
                     Learn more
-                    </Link>
+                  </Link>
                 </Box>
               }
             />
             <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                    minWidth: "100px",
-                    minHeight: "55px",
-                    alignSelf: "flex-start",
-            }}
+              type="submit"
+              variant="contained"
+              sx={{
+                minWidth: "100px",
+                minHeight: "55px",
+                alignSelf: "flex-start",
+              }}
             >
-                Fetch Data
+              Fetch Data
             </Button>
           </Box>
         </form>
@@ -331,16 +336,13 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
+        <Box>
           <CircularProgress />
         </Box>
       ) : (
         <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-
           <TableContainer component={Paper}>
-
             <Table size="small">
-
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
@@ -353,20 +355,20 @@ const Home: React.FC = () => {
               <TableBody>
                 {currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
-
-                    <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {getStatusIcon(item)}
-                        <Link
-                            href={item.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            underline="hover"
-                            sx={{ color: theme.palette.primary.main }}
-                        >
-                            {item.title}
-                        </Link>
+                    <TableCell
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      {getStatusIcon(item)}
+                      <Link
+                        href={item.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        sx={{ color: theme.palette.primary.main }}
+                      >
+                        {item.title}
+                      </Link>
                     </TableCell>
-
 
                     <TableCell align="center">
                       {item.repository_url.split("/").slice(-1)[0]}
@@ -377,11 +379,9 @@ const Home: React.FC = () => {
                     </TableCell>
 
                     <TableCell>{formatDate(item.created_at)}</TableCell>
-
                   </TableRow>
                 ))}
               </TableBody>
-
             </Table>
 
             <TablePagination
@@ -392,7 +392,6 @@ const Home: React.FC = () => {
               rowsPerPage={ROWS_PER_PAGE}
               rowsPerPageOptions={[ROWS_PER_PAGE]}
             />
-
           </TableContainer>
         </Box>
       )}

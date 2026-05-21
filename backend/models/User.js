@@ -31,4 +31,12 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
+UserSchema.methods.toSafeObject = function () {
+  return {
+    id: this._id,
+    username: this.username,
+    email: this.email,
+  };
+};
+
 module.exports = mongoose.model("User", UserSchema);

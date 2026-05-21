@@ -52,10 +52,20 @@ const Navbar: React.FC = () => {
           <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
           </NavLink>
-
+        {localStorage.getItem("token") ? (
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.reload();
+            }}
+            className={navLinkStyles({ isActive: false })}>
+            Logout
+          </button>
+        ) : (
           <NavLink to="/login" className={navLinkStyles}>
             Login
           </NavLink>
+        )}
 
           {/* Theme Toggle */}
           <button

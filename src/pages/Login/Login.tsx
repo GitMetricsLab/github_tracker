@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import {jwtDecode} from "jwt-decode";
+import { GoogleLogin} from "@react-oauth/google";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -19,6 +21,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
+
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -106,6 +109,7 @@ const Login: React.FC = () => {
               />
             </div>
 
+
             <div className="relative">
               <input
                 type="password"
@@ -122,7 +126,6 @@ const Login: React.FC = () => {
                 }`}
               />
             </div>
-
             <button
               type="submit"
               disabled={isLoading}
@@ -131,7 +134,19 @@ const Login: React.FC = () => {
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
-
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              const token = credentialResponse.credential;
+              if (!token) {
+                return;
+              }
+              try {
+                localStorage.setItem("token", token);
+                navigate("/");
+              } catch (err) {
+              }
+            }}
+          />
           {/* Message */}
           {message && (
             <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${

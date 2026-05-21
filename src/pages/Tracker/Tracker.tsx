@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
   GitPullRequestIcon,
   GitPullRequestClosedIcon,
   GitMergeIcon,
-} from '@primer/octicons-react';
+} from "@primer/octicons-react";
+
 import {
   Container,
   Box,
   TextField,
-  Button,
   Paper,
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import {
   TableRow,
   TablePagination,
   Link,
+  CircularProgress,
   Alert,
   Tabs,
   Tab,
@@ -27,10 +28,11 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Skeleton,
-  Typography,
 } from "@mui/material";
+
 import { useTheme } from "@mui/material/styles";
+import { KeyIcon } from "lucide-react";
+
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { useDebounce } from "../../hooks/useDebounce";
@@ -48,7 +50,6 @@ interface GitHubItem {
 }
 
 const Home: React.FC = () => {
-
   const theme = useTheme();
 
   const {
@@ -75,27 +76,81 @@ const Home: React.FC = () => {
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
+
   const [searchTitle, setSearchTitle] = useState("");
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Debounce search filters (300ms delay) to prevent excessive re-renders
+  // Debounced filters
   const debouncedSearchTitle = useDebounce(searchTitle, 300);
   const debouncedSelectedRepo = useDebounce(selectedRepo, 300);
   const debouncedStartDate = useDebounce(startDate, 300);
   const debouncedEndDate = useDebounce(endDate, 300);
-  
-  // Debounce username input (400ms delay) to reduce API calls
+
+  // Debounced username
   const debouncedUsername = useDebounce(username, 400);
 
-  // Auto-fetch data when debounced username, tab, or page changes
+  // Auto-fetch data
   useEffect(() => {
-    if (debouncedUsername) {
+    if (debouncedUsername?.trim()) {
       setPage(0);
-      fetchData(debouncedUsername, 1, ROWS_PER_PAGE);
+
+      fetchData(
+        debouncedUsername,
+        1,
+        ROWS_PER_PAGE,
+        tab === 0 ? "issue" : "pr",
+        {
+          search: debouncedSearchTitle,
+          repo: debouncedSelectedRepo,
+          startDate: debouncedStartDate,
+          endDate: debouncedEndDate,
+          state: tab === 0 ? issueFilter : prFilter,
+        }
+      );
     }
-  }, [tab, debouncedUsername, fetchData]);
+  }, [
+    debouncedUsername,
+    debouncedSearchTitle,
+    debouncedSelectedRepo,
+    debouncedStartDate,
+    debouncedEndDate,
+    issueFilter,
+    prFilter,
+    tab,
+    fetchData,
+  ]);
+
+  // Pagination fetch
+  useEffect(() => {
+    if (debouncedUsername?.trim()) {
+      fetchData(
+        debouncedUsername,
+        page + 1,
+        ROWS_PER_PAGE,
+        tab === 0 ? "issue" : "pr",
+        {
+          search: debouncedSearchTitle,
+          repo: debouncedSelectedRepo,
+          startDate: debouncedStartDate,
+          endDate: debouncedEndDate,
+          state: tab === 0 ? issueFilter : prFilter,
+        }
+      );
+    }
+  }, [
+    page,
+    debouncedUsername,
+    debouncedSearchTitle,
+    debouncedSelectedRepo,
+    debouncedStartDate,
+    debouncedEndDate,
+    issueFilter,
+    prFilter,
+    tab,
+    fetchData,
+  ]);
 
   const handlePageChange = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -104,76 +159,74 @@ const Home: React.FC = () => {
   const formatDate = (dateString: string): string =>
     new Date(dateString).toLocaleDateString();
 
-  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
-    let filtered = [...data];
-    if (["open", "closed", "merged"].includes(filterType)) {
-      filtered = filtered.filter((item) => {
-        if (filterType === "merged") {
-          return !!item.pull_request?.merged_at
-        }
-        else if (filterType === "closed") {
-          return item.state === "closed" && !item.pull_request?.merged_at
-        }
-        else {
-          //open
-          return item.state === "open"
-        }
-      });
-    }
-    // Use debounced values for filtering
-    if (debouncedSearchTitle) {
-      filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(debouncedSearchTitle.toLowerCase())
-      );
-    }
-    if (debouncedSelectedRepo) {
-      filtered = filtered.filter((item) =>
-        item.repository_url.includes(debouncedSelectedRepo)
-      );
-    }
-    if (debouncedStartDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) >= new Date(debouncedStartDate)
-      );
-    }
-    if (debouncedEndDate) {
-      filtered = filtered.filter(
-        (item) => new Date(item.created_at) <= new Date(debouncedEndDate)
-      );
-    }
-    return filtered;
-  };
-
   const getStatusIcon = (item: GitHubItem) => {
-
     if (item.pull_request) {
+      if (item.pull_request.merged_at) {
+        return <GitMergeIcon size={16} className="icon-merged" />;
+      }
 
-        if (item.pull_request.merged_at)
-            return <GitMergeIcon size={16} className="icon-merged" />;
+      if (item.state === "closed") {
+        return (
+          <GitPullRequestClosedIcon
+            size={16}
+            className="icon-pr-closed"
+          />
+        );
+      }
 
-        if (item.state === 'closed')
-            return <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />;
-
-        return <GitPullRequestIcon size={16} className="icon-pr-open" />;
+      return (
+        <GitPullRequestIcon
+          size={16}
+          className="icon-pr-open"
+        />
+      );
     }
 
-    if (item.state === 'closed')
-        return <IssueClosedIcon size={16} className="icon-issue-closed" />;
+    if (item.state === "closed") {
+      return (
+        <IssueClosedIcon
+          size={16}
+          className="icon-issue-closed"
+        />
+      );
+    }
 
-    return <IssueOpenedIcon size={16} className="icon-issue-open" />;
+    return (
+      <IssueOpenedIcon
+        size={16}
+        className="icon-issue-open"
+      />
+    );
   };
 
-
-  // Current data and filtered data according to tab and filters
-  const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  const currentData = tab === 0 ? issues : prs;
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: 4,
+        minHeight: "80vh",
+        color: theme.palette.text.primary,
+      }}
+    >
       {/* Auth Inputs */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
-        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2,
+          mb: 4,
+          backgroundColor: theme.palette.background.paper,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
           <TextField
             label="GitHub Username"
             value={username}
@@ -181,6 +234,7 @@ const Home: React.FC = () => {
             placeholder="Start typing to search..."
             sx={{ flex: 1, minWidth: 150 }}
           />
+
           <TextField
             label="Personal Access Token (optional)"
             value={token}
@@ -188,40 +242,78 @@ const Home: React.FC = () => {
             type="password"
             sx={{ flex: 1, minWidth: 150 }}
             helperText={
-              <Link
-              href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-        fontSize: '0.75rem',
-        color: 'primary.main',
-        textDecoration: 'none',
-        '&:hover': {
-          textDecoration: 'underline',
-        }
-      }}
+              <Box
+                component="span"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  fontSize: "0.75rem",
+                }}
               >
-                How to generate?
-              </Link>
+                <Link
+                  href="https://github.com/settings/tokens/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    fontSize: "0.75rem",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                  }}
+                >
+                  <KeyIcon size={12} />
+                  Generate new token
+                </Link>
+
+                <Box
+                  component="span"
+                  sx={{ opacity: 0.6 }}
+                >
+                  •
+                </Box>
+
+                <Link
+                  href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    fontSize: "0.75rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  Learn more
+                </Link>
+              </Box>
             }
           />
         </Box>
       </Paper>
 
       {/* Filters */}
-      <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
         <TextField
           label="Search Title"
           value={searchTitle}
           onChange={(e) => setSearchTitle(e.target.value)}
           sx={{ minWidth: 200 }}
         />
+
         <TextField
           label="Repository"
           value={selectedRepo}
           onChange={(e) => setSelectedRepo(e.target.value)}
           sx={{ minWidth: 200 }}
         />
+
         <TextField
           label="Start Date"
           type="date"
@@ -230,6 +322,7 @@ const Home: React.FC = () => {
           InputLabelProps={{ shrink: true }}
           sx={{ minWidth: 150 }}
         />
+
         <TextField
           label="End Date"
           type="date"
@@ -262,8 +355,12 @@ const Home: React.FC = () => {
           <Tab label={`Issues (${totalIssues})`} />
           <Tab label={`Pull Requests (${totalPrs})`} />
         </Tabs>
+
         <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
+          <InputLabel sx={{ fontSize: "14px" }}>
+            State
+          </InputLabel>
+
           <Select
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
@@ -273,19 +370,29 @@ const Home: React.FC = () => {
             }
             label="State"
             sx={{
-              backgroundColor: theme.palette.background.paper,
+              backgroundColor:
+                theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: "4px",
-              "& .MuiSelect-select": { padding: "10px" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme.palette.primary.main,
+              "& .MuiSelect-select": {
+                padding: "10px",
               },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                {
+                  borderColor:
+                    theme.palette.primary.main,
+                },
             }}
           >
             <MenuItem value="all">All</MenuItem>
             <MenuItem value="open">Open</MenuItem>
             <MenuItem value="closed">Closed</MenuItem>
-            {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
+
+            {tab === 1 && (
+              <MenuItem value="merged">
+                Merged
+              </MenuItem>
+            )}
           </Select>
         </FormControl>
       </Box>
@@ -297,108 +404,84 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-    <TableContainer component={Paper}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Title</TableCell>
-            <TableCell align="center">Repository</TableCell>
-            <TableCell align="center">State</TableCell>
-            <TableCell>Created</TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {[...Array(5)].map((_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <Skeleton variant="text" width="80%" height={30} />
-              </TableCell>
-
-              <TableCell align="center">
-                <Skeleton variant="text" width="60%" height={30} />
-              </TableCell>
-
-              <TableCell align="center">
-                <Skeleton variant="rounded" width={70} height={25} />
-              </TableCell>
-
-              <TableCell>
-                <Skeleton variant="text" width="70%" height={30} />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </Box>
-) : !authError && !dataError && currentFilteredData.length === 0 ? (
-  <Paper
-    elevation={1}
-    sx={{
-      p: 4,
-      textAlign: "center",
-      backgroundColor: theme.palette.background.paper,
-    }}
-  >
-    <Typography variant="h6" gutterBottom>
-      No Data Found
-    </Typography>
-
-    <Typography variant="body2" color="text.secondary">
-      Try adjusting filters or searching for another GitHub user.
-    </Typography>
-  </Paper>
-) : (
-    
-  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-
+        <Box
+          display="flex"
+          justifyContent="center"
+          my={4}
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            maxHeight: "400px",
+            overflowY: "auto",
+          }}
+        >
           <TableContainer component={Paper}>
-
             <Table size="small">
-
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
-                  <TableCell align="center">Repository</TableCell>
-                  <TableCell align="center">State</TableCell>
+
+                  <TableCell align="center">
+                    Repository
+                  </TableCell>
+
+                  <TableCell align="center">
+                    State
+                  </TableCell>
+
                   <TableCell>Created</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {currentFilteredData.map((item) => (
+                {currentData.map((item) => (
                   <TableRow key={item.id}>
+                    <TableCell
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      {getStatusIcon(item)}
 
-                    <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {getStatusIcon(item)}
-                        <Link
-                            href={item.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            underline="hover"
-                            sx={{ color: theme.palette.primary.main }}
-                        >
-                            {item.title}
-                        </Link>
+                      <Link
+                        href={item.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        sx={{
+                          color:
+                            theme.palette.primary.main,
+                        }}
+                      >
+                        {item.title}
+                      </Link>
                     </TableCell>
-
 
                     <TableCell align="center">
-                      {item.repository_url.split("/").slice(-1)[0]}
+                      {
+                        item.repository_url
+                          .split("/")
+                          .slice(-1)[0]
+                      }
                     </TableCell>
 
                     <TableCell align="center">
-                      {item.pull_request?.merged_at ? "merged" : item.state}
+                      {item.pull_request?.merged_at
+                        ? "merged"
+                        : item.state}
                     </TableCell>
 
-                    <TableCell>{formatDate(item.created_at)}</TableCell>
-
+                    <TableCell>
+                      {formatDate(item.created_at)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
-
             </Table>
 
             <TablePagination
@@ -407,9 +490,10 @@ const Home: React.FC = () => {
               page={page}
               onPageChange={handlePageChange}
               rowsPerPage={ROWS_PER_PAGE}
-              rowsPerPageOptions={[ROWS_PER_PAGE]}
+              rowsPerPageOptions={[
+                ROWS_PER_PAGE,
+              ]}
             />
-
           </TableContainer>
         </Box>
       )}

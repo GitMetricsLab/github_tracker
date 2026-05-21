@@ -1,134 +1,308 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { Octokit } from '@octokit/core';
 
-export const useGitHubData = (getOctokit: () => any) => {
-  const [issues, setIssues] = useState([]);
-  const [prs, setPrs] = useState([]);
+interface GitHubItem {
+  id: number;
+  title: string;
+  state: string;
+  created_at: string;
+  pull_request?: {
+    merged_at: string | null;
+  };
+  repository_url: string;
+  html_url: string;
+}
+
+interface FetchFilters {
+  search?: string;
+  repo?: string;
+  startDate?: string;
+  endDate?: string;
+  state?: string;
+}
+
+export const useGitHubData = (
+  getOctokit: () => Octokit | null
+) => {
+  const [issues, setIssues] = useState<GitHubItem[]>([]);
+  const [prs, setPrs] = useState<GitHubItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
-  // Store AbortController to cancel in-flight requests
-  const abortControllerRef = useRef<AbortController | null>(null);
+// Prevent stale responses overwriting latest data
+const lastRequestId = useRef(0);
 
-  // Cleanup function to cancel any pending requests
-  const cancelPendingRequest = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-  }, []);
+// Store AbortController to cancel in-flight requests
+const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Cleanup on component unmount
-  useEffect(() => {
-    return () => {
-      cancelPendingRequest();
-    };
-  }, [cancelPendingRequest]);
+// Cleanup function to cancel any pending requests
+const cancelPendingRequest = useCallback(() => {
+  if (abortControllerRef.current) {
+    abortControllerRef.current.abort();
+    abortControllerRef.current = null;
+  }
+}, []);
 
-  const fetchPaginated = async (
-    octokit: any,
-    username: string,
-    type: string,
-    page = 1,
-    per_page = 10,
-    signal?: AbortSignal
-  ) => {
-    const q = `author:${username} is:${type}`;
-    const response = await octokit.request('GET /search/issues', {
+// Cleanup on component unmount
+useEffect(() => {
+  return () => {
+    cancelPendingRequest();
+  };
+}, [cancelPendingRequest]);
+
+const fetchPaginated = async (
+  octokit: Octokit,
+  username: string,
+  type: 'issue' | 'pr',
+  page = 1,
+  perPage = 10,
+  filters: FetchFilters = {},
+  signal?: AbortSignal
+) => {
+  let q = `author:${username} is:${type}`;
+
+  if (filters.search) {
+    q += ` ${filters.search} in:title`;
+  }
+
+  if (filters.repo) {
+    q += ` repo:${filters.repo}`;
+  }
+
+  if (filters.startDate) {
+    q += ` created:>=${filters.startDate}`;
+  }
+
+  if (filters.endDate) {
+    q += ` created:<=${filters.endDate}`;
+  }
+
+  if (
+    filters.state === 'open' ||
+    filters.state === 'closed'
+  ) {
+    q += ` is:${filters.state}`;
+  }
+
+  if (
+    filters.state === 'merged' &&
+    type === 'pr'
+  ) {
+    q += ` is:merged`;
+  }
+
+  const response = await octokit.request(
+    'GET /search/issues',
+    {
       q,
       sort: 'created',
       order: 'desc',
-      per_page,
+      per_page: perPage,
       page,
       request: {
-        signal, // Pass AbortSignal to the request
+        signal,
       },
-    });
-
-    return {
-      items: response.data.items,
-      total: response.data.total_count,
-    };
-  };
-
-  const fetchData = useCallback(
-    async (username: string, page = 1, perPage = 10) => {
-      // Validate inputs
-      if (!username || username.trim().length === 0) {
-        setError('Please enter a GitHub username.');
-        return;
-      }
-
-      const octokit = getOctokit();
-
-      if (!octokit) {
-        setError('Authentication not initialized.');
-        return;
-      }
-
-      // Cancel any existing in-flight requests
-      cancelPendingRequest();
-
-      // Create new AbortController for this request
-      abortControllerRef.current = new AbortController();
-      const signal = abortControllerRef.current.signal;
-
-      setLoading(true);
-      setError('');
-
-      try {
-        const [issueRes, prRes] = await Promise.all([
-          fetchPaginated(octokit, username, 'issue', page, perPage, signal),
-          fetchPaginated(octokit, username, 'pr', page, perPage, signal),
-        ]);
-
-        // Check if request was aborted before updating state
-        if (!signal.aborted) {
-          setIssues(issueRes.items);
-          setPrs(prRes.items);
-          setTotalIssues(issueRes.total);
-          setTotalPrs(prRes.total);
-          setRateLimited(false);
-        }
-      } catch (err: any) {
-        // Don't show error if request was intentionally aborted
-        if (err.name === 'AbortError') {
-          return;
-        }
-
-        const errorMessage = err.message?.toLowerCase() || "";
-        if (err.status === 403) {
-          setError('GitHub API rate limit exceeded. Please provide a PAT to continue.');
-          setRateLimited(true);
-        } else if (errorMessage.includes("do not exist")) {
-          setError('User not found. Please check the spelling of the GitHub username.');
-        } else if (err.status === 401 || errorMessage.includes("permission")) {
-          setError('Private repository detected. Please input PAT.');
-        } else if (err.status === 404) {
-          setError('Resource not found.');
-        } else if (errorMessage.includes("validation failed")) {
-          setError('Invalid GitHub username or insufficient permissions.');
-        } else {
-          setError(
-            'Unable to fetch GitHub data. Please verify the username, token, or network connection.'
-          );
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [getOctokit, cancelPendingRequest]
+    }
   );
 
   return {
-    issues,
-    prs,
-    totalIssues,
-    totalPrs,
-    loading,
-    error,
-    fetchData,
+    items: response.data.items as GitHubItem[],
+    total: response.data.total_count,
   };
 };
+
+  const fetchData = useCallback(
+async (
+  username: string,
+  page = 1,
+  perPage = 10,
+  activeTab: 'issue' | 'pr' | 'both' = 'both',
+  filters: FetchFilters = {}
+) => {
+
+  // Validate inputs
+  if (!username || username.trim().length < 2) {
+    setError('Please enter a valid GitHub username.');
+    setIssues([]);
+    setPrs([]);
+    setTotalIssues(0);
+    setTotalPrs(0);
+    return;
+  }
+
+  const octokit = getOctokit();
+
+  if (!octokit || rateLimited) {
+    return;
+  }
+
+  // Prevent stale responses
+  const requestId = ++lastRequestId.current;
+
+  // Cancel any existing in-flight requests
+  cancelPendingRequest();
+
+  // Create new AbortController for this request
+  abortControllerRef.current = new AbortController();
+
+  const signal = abortControllerRef.current.signal;
+
+  setLoading(true);
+  setError('');
+
+  try {
+    const shouldFetchIssues =
+      activeTab === 'issue' || activeTab === 'both';
+
+    const shouldFetchPrs =
+      activeTab === 'pr' || activeTab === 'both';
+
+    const requests: Promise<any>[] = [];
+
+    if (shouldFetchIssues) {
+      requests.push(
+        fetchPaginated(
+          octokit,
+          username,
+          'issue',
+          page,
+          perPage,
+          filters,
+          signal
+        )
+      );
+    }
+
+  if (shouldFetchPrs) {
+    requests.push(
+      fetchPaginated(
+        octokit,
+        username,
+        'pr',
+        page,
+        perPage,
+        filters,
+        signal
+      )
+    );
+  }
+
+  const results = await Promise.allSettled(requests);
+
+  // Ignore stale or aborted requests
+  if (
+    requestId !== lastRequestId.current ||
+    signal.aborted
+  ) {
+    return;
+  }
+
+  let resultIndex = 0;
+
+  if (shouldFetchIssues) {
+    const issueResult = results[resultIndex];
+
+    if (issueResult.status === 'fulfilled') {
+      setIssues(issueResult.value.items);
+      setTotalIssues(issueResult.value.total);
+    } else {
+      setIssues([]);
+      setTotalIssues(0);
+    }
+
+    resultIndex++;
+  }
+
+  if (shouldFetchPrs) {
+    const prResult = results[resultIndex];
+
+    if (prResult.status === 'fulfilled') {
+      setPrs(prResult.value.items);
+      setTotalPrs(prResult.value.total);
+    } else {
+      setPrs([]);
+      setTotalPrs(0);
+    }
+  }
+
+  const hasRejected = results.some(
+    (result) => result.status === 'rejected'
+  );
+
+  if (hasRejected) {
+    setError(
+      'Some GitHub data could not be fetched completely.'
+    );
+  }
+
+  setRateLimited(false);
+
+} catch (err: unknown) {
+
+  // Ignore aborted requests
+  if ((err as Error).name === 'AbortError') {
+    return;
+  }
+
+  // Ignore stale requests
+  if (requestId !== lastRequestId.current) {
+    return;
+  }
+
+  const error = err as {
+    status?: number;
+    message?: string;
+  };
+
+  const errorMessage =
+    error.message?.toLowerCase() || '';
+
+  if (error.status === 403) {
+    setError(
+      'GitHub API rate limit exceeded. Please provide a PAT to continue.'
+    );
+    setRateLimited(true);
+
+  } else if (
+    errorMessage.includes('do not exist')
+  ) {
+    setError(
+      'User not found. Please check the GitHub username.'
+    );
+
+  } else if (
+    errorMessage.includes('validation failed')
+  ) {
+    setError(
+      'Invalid GitHub username or insufficient permissions.'
+    );
+
+  } else if (
+    error.status === 401 ||
+    errorMessage.includes('permission')
+  ) {
+    setError(
+      'Private repository detected. Please provide a PAT.'
+    );
+
+  } else if (error.status === 404) {
+    setError('Resource not found.');
+
+  } else {
+    setError(
+      'Unable to fetch GitHub data. Please verify the username, token, or network connection.'
+    );
+  }
+
+} finally {
+  if (
+    requestId === lastRequestId.current &&
+    !signal.aborted
+  ) {
+    setLoading(false);
+  }
+}

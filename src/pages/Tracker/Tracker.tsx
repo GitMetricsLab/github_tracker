@@ -33,6 +33,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const ROWS_PER_PAGE = 10;
 
@@ -79,18 +80,22 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
-  useEffect(() => {
-    if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
-    }
-  }, [tab, page]);
+  // Debounce search filters (300ms delay) to prevent excessive re-renders
+  const debouncedSearchTitle = useDebounce(searchTitle, 300);
+  const debouncedSelectedRepo = useDebounce(selectedRepo, 300);
+  const debouncedStartDate = useDebounce(startDate, 300);
+  const debouncedEndDate = useDebounce(endDate, 300);
+  
+  // Debounce username input (400ms delay) to reduce API calls
+  const debouncedUsername = useDebounce(username, 400);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
-  };
+  // Auto-fetch data when debounced username, tab, or page changes
+  useEffect(() => {
+    if (debouncedUsername) {
+      setPage(0);
+      fetchData(debouncedUsername, 1, ROWS_PER_PAGE);
+    }
+  }, [tab, debouncedUsername, fetchData]);
 
   const handlePageChange = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -115,24 +120,25 @@ const Home: React.FC = () => {
         }
       });
     }
-    if (searchTitle) {
+    // Use debounced values for filtering
+    if (debouncedSearchTitle) {
       filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(searchTitle.toLowerCase())
+        item.title.toLowerCase().includes(debouncedSearchTitle.toLowerCase())
       );
     }
-    if (selectedRepo) {
+    if (debouncedSelectedRepo) {
       filtered = filtered.filter((item) =>
-        item.repository_url.includes(selectedRepo)
+        item.repository_url.includes(debouncedSelectedRepo)
       );
     }
-    if (startDate) {
+    if (debouncedStartDate) {
       filtered = filtered.filter(
-        (item) => new Date(item.created_at) >= new Date(startDate)
+        (item) => new Date(item.created_at) >= new Date(debouncedStartDate)
       );
     }
-    if (endDate) {
+    if (debouncedEndDate) {
       filtered = filtered.filter(
-        (item) => new Date(item.created_at) <= new Date(endDate)
+        (item) => new Date(item.created_at) <= new Date(debouncedEndDate)
       );
     }
     return filtered;
@@ -165,48 +171,41 @@ const Home: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
-      {/* Auth Form */}
+      {/* Auth Inputs */}
       <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              label="GitHub Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-            />
-            <TextField
-              label="Personal Access Token"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              type="password"
-              sx={{ flex: 1, minWidth: 150 }}
-              // Helper link to guide users on generating a GitHub Personal Access Token
-              helperText={
-                <Link
-                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-      fontSize: '0.75rem',
-      color: 'primary.main',
-      textDecoration: 'none',
-      '&:hover': {
-        textDecoration: 'underline',
-      }
-    }}
-                >
-                  How to generate?
-                </Link>
-              }
-            />
-
-            <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
-              Fetch Data
-            </Button>
-          </Box>
-        </form>
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <TextField
+            label="GitHub Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Start typing to search..."
+            sx={{ flex: 1, minWidth: 150 }}
+          />
+          <TextField
+            label="Personal Access Token (optional)"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            type="password"
+            sx={{ flex: 1, minWidth: 150 }}
+            helperText={
+              <Link
+              href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+        fontSize: '0.75rem',
+        color: 'primary.main',
+        textDecoration: 'none',
+        '&:hover': {
+          textDecoration: 'underline',
+        }
+      }}
+              >
+                How to generate?
+              </Link>
+            }
+          />
+        </Box>
       </Paper>
 
       {/* Filters */}

@@ -148,17 +148,22 @@ const Features = () => {
   return (
     <section
       id="features"
-      className="relative overflow-hidden bg-[#0d1117] px-6 py-16 text-[#c9d1d9] transition-colors duration-300 sm:py-20"
+      className="relative left-1/2 right-1/2 w-screen -mx-[50vw] overflow-hidden bg-[linear-gradient(to_bottom,#f8fafc_0%,#dbe7f5_20%,#0d1117_100%)] px-6 py-16 text-[#c9d1d9] transition-colors duration-300 sm:py-20"
+      style={{
+        boxShadow: '0 -40px 80px rgba(88,166,255,0.08), 0 40px 80px rgba(88,166,255,0.05)',
+      }}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(88,166,255,0.08),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(63,185,80,0.06),_transparent_28%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(88,166,255,0.08),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(63,185,80,0.05),_transparent_28%)] pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f8fafc]/75 via-[#dbe7f5]/20 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d1117] via-[#0d1117]/70 to-transparent pointer-events-none" />
       <div className="mx-auto max-w-7xl relative">
         <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
-          <TerminalHeading
-            title="Powerful Features"
-            animated
-            className="justify-center"
-            titleClassName="text-[#c9d1d9]"
-          />
+          <p className="font-['VT323'] text-sm uppercase tracking-[0.32em] text-[#58a6ff] sm:text-base">
+            &gt; initialize tracking capabilities
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-black md:text-4xl">
+            Powerful Features
+          </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-[#8b949e] sm:text-base">
             Everything you need to track, analyze, and understand GitHub activity patterns.
           </p>

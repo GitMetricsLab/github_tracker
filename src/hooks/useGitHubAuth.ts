@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Octokit } from 'octokit';
 
 export const useGitHubAuth = () => {
@@ -11,21 +11,27 @@ export const useGitHubAuth = () => {
     sessionStorage.setItem('tracker_token', token);
   }, [username, token]);
 
-  const octokit = useMemo(() => {
-    if (!username) return null;
-    if(token){
-    return new Octokit({ auth: token });
+  const getOctokit = () => {
+    try {
+      setError('');
+      if (!username) return null;
+      if (token) {
+        return new Octokit({ auth: token });
+      }
+      return new Octokit();
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : String(err));
+      return null;
     }
-    return new Octokit();
-  }, [username, token]);
-
-  const getOctokit = () => octokit;
+  };
 
   return {
     username,
     setUsername,
     token,
     setToken,
+    error,
+    setError,
     getOctokit,
   };
 };

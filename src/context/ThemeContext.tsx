@@ -2,7 +2,7 @@
 import { createContext, useMemo, useState, useEffect, ReactNode } from 'react';
 import { createTheme, ThemeProvider, Theme } from '@mui/material/styles';
 
-interface ThemeContextType {
+export interface ThemeContextType {
   mode: 'light' | 'dark';
   toggleTheme: () => void;
 }

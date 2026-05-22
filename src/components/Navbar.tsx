@@ -91,7 +91,7 @@ const Navbar: React.FC = () => {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Toggle Menu"
+            aria-label="Toggle Menu" aria-expanded={isOpen} aria-controls="mobile-menu"
           >
             {isOpen ? (
               <X className="h-6 w-6 text-slate-900 dark:text-white" />

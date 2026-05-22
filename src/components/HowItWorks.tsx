@@ -46,7 +46,7 @@ const HowItWorks = () => {
     <section id="how-it-works" className={`relative overflow-hidden px-6 py-20 ${sectionBgClass}`}>
       <div className="mx-auto max-w-7xl">
         <div className="text-center mb-16">
-          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${titleTextClass}`}>How It Works</h2>
+          <h2 aria-level="2" className={`text-3xl md:text-4xl font-bold mb-4 ${titleTextClass}`}>How It Works</h2>
           <p className={`text-lg md:text-xl max-w-2xl mx-auto ${bodyTextClass}`}>
             Get started in minutes with our simple three-step process
           </p>

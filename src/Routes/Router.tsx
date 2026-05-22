@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
+import TermsAndConditions from "../pages/TermsAndConditions/TermsAndConditions";
 import Tracker from "../pages/Tracker/Tracker.tsx";
 import About from "../pages/About/About";
 import Contact from "../pages/Contact/Contact";
@@ -13,6 +15,8 @@ const Router = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/track" element={<Tracker />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />

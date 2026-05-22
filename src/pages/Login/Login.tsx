@@ -7,7 +7,8 @@ import { FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 interface LoginFormData {
   email: string;

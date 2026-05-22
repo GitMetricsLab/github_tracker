@@ -15,17 +15,17 @@ interface Stat {
 
 const features: Feature[] = [
   {
-    icon: <Search size={24} className="text-blue-600 dark:text-blue-400" />,
+    icon: <Search size={26} className="text-blue-600 dark:text-blue-400" />,
     title: "Simple Issue Tracking",
     description: "Track your GitHub issues seamlessly with intuitive filters, global search parameters, and structural clarity.",
   },
   {
-    icon: <Users size={24} className="text-blue-600 dark:text-blue-400" />,
+    icon: <Users size={26} className="text-blue-600 dark:text-blue-400" />,
     title: "Team Collaboration",
     description: "Collaborate with your product team in real-time. Assign issues, manage pipelines, and merge pull requests natively.",
   },
   {
-    icon: <Settings size={24} className="text-blue-600 dark:text-blue-400" />,
+    icon: <Settings size={26} className="text-blue-600 dark:text-blue-400" />,
     title: "Customizable Settings",
     description: "Tailor your issue boards, automation loops, and priority workflows to map exactly to your team's lifecycle.",
   },
@@ -39,6 +39,22 @@ const stats: Stat[] = [
 ];
 
 const About: React.FC = () => {
+
+  // Functional navigation handlers to address CodeRabbit's interactive requirements
+  const handleGetStarted = (): void => {
+    // Navigates directly to your tracking dashboard app context window route
+    window.location.href = "/tracker";
+  };
+
+  const handleViewRepository = (): void => {
+    // Opens the repository landing window instantly in a secure sandbox tab
+    window.open(
+      "https://github.com", // Replace with your exact project URL if needed
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   return (
     <div className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen font-sans overflow-x-hidden selection:bg-blue-500/20 transition-colors duration-200">
       
@@ -106,7 +122,6 @@ const About: React.FC = () => {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
           >
-            {/* Added exact flex sizing to prevent icon box layout squishing */}
             <div className="w-12 h-12 min-w-[48px] min-h-[48px] bg-gradient-to-tr from-blue-600 to-sky-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 dark:shadow-blue-500/10 mb-2">
               <Lightbulb size={22} className="text-white" />
             </div>
@@ -172,8 +187,8 @@ const About: React.FC = () => {
 
       {/* 🚀 5. Premium Full-Width CTA Section */}
       <section className="w-full py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-900/40">
-        {/* Expanded width to max-w-7xl to dynamically match the proportions of the upper layout segments */}
-        <div className="max-w-7xl mx-auto relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-10 sm:p-14 lg:p-16 text-center space-y-6 shadow-xl shadow-blue-500/10">
+        {/* Fixed Background: from-blue-600 to-blue-800 eliminates the indigo color token conflict */}
+        <div className="max-w-7xl mx-auto relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 text-white p-10 sm:p-14 lg:p-16 text-center space-y-6 shadow-xl shadow-blue-500/10">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/10 blur-[120px] rounded-full pointer-events-none" />
           
@@ -184,16 +199,19 @@ const About: React.FC = () => {
             </p>
           </div>
           
+          {/* Functional Actions: Added active navigation hooks onClick to ensure production-level usability */}
           <div className="relative pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <motion.button 
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
+              onClick={handleGetStarted}
               className="w-full sm:w-auto px-8 py-3.5 bg-white text-blue-600 font-bold text-sm rounded-xl shadow-md hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
             >
               Get Started Free <ArrowRight size={16} />
             </motion.button>
             <motion.button 
               whileHover={{ scale: 1.03 }}
+              onClick={handleViewRepository}
               className="w-full sm:w-auto px-6 py-3.5 bg-white/10 text-white border border-white/20 font-bold text-sm rounded-xl hover:bg-white/20 transition-colors flex items-center justify-center gap-2 backdrop-blur-sm"
             >
               View Repository <ExternalLink size={14} />

@@ -57,6 +57,7 @@ const Home: React.FC = () => {
     setToken,
     error: authError,
     getOctokit,
+    logout,
   } = useGitHubAuth();
 
   const {
@@ -67,6 +68,7 @@ const Home: React.FC = () => {
     loading,
     error: dataError,
     fetchData,
+    clearData,
   } = useGitHubData(getOctokit);
 
   const [tab, setTab] = useState(() => Number(localStorage.getItem('tracker_tab')) || 0);
@@ -89,6 +91,32 @@ const Home: React.FC = () => {
     localStorage.setItem('tracker_startDate', startDate);
     localStorage.setItem('tracker_endDate', endDate);
   }, [tab, page, issueFilter, prFilter, searchTitle, selectedRepo, startDate, endDate]);
+
+  const handleResetFilters = () => {
+    setTab(0);
+    setPage(0);
+    setIssueFilter("all");
+    setPrFilter("all");
+    setSearchTitle("");
+    setSelectedRepo("");
+    setStartDate("");
+    setEndDate("");
+
+    localStorage.removeItem('tracker_tab');
+    localStorage.removeItem('tracker_page');
+    localStorage.removeItem('tracker_issueFilter');
+    localStorage.removeItem('tracker_prFilter');
+    localStorage.removeItem('tracker_searchTitle');
+    localStorage.removeItem('tracker_selectedRepo');
+    localStorage.removeItem('tracker_startDate');
+    localStorage.removeItem('tracker_endDate');
+  };
+
+  const handleLogout = () => {
+    logout();
+    clearData();
+    handleResetFilters();
+  };
 
   // Fetch data when username, tab, or page changes
   useEffect(() => {
@@ -249,6 +277,21 @@ const Home: React.FC = () => {
             >
                 Fetch Data
             </Button>
+            {(username || token) && (
+              <Button
+                  type="button"
+                  variant="outlined"
+                  color="error"
+                  onClick={handleLogout}
+                  sx={{
+                      minWidth: "100px",
+                      minHeight: "55px",
+                      alignSelf: "flex-start",
+                  }}
+              >
+                  Logout
+              </Button>
+            )}
           </Box>
         </form>
       </Paper>
@@ -283,6 +326,18 @@ const Home: React.FC = () => {
           InputLabelProps={{ shrink: true }}
           sx={{ minWidth: 150 }}
         />
+        {(tab !== 0 || page !== 0 || issueFilter !== "all" || prFilter !== "all" || searchTitle !== "" || selectedRepo !== "" || startDate !== "" || endDate !== "") && (
+          <Button
+              variant="outlined"
+              onClick={handleResetFilters}
+              sx={{
+                  minHeight: "56px",
+                  alignSelf: "flex-start",
+              }}
+          >
+              Reset Filters
+          </Button>
+        )}
       </Box>
 
       {/* Tabs + State Filter */}

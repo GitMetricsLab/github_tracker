@@ -239,6 +239,14 @@ export const useGitHubData = (
     [getOctokit, rateLimited]
   );
 
+  const clearData = useCallback(() => {
+    setIssues([]);
+    setPrs([]);
+    setTotalIssues(0);
+    setTotalPrs(0);
+    setError('');
+  }, []);
+
   return {
     issues,
     prs,
@@ -248,5 +256,6 @@ export const useGitHubData = (
     error,
     rateLimited,
     fetchData,
+    clearData,
   };
 };

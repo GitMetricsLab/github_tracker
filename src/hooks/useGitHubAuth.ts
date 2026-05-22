@@ -25,6 +25,14 @@ export const useGitHubAuth = () => {
     }
   };
 
+  const logout = () => {
+    setUsername('');
+    setToken('');
+    setError('');
+    sessionStorage.removeItem('tracker_username');
+    sessionStorage.removeItem('tracker_token');
+  };
+
   return {
     username,
     setUsername,
@@ -33,5 +41,6 @@ export const useGitHubAuth = () => {
     error,
     setError,
     getOctokit,
+    logout,
   };
 };

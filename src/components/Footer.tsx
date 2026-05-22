@@ -145,11 +145,12 @@ function Footer() {
 
           {/* Social Icons */}
           <div className="flex items-center space-x-5">
+
             <a
               href="https://github.com/GitMetricsLab/github_tracker"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
               aria-label="GitHub Repository"
             >
               <FaGithub className="h-6 w-6" />
@@ -159,7 +160,7 @@ function Footer() {
               href="https://x.com/your_handle"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
               aria-label="Twitter"
             >
               <FaTwitter className="h-6 w-6" />
@@ -169,11 +170,12 @@ function Footer() {
               href="https://discord.gg/your_invite"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
               aria-label="Discord"
             >
               <FaDiscord className="h-6 w-6" />
             </a>
+
           </div>
         </div>
       </div>

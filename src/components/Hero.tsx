@@ -83,7 +83,7 @@ const Hero = () => {
                       176 <span className="ml-1 text-xs font-normal text-emerald-600 dark:text-emerald-400">+12%</span>
                     </div>
                     <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
-                      <div className="h-full w-[70%] rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 animate-pulse" />
+                      <div className="h-full w-[70%] rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 animate-pulse motion-reduce:animate-none motion-reduce:transition-none" />
                     </div>
                   </div>
 
@@ -93,7 +93,7 @@ const Hero = () => {
                       <div className="text-2xl font-bold text-slate-800 dark:text-slate-200">24</div>
                     </div>
                     <div className="flex items-center gap-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
-                      <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse" />
+                      <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse motion-reduce:animate-none motion-reduce:transition-none" />
                       Updating now
                     </div>
                   </div>
@@ -138,21 +138,21 @@ const Hero = () => {
 
             <div
               style={{ animationDelay: '0s' }}
-              className="absolute -top-4 left-4 z-20 animate-bounce rounded-xl border border-slate-200 bg-white p-3 shadow-md dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-lg md:left-10"
+              className="absolute -top-4 left-4 z-20 animate-bounce motion-reduce:animate-none motion-reduce:transition-none rounded-xl border border-slate-200 bg-white p-3 shadow-md dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-lg md:left-10"
             >
               <GitBranch className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
 
             <div
               style={{ animationDelay: '1s' }}
-              className="absolute bottom-10 left-0 z-20 animate-bounce rounded-xl border border-slate-200 bg-white p-3 shadow-md dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-lg"
+              className="absolute bottom-10 left-0 z-20 animate-bounce motion-reduce:animate-none motion-reduce:transition-none rounded-xl border border-slate-200 bg-white p-3 shadow-md dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-lg"
             >
               <GitCommit className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
 
             <div
               style={{ animationDelay: '0.5s' }}
-              className="absolute top-12 right-2 z-20 animate-bounce rounded-xl border border-slate-200 bg-white p-3 shadow-md dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-lg"
+              className="absolute top-12 right-2 z-20 animate-bounce motion-reduce:animate-none motion-reduce:transition-none rounded-xl border border-slate-200 bg-white p-3 shadow-md dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-lg"
             >
               <GitPullRequest className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>

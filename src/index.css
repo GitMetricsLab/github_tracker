@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes terminal-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes terminal-typewriter {
+  from {
+    max-width: 0;
+  }
+
+  to {
+    max-width: calc(var(--terminal-chars, 18) * 1ch);
+  }
+}
+
+.terminal-typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  animation: terminal-typewriter 1.2s steps(var(--terminal-chars, 18), end) both;
+}
+
+.terminal-card-cursor {
+  animation: terminal-blink 1s steps(1, end) infinite;
+}
+
+
 @keyframes how-it-works-dash-flow {
   from {
     background-position: 0 0;

@@ -108,7 +108,7 @@ const Login: React.FC = () => {
 
             <div className="relative">
               <input
-                type="password"
+                type="password" autoComplete="current-password"
                 name="password"
                 autoComplete="current-password"
                 placeholder="Enter your password"

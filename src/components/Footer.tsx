@@ -99,6 +99,7 @@ function Footer() {
                 placeholder="Enter email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 className="
                   flex-grow text-sm px-4 py-3
                   bg-zinc-50 dark:bg-zinc-800/40

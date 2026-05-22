@@ -208,6 +208,7 @@ function Contact() {
                 {/* Full Name */}
                 <div>
                   <label
+                    htmlFor="fullname"
                     className={`block text-xs font-medium mb-1 ${
                       mode === "dark"
                         ? "text-gray-300"
@@ -217,6 +218,8 @@ function Contact() {
                     Full Name
                   </label>
                   <input
+                    id="fullname"
+                    name="fullname"
                     type="text"
                     placeholder="Enter your full name"
                     required
@@ -231,6 +234,7 @@ function Contact() {
                 {/* Email */}
                 <div>
                   <label
+                    htmlFor="email"
                     className={`block text-xs font-medium mb-1 ${
                       mode === "dark"
                         ? "text-gray-300"
@@ -240,6 +244,8 @@ function Contact() {
                     Email Address
                   </label>
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     placeholder="your.email@example.com"
                     required
@@ -254,6 +260,7 @@ function Contact() {
                 {/* Subject */}
                 <div>
                   <label
+                    htmlFor="subject"
                     className={`block text-xs font-medium mb-1 ${
                       mode === "dark"
                         ? "text-gray-300"
@@ -263,6 +270,8 @@ function Contact() {
                     Subject
                   </label>
                   <select
+                    id="subject"
+                    name="subject"
                     className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       mode === "dark"
                         ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
@@ -284,6 +293,7 @@ function Contact() {
                 {/* Message */}
                 <div className="relative">
                   <label
+                    htmlFor="message"
                     className={`block text-xs font-medium mb-1 ${
                       mode === "dark"
                         ? "text-gray-300"
@@ -293,6 +303,8 @@ function Contact() {
                     Message
                   </label>
                   <textarea
+                    id="message"
+                    name="message"
                     placeholder="Type your message here..."
                     required
                     rows={4}

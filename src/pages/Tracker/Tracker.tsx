@@ -299,6 +299,9 @@ const Home: React.FC = () => {
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
           <Select
+            id="state-select"
+            name="state-select"
+            autoComplete="off"
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
               tab === 0
@@ -320,7 +323,7 @@ const Home: React.FC = () => {
             <MenuItem value="open">Open</MenuItem>
             <MenuItem value="closed">Closed</MenuItem>
             {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
-          </Select>
+          </Select> 
         </FormControl>
       </Box>
 

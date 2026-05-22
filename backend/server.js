@@ -16,6 +16,15 @@ const app = express();
 // CORS configuration
 app.use(cors('*'));
 
+const REQUIRED_ENV = ['SESSION_SECRET', 'MONGO_URI'];
+
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`[startup] Missing required environment variable: ${key}`);
+    process.exit(1);
+  }
+}
+
 // Middleware
 app.use(bodyParser.json());
 app.use(session({

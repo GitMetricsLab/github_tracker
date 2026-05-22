@@ -7,8 +7,16 @@ export const useGitHubAuth = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    sessionStorage.setItem('tracker_username', username);
-    sessionStorage.setItem('tracker_token', token);
+    if (username) {
+      sessionStorage.setItem('tracker_username', username);
+    } else {
+      sessionStorage.removeItem('tracker_username');
+    }
+    if (token) {
+      sessionStorage.setItem('tracker_token', token);
+    } else {
+      sessionStorage.removeItem('tracker_token');
+    }
   }, [username, token]);
 
   const getOctokit = () => {

@@ -240,11 +240,13 @@ export const useGitHubData = (
   );
 
   const clearData = useCallback(() => {
+    lastRequestId.current++;
     setIssues([]);
     setPrs([]);
     setTotalIssues(0);
     setTotalPrs(0);
     setError('');
+    setRateLimited(false);
   }, []);
 
   return {

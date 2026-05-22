@@ -240,7 +240,7 @@ function Contact() {
                     Email Address
                   </label>
                   <input
-                    type="email"
+                    type="email" autoComplete="email"
                     placeholder="your.email@example.com"
                     required
                     className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${

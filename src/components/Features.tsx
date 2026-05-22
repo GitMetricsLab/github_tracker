@@ -1,5 +1,5 @@
 import { BarChart3, Users, Search, Zap, Shield, Globe } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 type TerminalHeadingProps = {
   title: string;
@@ -37,7 +37,7 @@ const TerminalHeading = ({
   return (
     <HeadingTag
       className={`inline-flex items-center gap-2 text-balance text-[#c9d1d9] ${headingSizes[HeadingTag]} ${className}`}
-      style={animated ? ({ '--terminal-chars': chars } as React.CSSProperties) : undefined}
+      style={animated ? ({ '--terminal-chars': chars } as CSSProperties) : undefined}
     >
       <span
         className={`font-["VT323"] text-[#58a6ff] ${animated ? 'terminal-typewriter inline-block' : ''} ${promptClassName}`}

@@ -26,7 +26,7 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        res.status(500).json({ message: 'Error creating user', error: err.message });
+        res.status(500).json({ message: 'Error creating user' });
     }
 });
 
@@ -41,7 +41,7 @@ router.get("/logout", (req, res) => {
     req.logout((err) => {
 
         if (err)
-            return res.status(500).json({ message: 'Logout failed', error: err.message });
+            return res.status(500).json({ message: 'Logout failed' });
         else
             res.status(200).json({ message: 'Logged out successfully' });
     });

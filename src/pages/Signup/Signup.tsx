@@ -8,6 +8,13 @@ import type { ThemeContextType } from "../../context/ThemeContext";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+// Must mirror the Zod rule in backend/validators/authValidator.js exactly.
+// Requires: lowercase, uppercase, digit, and one special character from @$!%*?&
+// Minimum 8 characters, maximum enforced by the backend (100).
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const PASSWORD_ERROR =
+  "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (@$!%*?&)";
+
 interface SignUpFormData {
   username: string;
   email: string;
@@ -53,8 +60,8 @@ const SignUp: React.FC = () => {
     if (name === "password") {
       if (!value.trim()) {
         errorMessage = "Password is required";
-      } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)) {
-        errorMessage = "Password must be 8+ characters with letters and numbers";
+      } else if (!PASSWORD_REGEX.test(value)) {
+        errorMessage = PASSWORD_ERROR;
       }
     }
     setErrors((prev) => ({ ...prev, [name]: errorMessage }));
@@ -74,8 +81,8 @@ const SignUp: React.FC = () => {
       : "";
     const passwordError = !formData.password.trim()
       ? "Password is required"
-      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(formData.password)
-      ? "Password must be 8+ characters with letters and numbers"
+      : !PASSWORD_REGEX.test(formData.password)
+      ? PASSWORD_ERROR
       : "";
     if (usernameError || emailError || passwordError) {
       setErrors({ username: usernameError, email: emailError, password: passwordError });

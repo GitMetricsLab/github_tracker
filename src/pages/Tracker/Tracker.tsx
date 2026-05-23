@@ -6,7 +6,6 @@ import {
   GitPullRequestClosedIcon,
   GitMergeIcon,
 } from "@primer/octicons-react";
-
 import {
   Container,
   Box,
@@ -161,37 +160,58 @@ const Home: React.FC = () => {
   const formatDate = (dateString: string): string =>
     new Date(dateString).toLocaleDateString();
 
+  const filterData = (data: GitHubItem[], filterType: string): GitHubItem[] => {
+    let filtered = [...data];
+    if (["open", "closed", "merged"].includes(filterType)) {
+      filtered = filtered.filter((item) => {
+        if (filterType === "merged") {
+          return !!item.pull_request?.merged_at;
+        } else if (filterType === "closed") {
+          return item.state === "closed" && !item.pull_request?.merged_at;
+        } else {
+          //open
+          return item.state === "open";
+        }
+      });
+    }
+    if (searchTitle) {
+      filtered = filtered.filter((item) =>
+        item.title.toLowerCase().includes(searchTitle.toLowerCase()),
+      );
+    }
+    if (selectedRepo) {
+      filtered = filtered.filter((item) =>
+        item.repository_url.includes(selectedRepo),
+      );
+    }
+    if (startDate) {
+      filtered = filtered.filter(
+        (item) => new Date(item.created_at) >= new Date(startDate),
+      );
+    }
+    if (endDate) {
+      filtered = filtered.filter(
+        (item) => new Date(item.created_at) <= new Date(endDate),
+      );
+    }
+    return filtered;
+  };
+
   const getStatusIcon = (item: GitHubItem) => {
     if (item.pull_request) {
-      if (item.pull_request.merged_at) {
+      if (item.pull_request.merged_at)
         return <GitMergeIcon size={16} className="icon-merged" />;
-      }
 
-      if (item.state === "closed") {
+      if (item.state === "closed")
         return (
-          <GitPullRequestClosedIcon
-            size={16}
-            className="icon-pr-closed"
-          />
+          <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />
         );
-      }
 
-      return (
-        <GitPullRequestIcon
-          size={16}
-          className="icon-pr-open"
-        />
-      );
+      return <GitPullRequestIcon size={16} className="icon-pr-open" />;
     }
 
-    if (item.state === "closed") {
-      return (
-        <IssueClosedIcon
-          size={16}
-          className="icon-issue-closed"
-        />
-      );
-    }
+    if (item.state === "closed")
+      return <IssueClosedIcon size={16} className="icon-issue-closed" />;
 
     return (
       <IssueOpenedIcon
@@ -201,96 +221,97 @@ const Home: React.FC = () => {
     );
   };
 
-  const currentData = tab === 0 ? issues : prs;
+  // Current data and filtered data according to tab and filters
+  const currentRawData = tab === 0 ? issues : prs;
+  const currentFilteredData = filterData(
+    currentRawData,
+    tab === 0 ? issueFilter : prFilter,
+  );
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
     <Container
       maxWidth="lg"
-      sx={{
-        mt: 4,
-        minHeight: "80vh",
-        color: theme.palette.text.primary,
-      }}
+      sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}
     >
-      {/* Auth Inputs */}
+      {/* Auth Form */}
       <Paper
         elevation={1}
-        sx={{
-          p: 2,
-          mb: 4,
-          backgroundColor: theme.palette.background.paper,
-        }}
+        sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-          }}
-        >
-          <TextField
-            label="GitHub Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Start typing to search..."
-            sx={{ flex: 1, minWidth: 150 }}
-          />
-
-          <TextField
-            label="Personal Access Token (optional)"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            type="password"
-            sx={{ flex: 1, minWidth: 150 }}
-            helperText={
-              <Box
-                component="span"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  fontSize: "0.75rem",
-                }}
-              >
-                <Link
-                  href="https://github.com/settings/tokens/new"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{
-                    fontSize: "0.75rem",
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                  }}
-                >
-                  <KeyIcon size={12} />
-                  Generate new token
-                </Link>
-
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            <TextField
+              label="GitHub Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              sx={{ flex: 1, minWidth: 150 }}
+            />
+            <TextField
+              label="Personal Access Token"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              type="password"
+              required
+              sx={{ flex: 1, minWidth: 150 }}
+              helperText={
                 <Box
                   component="span"
-                  sx={{ opacity: 0.6 }}
-                >
-                  •
-                </Box>
-
-                <Link
-                  href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
                     fontSize: "0.75rem",
-                    textDecoration: "none",
                   }}
                 >
-                  Learn more
-                </Link>
-              </Box>
-            }
-          />
-        </Box>
+                  <Link
+                    href="https://github.com/settings/tokens/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      fontSize: "0.75rem",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                    }}
+                  >
+                    <KeyIcon size={12} />
+                    Generate new token
+                  </Link>
+
+                  <Box component="span" sx={{ opacity: 0.6 }}>
+                    •
+                  </Box>
+
+                  <Link
+                    href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      fontSize: "0.75rem",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Learn more
+                  </Link>
+                </Box>
+              }
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                minWidth: "100px",
+                minHeight: "55px",
+                alignSelf: "flex-start",
+              }}
+            >
+              Fetch Data
+            </Button>
+          </Box>
+        </form>
       </Paper>
 
       {/* Filters */}
@@ -406,20 +427,11 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-        <Box
-          display="flex"
-          justifyContent="center"
-          my={4}
-        >
+        <Box>
           <CircularProgress />
         </Box>
       ) : (
-        <Box
-          sx={{
-            maxHeight: "400px",
-            overflowY: "auto",
-          }}
-        >
+        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
@@ -442,23 +454,15 @@ const Home: React.FC = () => {
                 {currentData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                      }}
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
                     >
                       {getStatusIcon(item)}
-
                       <Link
                         href={item.html_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         underline="hover"
-                        sx={{
-                          color:
-                            theme.palette.primary.main,
-                        }}
+                        sx={{ color: theme.palette.primary.main }}
                       >
                         {item.title}
                       </Link>
@@ -478,9 +482,7 @@ const Home: React.FC = () => {
                         : item.state}
                     </TableCell>
 
-                    <TableCell>
-                      {formatDate(item.created_at)}
-                    </TableCell>
+                    <TableCell>{formatDate(item.created_at)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

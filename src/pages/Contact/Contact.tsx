@@ -6,118 +6,17 @@ import {
   Send,
   X,
   CheckCircle,
-  Shield,
-  Clock,
-  Calendar,
-  User,
-  MessageSquare,
 } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-type FormData = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
-
-type FormErrors = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
-
 function Contact() {
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-
-  const [errors, setErrors] = useState<FormErrors>({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear error for the current field
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors: FormErrors = {
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-    };
-
-    let isValid = true;
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required.";
-      isValid = false;
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email address is required.";
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address.";
-      isValid = false;
-    }
-
-    if (!formData.subject) {
-      newErrors.subject = "Please select a subject.";
-      isValid = false;
-    }
-
-    if (!formData.message.trim()) {
-      newErrors.message = "Message is required.";
-      isValid = false;
-    } else if (formData.message.trim().length < 20) {
-      newErrors.message = "Please provide at least 20 characters.";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleSubmit = async (
-    e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    e?.preventDefault();
-
-    if (!validateForm()) return;
-
+  const handleSubmit = async () => {
     setIsSubmitting(true);
 
     // Simulate API call
@@ -125,14 +24,6 @@ function Contact() {
 
     setIsSubmitting(false);
     setShowPopup(true);
-
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-    });
 
     // Auto-close popup after 5 seconds
     setTimeout(() => {
@@ -160,7 +51,7 @@ function Contact() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-6 max-w-7xl flex flex-col pb-20">
-        {/* Header Section (unchanged) */}
+        {/* Header Section */}
         <div className="text-center mb-8 flex-shrink-0">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3 mb-4">
             <div
@@ -175,7 +66,7 @@ function Contact() {
               />
             </div>
             <h1
-              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold 
                          bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
             >
               GitHub Tracker
@@ -192,7 +83,7 @@ function Contact() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-start flex-1 min-h-0">
-          {/* Contact Info Cards (unchanged) */}
+          {/* Contact Info Cards */}
           <div className="space-y-4 sm:space-y-6 h-full flex flex-col">
             <div className="text-center lg:text-left flex-shrink-0">
               <h2
@@ -207,8 +98,8 @@ function Contact() {
                   mode === "dark" ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                We're here to help you track and manage your GitHub repositories
-                more effectively
+                We're here to help you track and manage your GitHub
+                repositories more effectively
               </p>
             </div>
 
@@ -237,10 +128,8 @@ function Contact() {
                     Icon: Github,
                   },
                 ];
-
                 const { title, iconBg, detail, sub, Icon } =
                   contactTypes[index];
-
                 return (
                   <div
                     key={title}
@@ -256,28 +145,36 @@ function Contact() {
                       >
                         <Icon
                           className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                            mode === "dark" ? "text-white" : "text-gray-800"
+                            mode === "dark"
+                              ? "text-white"
+                              : "text-gray-800"
                           }`}
                         />
                       </div>
                       <div>
                         <h3
                           className={`text-sm sm:text-base font-semibold ${
-                            mode === "dark" ? "text-white" : "text-gray-800"
+                            mode === "dark"
+                              ? "text-white"
+                              : "text-gray-800"
                           }`}
                         >
                           {title}
                         </h3>
                         <p
                           className={`text-xs sm:text-sm ${
-                            mode === "dark" ? "text-gray-300" : "text-gray-600"
+                            mode === "dark"
+                              ? "text-gray-300"
+                              : "text-gray-600"
                           }`}
                         >
                           {detail}
                         </p>
                         <p
                           className={`text-xs ${
-                            mode === "dark" ? "text-gray-400" : "text-gray-500"
+                            mode === "dark"
+                              ? "text-gray-400"
+                              : "text-gray-500"
                           }`}
                         >
                           {sub}
@@ -290,7 +187,7 @@ function Contact() {
             </div>
           </div>
 
-          {/* Enhanced Contact Form */}
+          {/* Contact Form */}
           <div
             className={`p-4 sm:p-6 rounded-xl sm:rounded-3xl shadow-2xl h-full flex flex-col backdrop-blur-lg ${
               mode === "dark"
@@ -299,215 +196,128 @@ function Contact() {
             }`}
           >
             <h2
-              className={`text-base sm:text-xl font-bold mb-4 text-center ${
+              className={`text-base sm:text-xl font-bold mb-4 text-center flex-shrink-0 ${
                 mode === "dark" ? "text-white" : "text-gray-800"
               }`}
             >
               Send us a Message
             </h2>
 
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-4 flex-1 flex flex-col"
-            >
-              <div className="space-y-4 flex-1">
-                {/* Name + Email */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Full Name */}
-                  <div>
-                    <label
-                      className={`block text-xs font-semibold mb-1.5 ${
-                        mode === "dark" ? "text-gray-200" : "text-gray-700"
-                      }`}
-                    >
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Enter your full name"
-                        className={`w-full pl-10 p-3 rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:shadow-lg ${
-                          errors.name ? "border-red-500 focus:ring-red-500" : ""
-                        } ${
-                          mode === "dark"
-                            ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
-                            : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
-                        }`}
-                      />
-                    </div>
-                    {errors.name && (
-                      <p className="mt-1 text-xs text-red-500">{errors.name}</p>
-                    )}
-                  </div>
+            <div className="space-y-3 sm:space-y-4 flex-1 flex flex-col">
+              <div className="space-y-3 flex-1">
+                {/* Full Name */}
+                <div>
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter your full name"
+                    required
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      mode === "dark"
+                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
+                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
+                    }`}
+                  />
+                </div>
 
-                  {/* Email */}
-                  <div>
-                    <label
-                      className={`block text-xs font-semibold mb-1.5 ${
-                        mode === "dark" ? "text-gray-200" : "text-gray-700"
-                      }`}
-                    >
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="your.email@example.com"
-                        className={`w-full pl-10 p-3 rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:shadow-lg ${
-                          errors.email
-                            ? "border-red-500 focus:ring-red-500"
-                            : ""
-                        } ${
-                          mode === "dark"
-                            ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
-                            : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
-                        }`}
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {errors.email}
-                      </p>
-                    )}
-                  </div>
+                {/* Email */}
+                <div>
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="your.email@example.com"
+                    required
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      mode === "dark"
+                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
+                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
+                    }`}
+                  />
                 </div>
 
                 {/* Subject */}
                 <div>
                   <label
-                    className={`block text-xs font-semibold mb-1.5 ${
-                      mode === "dark" ? "text-gray-200" : "text-gray-700"
+                    className={`block text-xs font-medium mb-1 ${
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     }`}
                   >
                     Subject
                   </label>
                   <select
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    className={`w-full p-3 rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:shadow-lg ${
-                      errors.subject ? "border-red-500 focus:ring-red-500" : ""
-                    } ${
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       mode === "dark"
-                        ? "bg-white/5 border border-white/20 text-white"
-                        : "bg-gray-50 border border-gray-300 text-gray-800"
+                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
+                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
                     }`}
+                    required
+                    defaultValue=""
                   >
-                    <option value="">Select a subject</option>
-                    <option value="General Inquiry">General Inquiry</option>
-                    <option value="Bug Report">Bug Report</option>
-                    <option value="Feature Request">Feature Request</option>
-                    <option value="Billing Support">Billing Support</option>
-                    <option value="Partnership">Partnership</option>
-                    <option value="Other">Other</option>
+                    <option value="" disabled>
+                      Select a subject
+                    </option>
+                    <option>General Inquiry</option>
+                    <option>Bug Report</option>
+                    <option>Feature Request</option>
+                    <option>Other</option>
                   </select>
-                  {errors.subject && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {errors.subject}
-                    </p>
-                  )}
                 </div>
 
                 {/* Message */}
-                <div>
+                <div className="relative">
                   <label
-                    className={`block text-xs font-semibold mb-1.5 ${
-                      mode === "dark" ? "text-gray-200" : "text-gray-700"
+                    className={`block text-xs font-medium mb-1 ${
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     }`}
                   >
                     Message
                   </label>
-                  <div className="relative">
-                    <MessageSquare className="absolute left-3 top-4 w-4 h-4 text-gray-400" />
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      rows={6}
-                      placeholder="Describe your issue or request in as much detail as possible."
-                      className={`w-full pl-10 p-3 rounded-xl text-sm sm:text-base resize-none transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:shadow-lg ${
-                        errors.message
-                          ? "border-red-500 focus:ring-red-500"
-                          : ""
-                      } ${
-                        mode === "dark"
-                          ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
-                          : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
-                      }`}
-                    />
-                  </div>
+                  <textarea
+                    placeholder="Type your message here..."
+                    required
+                    rows={4}
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base resize-none transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      mode === "dark"
+                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
+                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
+                    }`}
+                  ></textarea>
 
-                  <div className="mt-1 flex justify-between items-center">
-                    {errors.message ? (
-                      <p className="text-xs text-red-500">{errors.message}</p>
-                    ) : (
-                      <span />
-                    )}
-
-                    <p
-                      className={`text-xs ${
-                        mode === "dark" ? "text-gray-400" : "text-gray-500"
-                      }`}
-                    >
-                      {formData.message.length} characters
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 hover:scale-[1.01] ${
-                  isSubmitting
-                    ? "bg-purple-400 cursor-wait"
-                    : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
-                }`}
-              >
-                {isSubmitting ? (
-                  <>
-                    Sending...
-                    <Send className="w-4 h-4 animate-pulse" />
-                  </>
-                ) : (
-                  <>
-                    Send Message
+                  <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className={`absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      isSubmitting
+                        ? "bg-purple-400 cursor-wait text-white"
+                        : "bg-purple-600 hover:bg-purple-700 text-white"
+                    }`}
+                  >
+                    {isSubmitting ? "Sending..." : "Send"}
                     <Send className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-
-              {/* Trust Indicators */}
-              <div
-                className={`grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs ${
-                  mode === "dark" ? "text-gray-300" : "text-gray-600"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-green-500" />
-                  Your information is secure
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-purple-500" />
-                  One business day response
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-blue-500" />
-                  Mon–Fri support
+                  </button>
                 </div>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

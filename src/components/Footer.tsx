@@ -1,17 +1,13 @@
-import React, { useState } from 'react';
-import { FaGithub, FaDiscord, FaArrowRight } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
 import {
   FaGithub,
+  FaTwitter,
   FaDiscord,
   FaArrowRight,
   FaEnvelope,
   FaInfoCircle,
 } from 'react-icons/fa';
-
-import { FaXTwitter } from 'react-icons/fa6';
 
 function Footer() {
   const [email, setEmail] = useState('');
@@ -38,7 +34,6 @@ function Footer() {
       "
     >
       <div className="max-w-7xl mx-auto px-8 pt-16 pb-10 relative z-10">
-
         {/* Upper Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-zinc-200 dark:border-zinc-800/60">
 
@@ -150,38 +145,35 @@ function Footer() {
 
           {/* Social Icons */}
           <div className="flex items-center space-x-5">
-
-            {/* GitHub */}
             <a
               href="https://github.com/GitMetricsLab/github_tracker"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
               aria-label="GitHub Repository"
             >
               <FaGithub className="h-6 w-6" />
             </a>
 
-            {/* X / Twitter */}
             <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110 opacity-70 cursor-not-allowed"
-              aria-label="X"
+              href="https://x.com/your_handle"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              aria-label="Twitter"
             >
-              <FaXTwitter className="h-6 w-6" />
+              <FaTwitter className="h-6 w-6" />
             </a>
 
-            {/* Discord */}
             <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110 opacity-70 cursor-not-allowed"
+              href="https://discord.gg/your_invite"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
               aria-label="Discord"
             >
               <FaDiscord className="h-6 w-6" />
             </a>
-
           </div>
         </div>
       </div>

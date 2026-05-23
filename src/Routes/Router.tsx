@@ -1,4 +1,3 @@
-import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Tracker from "../pages/Tracker/Tracker.tsx";
 import About from "../pages/About/About";
@@ -7,7 +6,6 @@ import Contributors from "../pages/Contributors/Contributors";
 import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
-import Custom404 from "../pages/404.tsx";
 import Home from "../pages/Home/Home.tsx";
 import Activity from "../pages/Activity.tsx"; 
 
@@ -22,7 +20,6 @@ const Router = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/contributors" element={<Contributors />} />
       <Route path="/contributor/:username" element={<ContributorProfile />} />
-      <Route path="*" element={<Custom404 />} />
 
       {/* ✅ new route */}
       <Route path="/activity" element={<Activity />} />

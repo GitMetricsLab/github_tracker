@@ -241,6 +241,7 @@ export const useGitHubData = (
 
   const clearData = useCallback(() => {
     lastRequestId.current++;
+    setLoading(false);
     setIssues([]);
     setPrs([]);
     setTotalIssues(0);

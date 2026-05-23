@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
   Github,
   Mail,
@@ -28,6 +28,17 @@ function Contact() {
   const { mode } = themeContext;
   const isDark = mode === "dark";
 
+  // FIX: Correctly handle the auto-dismiss popup timer within an effect lifestyle cleanup pattern
+  useEffect(() => {
+    if (!showPopup) return;
+
+    const timer = setTimeout(() => {
+      setShowPopup(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [showPopup]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -37,21 +48,17 @@ function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API pipeline delay (formData can now be passed safely to your API)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setShowPopup(true);
-
-    // Reset Form fields safely
-    setFormData({ name: "", email: "", subject: "", message: "" });
-
-    // Auto-dismiss success notification
-    const timer = setTimeout(() => {
-      setShowPopup(false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
+    // FIX: Wrapped logic inside a proper try/catch/finally block to ensure states reset safely on network failures
+    try {
+      // Simulate API pipeline delay 
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setShowPopup(true);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error("Failed to route contact payload data:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -102,7 +109,7 @@ function Contact() {
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${
                   isDark ? "bg-slate-900 border-slate-800" : "bg-white border-purple-100"
                 }`}>
-                  <img src="/crl-icon.png" alt="Logo" className="w-6 h-6 object-contain" />
+                  <img src="/crl-icon.png" alt="GitHub Tracker Logo" className="w-6 h-6 object-contain" />
                 </div>
                 <h3 className="text-xl font-bold tracking-tight bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent">
                   GitHub Tracker
@@ -117,24 +124,30 @@ function Contact() {
               </div>
             </div>
 
-            {/* Minimalist Actionable Communication Badges */}
+            {/* FIX: Swapped out empty <div> wrapper formats for functional semantic anchor link maps */}
             <div className="space-y-3 pt-8 lg:pt-0">
               {[
-                { label: "Direct Support", detail: "support@githubtracker.com", Icon: Mail },
-                { label: "Community Hotline", detail: "(123) 456-7890", Icon: Phone },
-                { label: "Open-Source Hub", detail: "github.com/yourorg/track", Icon: Github },
-              ].map(({ label, detail, Icon }) => (
-                <div key={label} className="flex items-center gap-3 group cursor-pointer">
+                { label: "Direct Support", detail: "support@githubtracker.com", href: "mailto:support@githubtracker.com", target: "_self", Icon: Mail },
+                { label: "Community Hotline", detail: "(123) 456-7890", href: "tel:+11234567890", target: "_self", Icon: Phone },
+                { label: "Open-Source Hub", detail: "github.com/yourorg/track", href: "https://github.com/yourorg/track", target: "_blank", Icon: Github },
+              ].map(({ label, detail, href, target, Icon }) => (
+                <a 
+                  key={label} 
+                  href={href}
+                  target={target}
+                  rel={target === "_blank" ? "noopener noreferrer" : undefined}
+                  className="flex items-center gap-3 group outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50 rounded-xl p-1"
+                >
                   <div className={`p-2 rounded-lg border transition-colors ${
                     isDark ? "bg-slate-900/50 border-slate-800 text-slate-400 group-hover:text-purple-400 group-hover:border-purple-500/30" : "bg-white border-slate-200 text-slate-500 group-hover:text-purple-600 group-hover:border-purple-200"
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
-                  <div>
+                  <div className="overflow-hidden">
                     <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">{label}</p>
                     <p className={`text-xs font-semibold truncate transition-colors ${isDark ? "text-slate-300 group-hover:text-white" : "text-slate-700 group-hover:text-slate-950"}`}>{detail}</p>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>

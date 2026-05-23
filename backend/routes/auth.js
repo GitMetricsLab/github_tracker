@@ -5,10 +5,41 @@ const { signupSchema, loginSchema } = require("../validators/authValidator");
 const { validateRequest } = require("../validators/validationRequest");
 const router = express.Router();
 
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const isGitHubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET && process.env.GITHUB_CALLBACK_URL);
+
+// GitHub OAuth start route
+router.get("/github", (req, res, next) => {
+    if (!isGitHubConfigured) {
+        return res.redirect(`${frontendUrl}/login?githubAuth=not_configured`);
+    }
+
+    return passport.authenticate("github", { scope: ["user:email"] })(req, res, next);
+});
+
+// GitHub OAuth callback route
+router.get(
+    "/github/callback",
+    (req, res, next) => {
+        if (!isGitHubConfigured) {
+            return res.redirect(`${frontendUrl}/login?githubAuth=not_configured`);
+        }
+
+        return next();
+    },
+    passport.authenticate("github", {
+        failureRedirect: `${frontendUrl}/login?githubAuth=failed`,
+        session: true,
+    }),
+    (_req, res) => {
+        return res.redirect(`${frontendUrl}/login?githubAuth=success`);
+    }
+);
+
 // Signup route
 router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
-    const { username,  email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try {
         const existingUser = await User.findOne({

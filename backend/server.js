@@ -12,16 +12,25 @@ require('./config/passportConfig');
 const logger = require('./logger');
 
 const app = express();
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 // CORS configuration
-app.use(cors('*'));
+app.use(cors({
+    origin: frontendUrl,
+    credentials: true,
+}));
 
 // Middleware
 app.use(bodyParser.json());
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'dev-session-secret',
     resave: false,
     saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'lax',
+    },
 }));
 app.use(passport.initialize());
 app.use(passport.session());

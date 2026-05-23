@@ -7,27 +7,46 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+
   email: {
     type: String,
-    required: true,
+    required: function requiredEmail() {
+      return !this.githubId;
+    },
     unique: true,
+    sparse: true,
   },
+
   password: {
     type: String,
-    required: true,
+    required: function requiredPassword() {
+      return !this.githubId;
+    },
+  },
+
+  githubId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+
+  avatar: {
+    type: String,
   },
 });
 
-// ✅ FIXED: no next()
-UserSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+// password hashing
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// ✅ password comparison
+// password comparison
 UserSchema.methods.comparePassword = async function (enteredPassword) {
+  if (!this.password) return false;
+
   return bcrypt.compare(enteredPassword, this.password);
 };
 

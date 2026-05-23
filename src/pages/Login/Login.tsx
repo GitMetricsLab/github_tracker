@@ -3,8 +3,12 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import { FaGithub } from "react-icons/fa";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 interface LoginFormData {
   email: string;
@@ -15,6 +19,7 @@ const Login: React.FC = () => {
   const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [githubLoading, setGithubLoading] = useState(false);
 
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
@@ -47,13 +52,43 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleGitHubSignIn = () => {
+    setGithubLoading(true);
+    window.location.href = `${backendUrl}/api/auth/github`;
+  };
+
+  React.useEffect(() => {
+    const githubAuthStatus = new URLSearchParams(window.location.search).get("githubAuth");
+
+    if (githubAuthStatus === "success") {
+      toast.success("GitHub login successful");
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      setTimeout(() => {
+        navigate("/track");
+      }, 1000);
+    }
+
+    if (githubAuthStatus === "failed") {
+      toast.error("GitHub sign in failed. Please try again.");
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (githubAuthStatus === "not_configured") {
+      toast.error("GitHub sign in is not configured on server.");
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [navigate]);
+
   return (
     <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
-        mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
-      }`}
+      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${mode === "dark"
+        ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+        : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+        }`}
     >
       {/* Animated background elements */}
       <div className="absolute inset-0">
@@ -70,11 +105,10 @@ const Login: React.FC = () => {
             <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
           </div>
 
-          <h1 className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${
-            mode === "dark"
-              ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
-              : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
-          }`}>
+          <h1 className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${mode === "dark"
+            ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
+            : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
+            }`}>
             GitHubTracker
           </h1>
           <p className={`${mode === "dark" ? "text-slate-300" : "text-gray-700"} text-lg font-medium`}>
@@ -98,11 +132,10 @@ const Login: React.FC = () => {
                 onChange={handleChange}
                 autoComplete="username"
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
-                  mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-                }`}
+                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                  }`}
               />
             </div>
 
@@ -115,11 +148,10 @@ const Login: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
-                  mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-                }`}
+                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                  }`}
               />
             </div>
 
@@ -130,15 +162,54 @@ const Login: React.FC = () => {
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
+
+            <button
+              type="button"
+              onClick={handleGitHubSignIn}
+              disabled={githubLoading}
+              className={`group w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl font-semibold border transition-all duration-300 shadow-sm hover:shadow-lg active:scale-[0.99] disabled:opacity-80 disabled:cursor-not-allowed ${mode === "dark"
+                ? "bg-[#0d1117] border-white/15 text-white hover:border-white/30 hover:bg-[#161b22]"
+                : "bg-white border-gray-300 text-[#24292f] hover:border-gray-400 hover:bg-gray-50"
+                }`}
+            >
+              {githubLoading ? (
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((dot) => (
+                      <motion.div
+                        key={dot}
+                        className={`w-2 h-2 rounded-full ${mode === "dark" ? "bg-white" : "bg-[#24292f]"
+                          }`}
+                        animate={{
+                          y: [0, -6, 0],
+                          opacity: [0.5, 1, 0.5],
+                        }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Infinity,
+                          delay: dot * 0.15,
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <span>Connecting...</span>
+                </div>
+              ) : (
+                <>
+                  <FaGithub className="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform duration-300" />
+                  <span>Sign In with GitHub</span>
+                </>
+              )}
+            </button>
           </form>
 
           {/* Message */}
           {message && (
-            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
-              message === "Login successful"
-                ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                : "bg-red-500/20 text-red-300 border border-red-500/30"
-            }`}>
+            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${message === "Login successful"
+              ? "bg-green-500/20 text-green-300 border border-green-500/30"
+              : "bg-red-500/20 text-red-300 border border-red-500/30"
+              }`}>
               {message}
             </div>
           )}

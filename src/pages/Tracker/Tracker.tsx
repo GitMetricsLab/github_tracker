@@ -71,8 +71,8 @@ const Home: React.FC = () => {
     fetchData,
   } = useGitHubData(getOctokit);
 
-  const [tab, setTab] = useState(0);
-  const [page, setPage] = useState(0);
+  const [tab, setTab] = useState(() => Number(localStorage.getItem('tracker_tab')) || 0);
+  const [page, setPage] = useState(() => Number(localStorage.getItem('tracker_page')) || 0);
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");

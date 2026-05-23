@@ -69,15 +69,26 @@ const Home: React.FC = () => {
     fetchData,
   } = useGitHubData(getOctokit);
 
-  const [tab, setTab] = useState(0);
-  const [page, setPage] = useState(0);
+  const [tab, setTab] = useState(() => Number(localStorage.getItem('tracker_tab')) || 0);
+  const [page, setPage] = useState(() => Number(localStorage.getItem('tracker_page')) || 0);
 
-  const [issueFilter, setIssueFilter] = useState("all");
-  const [prFilter, setPrFilter] = useState("all");
-  const [searchTitle, setSearchTitle] = useState("");
-  const [selectedRepo, setSelectedRepo] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [issueFilter, setIssueFilter] = useState(() => localStorage.getItem('tracker_issueFilter') || "all");
+  const [prFilter, setPrFilter] = useState(() => localStorage.getItem('tracker_prFilter') || "all");
+  const [searchTitle, setSearchTitle] = useState(() => localStorage.getItem('tracker_searchTitle') || "");
+  const [selectedRepo, setSelectedRepo] = useState(() => localStorage.getItem('tracker_selectedRepo') || "");
+  const [startDate, setStartDate] = useState(() => localStorage.getItem('tracker_startDate') || "");
+  const [endDate, setEndDate] = useState(() => localStorage.getItem('tracker_endDate') || "");
+
+  useEffect(() => {
+    localStorage.setItem('tracker_tab', String(tab));
+    localStorage.setItem('tracker_page', String(page));
+    localStorage.setItem('tracker_issueFilter', issueFilter);
+    localStorage.setItem('tracker_prFilter', prFilter);
+    localStorage.setItem('tracker_searchTitle', searchTitle);
+    localStorage.setItem('tracker_selectedRepo', selectedRepo);
+    localStorage.setItem('tracker_startDate', startDate);
+    localStorage.setItem('tracker_endDate', endDate);
+  }, [tab, page, issueFilter, prFilter, searchTitle, selectedRepo, startDate, endDate]);
 
   // Fetch data when username, tab, or page changes
   useEffect(() => {

@@ -41,27 +41,193 @@ Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyz
 ---
 
 ## 🚀 Setup Guide
-1. Clone the repository to your local machine:
+
+### 📋 Prerequisites
+
+Before setting up the project locally, ensure the following tools are installed on your system:
+
+- Node.js (v18 or later recommended)
+- npm
+- Docker
+- Docker Compose
+- MongoDB (required for backend services and testing)
+
+---
+
+## 📥 Clone the Repository
+
 ```bash
-$ git clone https://github.com/yourusername/github-tracker.git
+git clone https://github.com/yourusername/github-tracker.git
+cd github-tracker
 ```
 
-2. Navigate to the project directory:
+---
+
+# 💻 Local Development Setup
+
+This project contains both frontend and backend services.
+
+## ▶️ Frontend Setup
+
+Install frontend dependencies:
+
 ```bash
-$ cd github-tracker
+npm install
 ```
 
-3. Run the frontend
+Start the frontend development server:
+
 ```bash
-$ npm i
-$ npm run dev
+npm run dev
 ```
 
-4. Run the backend
-```bash
-$ npm i
-$ npm start
+The frontend will run on:
+
+```txt
+http://localhost:5173
 ```
+
+---
+
+## ⚙️ Backend Setup
+
+Move into the backend directory:
+
+```bash
+cd backend
+```
+
+Install backend dependencies:
+
+```bash
+npm install
+```
+
+Start the backend server:
+
+```bash
+npm run dev
+```
+
+The backend server will run on:
+
+```txt
+http://localhost:5000
+```
+
+---
+
+# 🐳 Docker Development Workflow
+
+The project includes Docker configurations for both development and production environments.
+
+## 📦 Development Environment
+
+Run the complete development environment using Docker:
+
+```bash
+npm run docker:dev
+```
+
+This command:
+
+- Builds frontend and backend containers
+- Starts development services
+- Enables live file changes using Docker volumes
+- Runs frontend and backend simultaneously
+
+### Development Services
+
+| Service | Port |
+|----------|------|
+| Frontend | 5173 |
+| Backend | 5000 |
+
+---
+
+## 🚀 Production Environment
+
+Run the production Docker setup:
+
+```bash
+npm run docker:prod
+```
+
+This command:
+
+- Creates optimized production builds
+- Runs frontend using Nginx
+- Starts backend production services
+
+### Production Services
+
+| Service | Port |
+|----------|------|
+| Frontend | 3000 |
+| Backend | 5000 |
+
+---
+
+# 📂 Docker Configuration Overview
+
+| File | Purpose |
+|------|----------|
+| `Dockerfile.dev` | Development container setup |
+| `Dockerfile.prod` | Production container setup |
+| `docker-compose.yml` | Multi-service container orchestration |
+
+---
+
+# 🔄 Local Development Workflow
+
+Recommended contributor workflow:
+
+1. Fork the repository
+2. Clone your fork locally
+3. Create a new branch
+4. Install dependencies
+5. Run frontend/backend locally or using Docker
+6. Make changes
+7. Test your implementation
+8. Commit and push changes
+9. Open a Pull Request
+
+---
+
+# 🌱 Environment Configuration
+
+The project uses environment variables for configuration.
+
+Frontend environment variables:
+
+```env
+VITE_API_URL=your_api_url
+```
+
+Backend environment variables:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection
+SESSION_SECRET=your_secret
+```
+
+Create corresponding `.env` files before running the application.
+
+---
+
+# 🛠️ Useful Commands
+
+| Command | Description |
+|----------|-------------|
+| `npm run dev` | Start frontend locally |
+| `npm run build` | Create production build |
+| `npm run docker:dev` | Run Docker development environment |
+| `npm run docker:prod` | Run Docker production environment |
+| `npm run test` | Run frontend tests |
+| `npm run test:backend` | Run backend tests |
+
+---
 
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 
@@ -140,3 +306,6 @@ spec_files: [
     ⬆️ Back to Top
   </a>
 </p>
+
+
+

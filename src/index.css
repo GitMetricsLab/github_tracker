@@ -89,3 +89,28 @@
 .icon-issue-closed {
   color: #cf222e;
 }
+
+/* --Firefox support -- */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(96, 165, 250, 0.78) transparent;
+}
+
+/* --Chrome, Edge, Safari, and Opera support -- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(96, 165, 250, 0.78);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}

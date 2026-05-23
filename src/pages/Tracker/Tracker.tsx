@@ -164,7 +164,7 @@ const Home: React.FC = () => {
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
+    <Container maxWidth="lg" sx={{ pt: 12, minHeight: "80vh", color: theme.palette.text.primary }}>
       {/* Auth Form */}
       <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
         <form onSubmit={handleSubmit}>

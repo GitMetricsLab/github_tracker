@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { FaGithub, FaDiscord, FaArrowRight } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
+
 import {
   FaGithub,
-  FaTwitter,
   FaDiscord,
   FaArrowRight,
   FaEnvelope,
   FaInfoCircle,
 } from 'react-icons/fa';
+
+import { FaXTwitter } from 'react-icons/fa6';
 
 function Footer() {
   const [email, setEmail] = useState('');
@@ -160,14 +162,14 @@ function Footer() {
               <FaGithub className="h-6 w-6" />
             </a>
 
-            {/* Twitter */}
+            {/* X / Twitter */}
             <a
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110 opacity-70 cursor-not-allowed"
-              aria-label="Twitter"
+              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110 opacity-70 cursor-not-allowed"
+              aria-label="X"
             >
-              <FaXTwitter className="h-7 w-7" />
+              <FaXTwitter className="h-6 w-6" />
             </a>
 
             {/* Discord */}

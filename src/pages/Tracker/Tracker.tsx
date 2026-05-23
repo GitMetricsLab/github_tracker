@@ -10,7 +10,6 @@ import {
   Container,
   Box,
   TextField,
-  Button,
   Paper,
   Table,
   TableBody,
@@ -29,10 +28,13 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+
 import { useTheme } from "@mui/material/styles";
+import { KeyIcon } from "lucide-react";
+
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
-import { KeyIcon } from "lucide-react";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const ROWS_PER_PAGE = 10;
 
@@ -68,28 +70,88 @@ const Home: React.FC = () => {
     fetchData,
   } = useGitHubData(getOctokit);
 
-  const [tab, setTab] = useState(0);
-  const [page, setPage] = useState(0);
+  const [tab, setTab] = useState(() => Number(localStorage.getItem('tracker_tab')) || 0);
+  const [page, setPage] = useState(() => Number(localStorage.getItem('tracker_page')) || 0);
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
+
   const [searchTitle, setSearchTitle] = useState("");
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
-  useEffect(() => {
-    if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
-    }
-  }, [tab, page]);
+  // Debounced filters
+  const debouncedSearchTitle = useDebounce(searchTitle, 300);
+  const debouncedSelectedRepo = useDebounce(selectedRepo, 300);
+  const debouncedStartDate = useDebounce(startDate, 300);
+  const debouncedEndDate = useDebounce(endDate, 300);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
-  };
+  // Debounced username
+  const debouncedUsername = useDebounce(username, 400);
+
+  // Auto-fetch data
+  useEffect(() => {
+    const trimmedUsername = debouncedUsername?.trim() ?? "";
+
+    if (trimmedUsername.length >= 2) {
+      setPage(0);
+
+      fetchData(
+        trimmedUsername,
+        1,
+        ROWS_PER_PAGE,
+        tab === 0 ? "issue" : "pr",
+        {
+          search: debouncedSearchTitle,
+          repo: debouncedSelectedRepo,
+          startDate: debouncedStartDate,
+          endDate: debouncedEndDate,
+          state: tab === 0 ? issueFilter : prFilter,
+        }
+      );
+    }
+  }, [
+    debouncedUsername,
+    debouncedSearchTitle,
+    debouncedSelectedRepo,
+    debouncedStartDate,
+    debouncedEndDate,
+    issueFilter,
+    prFilter,
+    tab,
+    fetchData,
+  ]);
+
+  // Pagination fetch
+  useEffect(() => {
+    if (debouncedUsername?.trim()) {
+      fetchData(
+        debouncedUsername,
+        page + 1,
+        ROWS_PER_PAGE,
+        tab === 0 ? "issue" : "pr",
+        {
+          search: debouncedSearchTitle,
+          repo: debouncedSelectedRepo,
+          startDate: debouncedStartDate,
+          endDate: debouncedEndDate,
+          state: tab === 0 ? issueFilter : prFilter,
+        }
+      );
+    }
+  }, [
+    page,
+    debouncedUsername,
+    debouncedSearchTitle,
+    debouncedSelectedRepo,
+    debouncedStartDate,
+    debouncedEndDate,
+    issueFilter,
+    prFilter,
+    tab,
+    fetchData,
+  ]);
 
   const handlePageChange = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -151,7 +213,12 @@ const Home: React.FC = () => {
     if (item.state === "closed")
       return <IssueClosedIcon size={16} className="icon-issue-closed" />;
 
-    return <IssueOpenedIcon size={16} className="icon-issue-open" />;
+    return (
+      <IssueOpenedIcon
+        size={16}
+        className="icon-issue-open"
+      />
+    );
   };
 
   // Current data and filtered data according to tab and filters
@@ -248,19 +315,28 @@ const Home: React.FC = () => {
       </Paper>
 
       {/* Filters */}
-      <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
         <TextField
           label="Search Title"
           value={searchTitle}
           onChange={(e) => setSearchTitle(e.target.value)}
           sx={{ minWidth: 200 }}
         />
+
         <TextField
           label="Repository"
           value={selectedRepo}
           onChange={(e) => setSelectedRepo(e.target.value)}
           sx={{ minWidth: 200 }}
         />
+
         <TextField
           label="Start Date"
           type="date"
@@ -269,6 +345,7 @@ const Home: React.FC = () => {
           InputLabelProps={{ shrink: true }}
           sx={{ minWidth: 150 }}
         />
+
         <TextField
           label="End Date"
           type="date"
@@ -301,8 +378,12 @@ const Home: React.FC = () => {
           <Tab label={`Issues (${totalIssues})`} />
           <Tab label={`Pull Requests (${totalPrs})`} />
         </Tabs>
+
         <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
+          <InputLabel sx={{ fontSize: "14px" }}>
+            State
+          </InputLabel>
+
           <Select
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
@@ -312,19 +393,29 @@ const Home: React.FC = () => {
             }
             label="State"
             sx={{
-              backgroundColor: theme.palette.background.paper,
+              backgroundColor:
+                theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: "4px",
-              "& .MuiSelect-select": { padding: "10px" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme.palette.primary.main,
+              "& .MuiSelect-select": {
+                padding: "10px",
               },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                {
+                  borderColor:
+                    theme.palette.primary.main,
+                },
             }}
           >
             <MenuItem value="all">All</MenuItem>
             <MenuItem value="open">Open</MenuItem>
             <MenuItem value="closed">Closed</MenuItem>
-            {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
+
+            {tab === 1 && (
+              <MenuItem value="merged">
+                Merged
+              </MenuItem>
+            )}
           </Select>
         </FormControl>
       </Box>
@@ -346,14 +437,21 @@ const Home: React.FC = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
-                  <TableCell align="center">Repository</TableCell>
-                  <TableCell align="center">State</TableCell>
+
+                  <TableCell align="center">
+                    Repository
+                  </TableCell>
+
+                  <TableCell align="center">
+                    State
+                  </TableCell>
+
                   <TableCell>Created</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {currentFilteredData.map((item) => (
+                {currentData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell
                       sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -371,11 +469,17 @@ const Home: React.FC = () => {
                     </TableCell>
 
                     <TableCell align="center">
-                      {item.repository_url.split("/").slice(-1)[0]}
+                      {
+                        item.repository_url
+                          .split("/")
+                          .slice(-1)[0]
+                      }
                     </TableCell>
 
                     <TableCell align="center">
-                      {item.pull_request?.merged_at ? "merged" : item.state}
+                      {item.pull_request?.merged_at
+                        ? "merged"
+                        : item.state}
                     </TableCell>
 
                     <TableCell>{formatDate(item.created_at)}</TableCell>
@@ -390,7 +494,9 @@ const Home: React.FC = () => {
               page={page}
               onPageChange={handlePageChange}
               rowsPerPage={ROWS_PER_PAGE}
-              rowsPerPageOptions={[ROWS_PER_PAGE]}
+              rowsPerPageOptions={[
+                ROWS_PER_PAGE,
+              ]}
             />
           </TableContainer>
         </Box>

@@ -36,6 +36,7 @@ function Footer() {
       "
     >
       <div className="max-w-7xl mx-auto px-8 pt-16 pb-10 relative z-10">
+
         {/* Upper Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-zinc-200 dark:border-zinc-800/60">
 
@@ -148,6 +149,7 @@ function Footer() {
           {/* Social Icons */}
           <div className="flex items-center space-x-5">
 
+            {/* GitHub */}
             <a
               href="https://github.com/GitMetricsLab/github_tracker"
               target="_blank"
@@ -157,21 +159,22 @@ function Footer() {
             >
               <FaGithub className="h-6 w-6" />
             </a>
-            <a 
-              href="https://x.com/your_handle" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-colors duration-200" 
-              aria-label="X"
+
+            {/* Twitter */}
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110 opacity-70 cursor-not-allowed"
+              aria-label="Twitter"
             >
               <FaXTwitter className="h-7 w-7" />
             </a>
 
+            {/* Discord */}
             <a
-              href="https://discord.gg/your_invite"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110 opacity-70 cursor-not-allowed"
               aria-label="Discord"
             >
               <FaDiscord className="h-6 w-6" />

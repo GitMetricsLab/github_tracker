@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Tracker from "../pages/Tracker/Tracker.tsx";
 import About from "../pages/About/About";

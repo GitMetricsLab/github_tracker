@@ -57,7 +57,7 @@ Before setting up the project locally, ensure the following tools are installed 
 ## 📥 Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/github-tracker.git
+git clone https://github.com/GitMetricsLab/github_tracker.git
 cd github-tracker
 ```
 
@@ -201,7 +201,7 @@ The project uses environment variables for configuration.
 Frontend environment variables:
 
 ```env
-VITE_API_URL=your_api_url
+VITE_BACKEND_URL=http://localhost:5000
 ```
 
 Backend environment variables:

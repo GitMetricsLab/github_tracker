@@ -9,12 +9,13 @@ passport.use(
             try {
                 const user = await User.findOne( {email} );
                 if (!user) {
-                    return done(null, false, { message: 'Email is invalid '});
+                    // Generic message prevents user enumeration
+                    return done(null, false, { message: 'Invalid credentials' });
                 }
 
                 const isMatch = await user.comparePassword(password);
                 if (!isMatch) {
-                    return done(null, false, { message: 'Invalid password' });
+                    return done(null, false, { message: 'Invalid credentials' });
                 }
 
                 return done(null, {
@@ -34,10 +35,10 @@ passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
-// Deserialize user (retrieve user from session)
+// Deserialize user — exclude password hash from req.user on every request
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(id).select('-password');
         done(null, user);
     } catch (err) {
         done(err, null);

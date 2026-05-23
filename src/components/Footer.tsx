@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { FaGithub, FaDiscord, FaArrowRight } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import {
   FaGithub,
@@ -165,7 +167,7 @@ function Footer() {
               className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110 opacity-70 cursor-not-allowed"
               aria-label="Twitter"
             >
-              <FaTwitter className="h-6 w-6" />
+              <FaXTwitter className="h-7 w-7" />
             </a>
 
             {/* Discord */}

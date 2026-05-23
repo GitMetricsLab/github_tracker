@@ -7,6 +7,7 @@ import {
   FaArrowRight,
   FaEnvelope,
   FaInfoCircle,
+  FaShieldAlt, // ✅ Added Privacy Icon
 } from 'react-icons/fa';
 
 function Footer() {
@@ -79,6 +80,15 @@ function Footer() {
               >
                 <FaInfoCircle className="h-3.5 w-3.5" />
                 About
+              </Link>
+
+              {/* ✅ New Privacy Policy link integration */}
+              <Link
+                to="/privacy"
+                className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <FaShieldAlt className="h-3.5 w-3.5" />
+                Privacy Policy
               </Link>
             </div>
           </div>

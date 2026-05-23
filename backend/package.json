@@ -6,7 +6,6 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "test": "jasmine spec/**/*.spec.cjs"
-
   },
   "keywords": [],
   "author": "",
@@ -22,6 +21,7 @@
     "mongoose": "^8.8.2",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
+    "winston": "^3.19.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

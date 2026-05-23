@@ -1,172 +1,148 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, Github } from "lucide-react";
 
 const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const themeContext = useContext(ThemeContext);
 
   if (!themeContext) return null;
+
   const { toggleTheme, mode } = themeContext;
 
+  const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
+    `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
+      isActive
+        ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
+        : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
+    }`;
+
+  const closeMenu = () => setIsOpen(false);
+
   return (
-    <nav className="sticky top-0 z-50  bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo Section */}
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300 backdrop-blur">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+        {/* Logo */}
         <Link
           to="/"
-          className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center"
+          className="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white"
         >
-          <img src="/crl-icon.png" alt="CRL Icon" className="h-8 mr-2" />
-          GitHub Tracker
+          <img
+            src="/crl-icon.png"
+            alt="CRL Icon"
+            className="h-8 w-8 object-contain"
+          />
+
+          <span>GitHub Tracker</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6 items-center">
-          <Link
-            to="/"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-3">
+          <NavLink to="/" className={navLinkStyles}>
             Home
-          </Link>
+          </NavLink>
 
-          <Link
-            to="/track"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
+          <NavLink to="/track" className={navLinkStyles}>
             Tracker
-          </Link>
+          </NavLink>
 
-          <Link
-            to="/contributors"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
+          <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
-          </Link>
+          </NavLink>
 
-          <Link
-            to="/login"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
+          <NavLink to="/login" className={navLinkStyles}>
             Login
-          </Link>
+          </NavLink>
 
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
-            aria-label="Toggle theme"
+            className="ml-2 p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Theme"
           >
             {mode === "dark" ? (
-              <Sun className="h-5 w-5" />
+              <Sun className="h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon className="h-5 w-5" />
+              <Moon className="h-5 w-5 text-slate-700" />
             )}
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center space-x-3">
+        {/* Mobile Controls */}
+        <div className="md:hidden flex items-center gap-2">
+
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 text-slate-500 dark:text-gray-400"
-            aria-label="Toggle theme"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Theme"
           >
             {mode === "dark" ? (
-              <Sun className="h-6 w-6" />
+              <Sun className="h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon className="h-6 w-6" />
+              <Moon className="h-5 w-5 text-white" />
             )}
           </button>
 
+          {/* Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2.5 rounded-2xl bg-white/80 dark:bg-gray-800 text-slate-900 dark:text-white"
-            aria-label="Toggle navigation menu"
-            aria-expanded={isOpen}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Menu"
           >
             {isOpen ? (
-              <X className="h-7 w-7" />
+              <X className="h-6 w-6 text-slate-900 dark:text-white" />
             ) : (
-              <Menu className="h-7 w-7" />
+              <Menu className="h-6 w-6 text-slate-900 dark:text-white" />
             )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Panel */}
-      <div
-        className={`
-          md:hidden overflow-hidden transition-all duration-500 ease-in-out 
-          bg-indigo-50/95 dark:bg-gray-900/95 backdrop-blur-xl
-          ${
-            isOpen
-              ? "max-h-[600px] opacity-100 border-t border-indigo-100/50 dark:border-gray-800 shadow-2xl visible"
-              : "max-h-0 opacity-0 invisible"
-          }
-        `}
-      >
-        <div className="px-5 py-10 space-y-4">
-          <MobileNavLink to="/" onClick={() => setIsOpen(false)}>
-            Home
-          </MobileNavLink>
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+          <div className="px-6 py-5 flex flex-col gap-3">
 
-          <MobileNavLink to="/track" onClick={() => setIsOpen(false)}>
-            Tracker
-          </MobileNavLink>
+            <NavLink
+              to="/"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Home
+            </NavLink>
 
-          <MobileNavLink
-            to="/contributors"
-            onClick={() => setIsOpen(false)}
-          >
-            Contributors
-          </MobileNavLink>
+            <NavLink
+              to="/track"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Tracker
+            </NavLink>
 
-          <div className="pt-8 mt-6 border-t border-indigo-100/50 dark:border-gray-800 grid grid-cols-2 gap-5">
-            <Link
+            <NavLink
+              to="/contributors"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Contributors
+            </NavLink>
+
+            <NavLink
               to="/login"
-              className="flex items-center justify-center py-4 text-lg font-bold text-slate-700 dark:text-gray-200 bg-white/60 dark:bg-gray-800/60 rounded-2xl border border-indigo-100/50 dark:border-gray-700"
-              onClick={() => setIsOpen(false)}
+              className={navLinkStyles}
+              onClick={closeMenu}
             >
               Login
-            </Link>
-
-            <Link
-              to="/signup"
-              className="flex items-center justify-center py-4 text-lg font-bold text-white bg-blue-600 rounded-2xl shadow-lg"
-              onClick={() => setIsOpen(false)}
-            >
-              Sign Up
-            </Link>
+            </NavLink>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
-
-const MobileNavLink = ({
-  to,
-  children,
-  onClick,
-}: {
-  to: string;
-  children: React.ReactNode;
-  onClick: () => void;
-}) => (
-  <NavLink
-    to={to}
-    onClick={onClick}
-    className={({ isActive }) =>
-      `block px-6 py-4 rounded-2xl text-xl font-bold transition-all ${
-        isActive
-          ? "bg-blue-600 text-white shadow-lg translate-x-2"
-          : "text-slate-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-gray-800/40"
-      }`
-    }
-  >
-    {children}
-  </NavLink>
-);
 
 export default Navbar;

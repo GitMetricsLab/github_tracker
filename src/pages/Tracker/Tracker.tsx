@@ -20,6 +20,7 @@ import {
   TableRow,
   TablePagination,
   Link,
+  CircularProgress,
   Alert,
   Tabs,
   Tab,
@@ -27,12 +28,11 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Skeleton,
-  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import { KeyIcon } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
 
@@ -69,15 +69,26 @@ const Home: React.FC = () => {
     fetchData,
   } = useGitHubData(getOctokit);
 
-  const [tab, setTab] = useState(0);
-  const [page, setPage] = useState(0);
+  const [tab, setTab] = useState(() => Number(localStorage.getItem('tracker_tab')) || 0);
+  const [page, setPage] = useState(() => Number(localStorage.getItem('tracker_page')) || 0);
 
-  const [issueFilter, setIssueFilter] = useState("all");
-  const [prFilter, setPrFilter] = useState("all");
-  const [searchTitle, setSearchTitle] = useState("");
-  const [selectedRepo, setSelectedRepo] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [issueFilter, setIssueFilter] = useState(() => localStorage.getItem('tracker_issueFilter') || "all");
+  const [prFilter, setPrFilter] = useState(() => localStorage.getItem('tracker_prFilter') || "all");
+  const [searchTitle, setSearchTitle] = useState(() => localStorage.getItem('tracker_searchTitle') || "");
+  const [selectedRepo, setSelectedRepo] = useState(() => localStorage.getItem('tracker_selectedRepo') || "");
+  const [startDate, setStartDate] = useState(() => localStorage.getItem('tracker_startDate') || "");
+  const [endDate, setEndDate] = useState(() => localStorage.getItem('tracker_endDate') || "");
+
+  useEffect(() => {
+    localStorage.setItem('tracker_tab', String(tab));
+    localStorage.setItem('tracker_page', String(page));
+    localStorage.setItem('tracker_issueFilter', issueFilter);
+    localStorage.setItem('tracker_prFilter', prFilter);
+    localStorage.setItem('tracker_searchTitle', searchTitle);
+    localStorage.setItem('tracker_selectedRepo', selectedRepo);
+    localStorage.setItem('tracker_startDate', startDate);
+    localStorage.setItem('tracker_endDate', endDate);
+  }, [tab, page, issueFilter, prFilter, searchTitle, selectedRepo, startDate, endDate]);
 
   // Fetch data when username, tab, or page changes
   useEffect(() => {
@@ -181,29 +192,62 @@ const Home: React.FC = () => {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               type="password"
+              required
               sx={{ flex: 1, minWidth: 150 }}
-              // Helper link to guide users on generating a GitHub Personal Access Token
               helperText={
-                <Link
-                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-      fontSize: '0.75rem',
-      color: 'primary.main',
-      textDecoration: 'none',
-      '&:hover': {
-        textDecoration: 'underline',
-      }
-    }}
+                <Box
+                    component="span"
+                    sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    fontSize: "0.75rem",
+                    }}
                 >
-                  How to generate?
-                </Link>
+                    <Link
+                    href="https://github.com/settings/tokens/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                        fontSize: "0.75rem",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                    }}
+                    >
+                    <KeyIcon size={12} />
+                    Generate new token
+                    </Link>
+
+                    <Box component="span" sx={{ opacity: 0.6 }}>
+                    •
+                    </Box>
+
+                    <Link
+                    href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                        fontSize: "0.75rem",
+                        textDecoration: "none",
+                    }}
+                    >
+                    Learn more
+                    </Link>
+                </Box>
               }
             />
-
-            <Button type="submit" variant="contained" sx={{ minWidth: "120px" }}>
-              Fetch Data
+            <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                    minWidth: "100px",
+                    minHeight: "55px",
+                    alignSelf: "flex-start",
+            }}
+            >
+                Fetch Data
             </Button>
           </Box>
         </form>
@@ -298,62 +342,11 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-    <TableContainer component={Paper}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Title</TableCell>
-            <TableCell align="center">Repository</TableCell>
-            <TableCell align="center">State</TableCell>
-            <TableCell>Created</TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {[...Array(5)].map((_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <Skeleton variant="text" width="80%" height={30} />
-              </TableCell>
-
-              <TableCell align="center">
-                <Skeleton variant="text" width="60%" height={30} />
-              </TableCell>
-
-              <TableCell align="center">
-                <Skeleton variant="rounded" width={70} height={25} />
-              </TableCell>
-
-              <TableCell>
-                <Skeleton variant="text" width="70%" height={30} />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </Box>
-) : !authError && !dataError && currentFilteredData.length === 0 ? (
-  <Paper
-    elevation={1}
-    sx={{
-      p: 4,
-      textAlign: "center",
-      backgroundColor: theme.palette.background.paper,
-    }}
-  >
-    <Typography variant="h6" gutterBottom>
-      No Data Found
-    </Typography>
-
-    <Typography variant="body2" color="text.secondary">
-      Try adjusting filters or searching for another GitHub user.
-    </Typography>
-  </Paper>
-) : (
-    
-  <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+        <Box display="flex" justifyContent="center" my={4}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
 

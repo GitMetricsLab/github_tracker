@@ -49,6 +49,10 @@ const Navbar: React.FC = () => {
             Tracker
           </NavLink>
 
+          <NavLink to="/pr-analytics" className={navLinkStyles}>
+            PR Analytics
+          </NavLink>
+
           <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
           </NavLink>
@@ -121,6 +125,14 @@ const Navbar: React.FC = () => {
               onClick={closeMenu}
             >
               Tracker
+            </NavLink>
+
+            <NavLink
+              to="/pr-analytics"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              PR Analytics
             </NavLink>
 
             <NavLink

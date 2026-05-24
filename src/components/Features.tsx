@@ -1,4 +1,4 @@
-import { BarChart3, Users, Search, Zap, Shield, Globe } from 'lucide-react';
+import { BarChart3, Users, Search, Zap, Shield, Globe, GitPullRequest } from 'lucide-react';
 
 const Features = () => {
   const features = [
@@ -46,6 +46,15 @@ const Features = () => {
       iconColor: 'text-red-600',
       hoverColor: 'hover:bg-red-400/50 dark:hover:bg-red-900/30',
       borderColor: 'hover:border-red-200 dark:hover:border-red-700'
+    },
+    {
+      icon: GitPullRequest,
+      title: 'PR Review Intelligence',
+      description: 'Advanced metrics on review turnaround, bottleneck detection, overloaded reviewer lists, and repository health index.',
+      bgColor: 'bg-teal-100',
+      iconColor: 'text-teal-600',
+      hoverColor: 'hover:bg-teal-400/50 dark:hover:bg-teal-900/30',
+      borderColor: 'hover:border-teal-200 dark:hover:border-teal-700'
     },
     {
       icon: Globe,

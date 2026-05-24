@@ -13,13 +13,18 @@ const logger = require('./logger');
 
 const app = express();
 
-// CORS configuration
-const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
+// CORS configuration — allowed origins are read from the ALLOWED_ORIGINS env var
+// (comma-separated). Falls back to localhost for local development.
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+    : ['http://localhost:5173'];
+
 app.use(cors({
     origin: function (origin, callback) {
+        // Allow requests with no origin (e.g. server-to-server, curl, mobile apps)
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
-        } else{
+        } else {
             callback(new Error('Blocked by CORS policy'));
         }
     },

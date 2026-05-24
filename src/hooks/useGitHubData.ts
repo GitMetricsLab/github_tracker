@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Octokit } from '@octokit/core';
 
 interface GitHubItem {
@@ -34,6 +34,7 @@ export const useGitHubData = (
 
   // Prevent stale responses overwriting latest data
   const lastRequestId = useRef(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchPaginated = async (
     octokit: Octokit,
@@ -41,7 +42,8 @@ export const useGitHubData = (
     type: 'issue' | 'pr',
     page = 1,
     perPage = 10,
-    filters: FetchFilters = {}
+    filters: FetchFilters = {},
+    signal?: AbortSignal
   ) => {
     let q = `author:${username} is:${type}`;
 
@@ -77,6 +79,9 @@ export const useGitHubData = (
         order: 'desc',
         per_page: perPage,
         page,
+        request: {
+          signal,
+        },
       }
     );
 
@@ -100,6 +105,14 @@ export const useGitHubData = (
         return;
       }
 
+      // Cancel any active in-flight request before triggering a new one
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const requestId = ++lastRequestId.current;
 
       setLoading(true);
@@ -122,7 +135,8 @@ export const useGitHubData = (
               'issue',
               page,
               perPage,
-              filters
+              filters,
+              controller.signal
             )
           );
         }
@@ -135,15 +149,16 @@ export const useGitHubData = (
               'pr',
               page,
               perPage,
-              filters
+              filters,
+              controller.signal
             )
           );
         }
 
         const results = await Promise.allSettled(requests);
 
-        // Ignore stale requests
-        if (requestId !== lastRequestId.current) {
+        // Ignore stale or aborted requests
+        if (requestId !== lastRequestId.current || abortControllerRef.current !== controller) {
           return;
         }
 
@@ -156,6 +171,10 @@ export const useGitHubData = (
             setIssues(issueResult.value.items);
             setTotalIssues(issueResult.value.total);
           } else {
+            const reason = issueResult.reason;
+            if (reason && reason.name === 'AbortError') {
+              return;
+            }
             setIssues([]);
             setTotalIssues(0);
           }
@@ -170,6 +189,10 @@ export const useGitHubData = (
             setPrs(prResult.value.items);
             setTotalPrs(prResult.value.total);
           } else {
+            const reason = prResult.reason;
+            if (reason && reason.name === 'AbortError') {
+              return;
+            }
             setPrs([]);
             setTotalPrs(0);
           }
@@ -180,6 +203,12 @@ export const useGitHubData = (
         );
 
         if (hasRejected) {
+          const wasAborted = results.some(
+            (result) => result.status === 'rejected' && result.reason?.name === 'AbortError'
+          );
+          if (wasAborted) {
+            return;
+          }
           setError(
             'Some GitHub data could not be fetched completely.'
           );
@@ -187,14 +216,19 @@ export const useGitHubData = (
 
         setRateLimited(false);
       } catch (err: unknown) {
-        if (requestId !== lastRequestId.current) {
+        if (requestId !== lastRequestId.current || abortControllerRef.current !== controller) {
           return;
         }
 
         const error = err as {
           status?: number;
           message?: string;
+          name?: string;
         };
+
+        if (error.name === 'AbortError') {
+          return;
+        }
 
         const errorMessage =
           error.message?.toLowerCase() || '';
@@ -231,13 +265,22 @@ export const useGitHubData = (
           );
         }
       } finally {
-        if (requestId === lastRequestId.current) {
+        if (requestId === lastRequestId.current && abortControllerRef.current === controller) {
           setLoading(false);
         }
       }
     },
     [getOctokit, rateLimited]
   );
+
+  // Cleanup abort controller on component unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return {
     issues,

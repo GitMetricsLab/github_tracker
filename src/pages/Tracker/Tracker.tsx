@@ -79,16 +79,33 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  const [debouncedUsername, setDebouncedUsername] = useState(username);
+
   useEffect(() => {
-    if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+    if (!username) {
+      setDebouncedUsername("");
+      return;
     }
-  }, [tab, page]);
+    const handler = setTimeout(() => {
+      setDebouncedUsername(username);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [username]);
+
+  // Fetch data when debouncedUsername, tab, or page changes
+  useEffect(() => {
+    if (debouncedUsername && debouncedUsername.trim().length >= 1) {
+      fetchData(debouncedUsername, page + 1, ROWS_PER_PAGE);
+    }
+  }, [debouncedUsername, tab, page]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
+    setDebouncedUsername(username);
     fetchData(username, 1, ROWS_PER_PAGE);
   };
 

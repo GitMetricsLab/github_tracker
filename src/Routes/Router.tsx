@@ -22,9 +22,10 @@ const Router = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/contributors" element={<Contributors />} />
       <Route path="/contributor/:username" element={<ContributorProfile />} />
-
-      {/* ✅ new route */}
       <Route path="/activity" element={<Activity />} />
+
+      {/* Privacy Policy page route */}
+      <Route path="/privacy" element={<PrivacyPolicy />} />
     </Routes>
   );
 };

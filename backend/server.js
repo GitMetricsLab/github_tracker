@@ -27,15 +27,17 @@ app.use(securityHeaders);
 app.use(httpLogger);
 
 // CORS configuration
+const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    credentials: true,
-    optionsSuccessStatus: 200,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else{
+            callback(new Error('Blocked by CORS policy'));
+        }
+    },
+    credentials: true
 }));
-
-// Body Parser
 
 // Middleware
 app.use(bodyParser.json({ limit: '10mb' }));

@@ -33,6 +33,7 @@ import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { KeyIcon } from "lucide-react";
+import BackToTopButton from "../../components/Backtotop";
 
 const ROWS_PER_PAGE = 10;
 
@@ -396,6 +397,7 @@ const Home: React.FC = () => {
           </TableContainer>
         </Box>
       )}
+      <BackToTopButton/>
     </Container>
   );
 };

@@ -13,7 +13,8 @@ import {
 } from "@mui/material";
 import { FaGithub } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
+import axiosClient, { isAxiosError } from "../../api/axiosClient";
 import { GITHUB_REPO_CONTRIBUTORS_URL } from "../../utils/constants";
 
 interface Contributor {
@@ -33,7 +34,7 @@ const ContributorsPage = () => {
   useEffect(() => {
     const fetchContributors = async () => {
       try {
-        const response = await axios.get(GITHUB_REPO_CONTRIBUTORS_URL, {
+        const response = await axiosClient.get(GITHUB_REPO_CONTRIBUTORS_URL, {
           withCredentials: false,
         });
         setContributors(response.data);

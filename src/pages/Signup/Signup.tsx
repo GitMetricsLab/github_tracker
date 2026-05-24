@@ -1,12 +1,10 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import { useAuth } from "../../context/AuthContext";
 
 interface SignUpFormData {
   username: string;
@@ -31,6 +29,7 @@ const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
+  const { signup } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -83,17 +82,12 @@ const SignUp: React.FC = () => {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
-      );
-      setMessage(response.data.message); // Show success message from backend
+      await signup(formData.username, formData.email, formData.password);
+      setMessage("Signup successful! You can now login.");
 
-      // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
-        navigate("/login");
-      }
+      setTimeout(() => navigate("/login"), 2000);
     } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+        setMessage(error.response?.data?.message || "Something went wrong");
     } finally {
       setIsLoading(false);
     }

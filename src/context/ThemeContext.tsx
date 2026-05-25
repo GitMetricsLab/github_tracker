@@ -27,9 +27,15 @@ const ThemeWrapper = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(THEME_STORAGE_KEY, mode);
   }, [mode]);
 
-  const toggleTheme = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-  };
+ const toggleTheme = () => {
+  document.documentElement.classList.add("theme-transitioning");
+
+  window.setTimeout(() => {
+    document.documentElement.classList.remove("theme-transitioning");
+  }, 650);
+
+  setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+};
 
   const muiTheme: Theme = useMemo(
     () => createTheme({ palette: { mode } }),

@@ -64,9 +64,9 @@ const Navbar: React.FC = () => {
             aria-label="Toggle Theme"
           >
             {mode === "dark" ? (
-              <Sun className="h-5 w-5 text-yellow-400" />
+              <Sun key="sun-icon" className="theme-toggle-icon h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon className="h-5 w-5 text-slate-700" />
+              <Moon key="moon-icon" className="theme-toggle-icon h-5 w-5 text-slate-700 dark:text-white" />
             )}
           </button>
         </div>
@@ -83,7 +83,7 @@ const Navbar: React.FC = () => {
             {mode === "dark" ? (
               <Sun className="h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon className="h-5 w-5 text-white" />
+              <Moon key="moon-icon-mobile" className="theme-toggle-icon h-5 w-5 text-slate-700 dark:text-white" />
             )}
           </button>
 

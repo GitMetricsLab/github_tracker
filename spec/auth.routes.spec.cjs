@@ -3,12 +3,14 @@ const express = require('express');
 const request = require('supertest');
 const session = require('express-session');
 const passport = require('passport');
+
 const User = require('../backend/models/User');
 const authRoutes = require('../backend/routes/auth');
 
-// Setup Express app for testing
+// Create test app
 function createTestApp() {
   const app = express();
+
   app.use(express.json());
   app.use(
     session({
@@ -19,8 +21,12 @@ function createTestApp() {
   );
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Load passport config AFTER initializing passport
   require('../backend/config/passportConfig');
+
   app.use('/auth', authRoutes);
+
   return app;
 }
 
@@ -35,14 +41,17 @@ describe('Auth Routes', () => {
   });
 
   afterAll(async () => {
-    await mongoose.connection.db.dropDatabase();
-    await mongoose.disconnect();
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.connection.db.dropDatabase();
+      await mongoose.disconnect();
+    }
   });
 
   afterEach(async () => {
     await User.deleteMany({});
   });
 
+  // ---------------- SIGNUP ----------------
   it('should sign up a new user', async () => {
     const res = await request(app)
       .post('/auth/signup')
@@ -100,6 +109,7 @@ describe('Auth Routes', () => {
     expect(res.body.message).toBe('User already exists');
   });
 
+  // ---------------- LOGIN ----------------
   it('should login a user with correct credentials', async () => {
     await request(app)
       .post('/auth/signup')
@@ -144,6 +154,7 @@ describe('Auth Routes', () => {
     expect(res.status).toBe(401);
   });
 
+  // ---------------- LOGOUT ----------------
   it('should logout a logged-in user', async () => {
     await request(app)
       .post('/auth/signup')

@@ -32,6 +32,8 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import { useGitHubActivity } from "../../hooks/useGitHubActivity";
+import ActivityReminder from "../../components/ActivityReminder";
 import { KeyIcon } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
@@ -68,6 +70,8 @@ const Home: React.FC = () => {
     error: dataError,
     fetchData,
   } = useGitHubData(getOctokit);
+
+  const activity = useGitHubActivity(issues, prs);
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
@@ -328,6 +332,11 @@ const Home: React.FC = () => {
         <Alert severity="error" sx={{ mb: 3 }}>
           {authError || dataError}
         </Alert>
+      )}
+
+      {/* Activity Reminder - Show when data is loaded and user is authenticated */}
+      {username && !loading && (issues.length > 0 || prs.length > 0) && (
+        <ActivityReminder activity={activity} username={username} />
       )}
 
       {loading ? (

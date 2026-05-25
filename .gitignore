@@ -46,7 +46,7 @@ temp/
 .yarn/
 .yarn-integrity
 .vscode/.tsbuildinfo
-
+.env
 # -------------------------------------
 # Coverage Reports
 # -------------------------------------

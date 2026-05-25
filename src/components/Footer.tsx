@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 import {
   FaGithub,
   FaTwitter,
@@ -13,14 +14,33 @@ import {
 function Footer() {
   const [email, setEmail] = useState('');
 
-  const handleSubscribe = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+ const handleSubscribe = async (
+  e: React.FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
 
-    // Replace with API call
-    alert('Thank you for subscribing!');
+  if (!email) {
+    alert('Please enter a valid email');
+    return;
+  }
 
+  try {
+   await emailjs.send(
+  import.meta.env.VITE_EMAILJS_SERVICE_ID,
+  import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+  {
+    user_email: email,
+  },
+  import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+);
+
+    alert('Subscribed successfully!');
     setEmail('');
-  };
+  } catch (error) {
+    console.error(error);
+    alert('Subscription failed. Please try again.');
+  }
+};
 
   return (
     <footer

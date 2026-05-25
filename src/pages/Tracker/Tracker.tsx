@@ -79,18 +79,24 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  // Fetch data when tab or page changes
   useEffect(() => {
     if (username) {
       fetchData(username, page + 1, ROWS_PER_PAGE);
     }
   }, [tab, page]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
-  };
+  // NEW: Debounce effect for auto-fetching when the user types
+  useEffect(() => {
+    if (!username) return; // Don't fetch if the input is empty
+
+    const debounceTimer = setTimeout(() => {
+      setPage(0); // Reset to the first page on a new search
+      fetchData(username, 1, ROWS_PER_PAGE);
+    }, 500);
+
+    return () => clearTimeout(debounceTimer); // Clear the timer if the user keeps typing
+  }, [username]);
 
   const handlePageChange = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -165,81 +171,68 @@ const Home: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
-      {/* Auth Form */}
+      {/* Auth Input Controls */}
       <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              label="GitHub Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-            />
-            <TextField
-              label="Personal Access Token"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              type="password"
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-              helperText={
-                <Box
-                    component="span"
-                    sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    fontSize: "0.75rem",
-                    }}
-                >
-                    <Link
-                    href="https://github.com/settings/tokens/new"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                    }}
-                    >
-                    <KeyIcon size={12} />
-                    Generate new token
-                    </Link>
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <TextField
+            label="GitHub Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            sx={{ flex: 1, minWidth: 150 }}
+          />
+          <TextField
+            label="Personal Access Token"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            type="password"
+            required
+            sx={{ flex: 1, minWidth: 150 }}
+            helperText={
+              <Box
+                  component="span"
+                  sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  fontSize: "0.75rem",
+                  }}
+              >
+                  <Link
+                  href="https://github.com/settings/tokens/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                      fontSize: "0.75rem",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                  }}
+                  >
+                  <KeyIcon size={12} />
+                  Generate new token
+                  </Link>
 
-                    <Box component="span" sx={{ opacity: 0.6 }}>
-                    •
-                    </Box>
+                  <Box component="span" sx={{ opacity: 0.6 }}>
+                  •
+                  </Box>
 
-                    <Link
-                    href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
-                    }}
-                    >
-                    Learn more
-                    </Link>
-                </Box>
-              }
-            />
-            <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                    minWidth: "100px",
-                    minHeight: "55px",
-                    alignSelf: "flex-start",
-            }}
-            >
-                Fetch Data
-            </Button>
-          </Box>
-        </form>
+                  <Link
+                  href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                      fontSize: "0.75rem",
+                      textDecoration: "none",
+                  }}
+                  >
+                  Learn more
+                  </Link>
+              </Box>
+            }
+          />
+        </Box>
       </Paper>
 
       {/* Filters */}
@@ -310,7 +303,7 @@ const Home: React.FC = () => {
               backgroundColor: theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: "4px",
-              "& .MuiSelect-select": { padding: "10px" },
+              & .MuiSelect-select: { padding: "10px" },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                 borderColor: theme.palette.primary.main,
               },

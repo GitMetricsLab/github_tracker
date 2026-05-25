@@ -203,7 +203,13 @@ function Contact() {
               Send us a Message
             </h2>
 
-            <div className="space-y-3 sm:space-y-4 flex-1 flex flex-col">
+            <form
+  className="space-y-3 sm:space-y-4 flex-1 flex flex-col"
+  onSubmit={(e) => {
+    e.preventDefault();
+    handleSubmit();
+  }}
+>
               <div className="space-y-3 flex-1">
                 {/* Full Name */}
                 <div>
@@ -303,24 +309,24 @@ function Contact() {
                     }`}
                   ></textarea>
 
-                  <button
-                    onClick={handleSubmit}
+                 <button
+                    type="submit"
                     disabled={isSubmitting}
                     className={`absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       isSubmitting
                         ? "bg-purple-400 cursor-wait text-white"
                         : "bg-purple-600 hover:bg-purple-700 text-white"
                     }`}
-                  >
+                        >
                     {isSubmitting ? "Sending..." : "Send"}
                     <Send className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-            </div>
+            </form>
+          </div>
           </div>
         </div>
-      </div>
 
       {/* Success Popup */}
       {showPopup && (

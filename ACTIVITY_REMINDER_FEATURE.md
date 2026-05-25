@@ -94,18 +94,26 @@ Use the motivational reminders as guidance to:
 
 ## Token Requirements
 
-To use this feature, you need a Personal Access Token with the following permissions:
+**Authentication with a Personal Access Token (PAT) is required** to view and use the ActivityReminder UI. The component is only displayed when you have successfully authenticated with both a GitHub username and a valid PAT.
+
+Your PAT should have the following permissions:
 - `public_repo` (access to public repositories)
 - `repo` (access to private repositories - if tracking private repos)
 
-**Note**: The feature works with or without a token, but with a token you get higher API rate limits.
+Without valid authentication, the Daily Activity Status reminder widget will not be accessible.
 
 ## Technical Details
 
 ### Components
 - **`useGitHubActivity` Hook**: Analyzes activity data and returns activity status
 - **`ActivityReminder` Component**: Displays the reminder UI with all statistics
-- **`activityReminders` Utilities**: Helper functions for generating messages and calculations
+- **Utility Functions** (`activityReminders.ts`): 
+  - `generateReminders()` - Creates motivational alert messages
+  - `generateStreakData()` - Calculates streak and generates streak messages
+  - `getActivitySummary()` - Generates text summary of daily activities
+  - `getActivityColor()` - Returns color coding based on activity level
+  - `calculateProductivityScore()` - Computes dynamic productivity score (0-100%)
+  - `getMotivationLevel()` - Determines motivation tier based on streak
 
 ### API Integration
 The feature leverages the existing GitHub API integration through:

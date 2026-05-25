@@ -47,9 +47,15 @@ export const useGitHubActivity = (
 
     // Separate PR types for today
     const todaysOpenPRs = todaysPRs.filter((pr) => pr.state === 'open');
-    const todaysMergedPRs = todaysPRs.filter(
-      (pr) => pr.pull_request?.merged_at
-    );
+    
+    // Compute merged PRs from all PRs by checking merged_at date (not created_at)
+    // This captures PRs created earlier but merged today
+    const todaysMergedPRs = prs.filter((pr) => {
+      if (!pr.pull_request?.merged_at) return false;
+      const mergedDate = new Date(pr.pull_request.merged_at);
+      mergedDate.setHours(0, 0, 0, 0);
+      return mergedDate.getTime() === today.getTime();
+    });
 
     // Calculate activity flags
     const hasOpenedPRToday = todaysOpenPRs.length > 0;
@@ -82,19 +88,22 @@ export const useGitHubActivity = (
         return itemDate.getTime() === currentDate.getTime();
       });
 
+      // Initialize streak based on activity today
+      // If active today, start at 1 and move to yesterday for iteration
+      // If inactive today, start at 0 and keep currentDate at today
       if (hasActivityToday) {
         contributionStreak = 1;
         currentDate.setDate(currentDate.getDate() - 1);
+      }
 
-        // Count consecutive days backwards
-        for (const item of allActivity) {
-          const itemDate = new Date(item.created_at);
-          itemDate.setHours(0, 0, 0, 0);
+      // Count consecutive days backwards (regardless of activity today)
+      for (const item of allActivity) {
+        const itemDate = new Date(item.created_at);
+        itemDate.setHours(0, 0, 0, 0);
 
-          if (itemDate.getTime() === currentDate.getTime()) {
-            contributionStreak++;
-            currentDate.setDate(currentDate.getDate() - 1);
-          }
+        if (itemDate.getTime() === currentDate.getTime()) {
+          contributionStreak++;
+          currentDate.setDate(currentDate.getDate() - 1);
         }
       }
     }

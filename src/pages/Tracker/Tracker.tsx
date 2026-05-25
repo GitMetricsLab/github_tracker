@@ -34,6 +34,7 @@ import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { useGitHubActivity } from "../../hooks/useGitHubActivity";
 import ActivityReminder from "../../components/ActivityReminder";
+import { get30DayWindow } from "../../utils/dateUtils";
 import { KeyIcon } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
@@ -86,14 +87,24 @@ const Home: React.FC = () => {
   // Fetch data when username, tab, or page changes
   useEffect(() => {
     if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+      const { startDate, endDate } = get30DayWindow();
+      const apiFilters = {
+        startDate: startDate,
+        endDate: endDate,
+      };
+      fetchData(username, page + 1, ROWS_PER_PAGE, 'both', apiFilters);
     }
-  }, [tab, page]);
+  }, [tab, page, username]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    const { startDate, endDate } = get30DayWindow();
+    const apiFilters = {
+      startDate: startDate,
+      endDate: endDate,
+    };
+    fetchData(username, 1, ROWS_PER_PAGE, 'both', apiFilters);
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -334,9 +345,9 @@ const Home: React.FC = () => {
         </Alert>
       )}
 
-      {/* Activity Reminder - Show when data is loaded and user is authenticated */}
-      {username && !loading && (issues.length > 0 || prs.length > 0) && (
-        <ActivityReminder activity={activity} username={username} />
+      {/* Activity Reminder - Show when user is authenticated and data is loaded */}
+      {username && !loading && (
+        <ActivityReminder activity={activity} />
       )}
 
       {loading ? (

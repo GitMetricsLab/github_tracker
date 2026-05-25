@@ -27,12 +27,10 @@ import {
 
 interface ActivityReminderProps {
   activity: ActivityStatus;
-  username: string;
 }
 
 const ActivityReminder: React.FC<ActivityReminderProps> = ({
   activity,
-  username,
 }) => {
   const theme = useTheme();
   const reminders = useMemo(() => generateReminders(activity), [activity]);

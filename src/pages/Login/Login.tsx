@@ -34,6 +34,7 @@ const Login: React.FC = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
+        localStorage.setItem("user", JSON.stringify(response.data.user))
         navigate("/home");
       }
     } catch (error: any) {

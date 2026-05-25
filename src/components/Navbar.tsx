@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { Moon, Sun } from 'lucide-react';
+import ProfileDropDown from "./Profile/ProfileDropDown";
 
 
 const Navbar: React.FC = () => {
@@ -13,6 +14,9 @@ const Navbar: React.FC = () => {
     return null;
 
   const { toggleTheme, mode } = themeContext;
+  const storedUser = localStorage.getItem("user");
+  const user: any = storedUser ? JSON.parse(storedUser) : null;
+  console.log("User", user)
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
@@ -46,12 +50,14 @@ const Navbar: React.FC = () => {
           >
             Contributors
           </Link>
-          <Link
+          {!user && (<Link
             to="/login"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Login
-          </Link>
+          </Link>)}
+
+          {user && <ProfileDropDown user={user}/>}
           <button
             onClick={toggleTheme}
             className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
@@ -67,19 +73,16 @@ const Navbar: React.FC = () => {
             className="relative w-8 h-8 flex flex-col space-y-[5px] items-center group focus:outline-none"
           >
             <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
-                isOpen ? "rotate-45 translate-y-2" : ""
-              }`}
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${isOpen ? "rotate-45 translate-y-2" : ""
+                }`}
             ></span>
             <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-opacity duration-300 ${
-                isOpen ? "opacity-0" : ""
-              }`}
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-opacity duration-300 ${isOpen ? "opacity-0" : ""
+                }`}
             ></span>
             <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${
-                isOpen ? "-rotate-45 -translate-y-2" : ""
-              }`}
+              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${isOpen ? "-rotate-45 -translate-y-2" : ""
+                }`}
             ></span>
           </button>
         </div>
@@ -117,13 +120,15 @@ const Navbar: React.FC = () => {
             >
               Contributors
             </Link>
-            <Link
-              to="/login"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-              onClick={() => setIsOpen(false)}
-            >
-              Login
-            </Link>
+            {!user && (
+              <Link
+                to="/login"
+                className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Link>
+            )}
             <button
               onClick={() => {
                 toggleTheme();

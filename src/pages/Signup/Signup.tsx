@@ -147,7 +147,7 @@ const SignUp: React.FC = () => {
         />
       </div>
 
-      <div className="relative w-full max-w-md px-4 sm:px-6">
+      <div className="relative w-full max-w-md p-10 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -282,12 +282,14 @@ const SignUp: React.FC = () => {
             </div>
           )}
 
-          <div className="text-center mt-8">
-            <p className={mode === "dark" ? "text-gray-300" : "text-gray-600"}>
-              Already have an account?{" "}
+          <div className="text-center mt-8 pb-8">
+            <p
+              className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}
+            >
+              Don't have an account?
               <Link
                 to="/login"
-                className={`font-medium hover:underline transition-colors duration-300 ${mode === "dark" ? "text-white" : "text-black"}`}
+                className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"
               >
                 Sign in here
               </Link>

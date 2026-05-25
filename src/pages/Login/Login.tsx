@@ -63,7 +63,7 @@ const Login: React.FC = () => {
         <div className={`absolute top-1/2 right-1/4 w-64 h-64 ${mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"} rounded-full blur-2xl opacity-20 animate-pulse delay-1000`} />
       </div>
 
-      <div className="relative w-full max-w-md px-4 sm:px-6">
+      <div className="relative w-full max-w-md p-10 sm:px-6">
         {/* Branding */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">

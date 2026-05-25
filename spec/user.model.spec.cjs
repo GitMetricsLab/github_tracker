@@ -51,6 +51,20 @@ describe('User Model', () => {
     expect(user.password).toBe(originalHash);
   });
 
+  // -------- OAUTH USER --------
+  it('should allow OAuth users without a password', async () => {
+    const user = await User.create({
+      username: 'oauthuser',
+      email: 'oauth@example.com',
+      provider: 'github',
+      providerId: 'gh-123',
+    });
+
+    expect(user.password).toBeUndefined();
+    const isMatch = await user.comparePassword('anything');
+    expect(isMatch).toBe(false);
+  });
+
   // -------- COMPARE PASSWORD --------
   it('should correctly compare passwords', async () => {
     const user = await User.create({

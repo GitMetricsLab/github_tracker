@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
+import toast from 'react-hot-toast';
 import {
   FaGithub,
   FaTwitter,
@@ -13,33 +14,38 @@ import {
 
 function Footer() {
   const [email, setEmail] = useState('');
-
+const [isSubmitting, setIsSubmitting] = useState(false);
  const handleSubscribe = async (
   e: React.FormEvent<HTMLFormElement>
 ) => {
   e.preventDefault();
 
   if (!email) {
-    alert('Please enter a valid email');
+    toast.error('Please enter a valid email');
     return;
   }
 
+  setIsSubmitting(true);
+
   try {
-   await emailjs.send(
-  import.meta.env.VITE_EMAILJS_SERVICE_ID,
-  import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-  {
-    user_email: email,
-  },
-  {
-    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-  }
-);
-    alert('Subscribed successfully!');
+    await emailjs.send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      {
+        user_email: email,
+      },
+      {
+        publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+      }
+    );
+
+    toast.success('Subscribed successfully!');
     setEmail('');
   } catch (error) {
     console.error(error);
-    alert('Subscription failed. Please try again.');
+    toast.error('Subscription failed. Please try again.');
+  } finally {
+    setIsSubmitting(false);
   }
 };
 
@@ -142,23 +148,27 @@ function Footer() {
                   transition-all
                 "
               />
+<button
+  type="submit"
+  disabled={isSubmitting}
+  className="
+    px-5 py-3 text-sm font-bold
+    bg-blue-600 hover:bg-blue-700
+    text-white rounded-xl shadow-sm
+    active:scale-[0.98]
+    transition-all duration-300
+    hover:shadow-lg hover:shadow-blue-500/20
+    flex items-center justify-center gap-1.5
+    whitespace-nowrap
+    disabled:opacity-50 disabled:cursor-not-allowed
+  "
+>
+  <span>
+    {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+  </span>
 
-              <button
-                type="submit"
-                className="
-                  px-5 py-3 text-sm font-bold
-                  bg-blue-600 hover:bg-blue-700
-                  text-white rounded-xl shadow-sm
-                  active:scale-[0.98]
-                  transition-all duration-300
-                  hover:shadow-lg hover:shadow-blue-500/20
-                  flex items-center justify-center gap-1.5
-                  whitespace-nowrap
-                "
-              >
-                <span>Subscribe</span>
-                <FaArrowRight className="h-3.5 w-3.5" />
-              </button>
+  <FaArrowRight className="h-3.5 w-3.5" />
+</button>
             </form>
           </div>
         </div>

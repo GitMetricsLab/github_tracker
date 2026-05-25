@@ -31,9 +31,10 @@ function Footer() {
   {
     user_email: email,
   },
-  import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+  {
+    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+  }
 );
-
     alert('Subscribed successfully!');
     setEmail('');
   } catch (error) {

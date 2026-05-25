@@ -3,7 +3,9 @@
 Thank you for helping keep **GitHub Tracker** and its community safe.
 
 We take security vulnerabilities seriously and appreciate responsible disclosure from contributors, users, and security researchers.
+
 Please report security issues responsibly and avoid public disclosure until the issue has been resolved.
+
 ---
 
 # 📌 Supported Versions
@@ -12,7 +14,7 @@ The following table outlines the versions of the project currently receiving sec
 
 | Version | Supported |
 | ------- | --------- |
-| Latest `main` branch | ✅ |
+| Current development version | ✅ |
 | Older versions | ❌ |
 
 We recommend always using the latest version of the project to benefit from recent security fixes and improvements.
@@ -35,8 +37,8 @@ If you discover a security vulnerability within this project, please report it r
 
 Please report vulnerabilities by contacting the maintainers through one of the following methods:
 
-- Open a private security advisory (if enabled)
-- Contact the repository maintainers directly via GitHub
+- Open a private GitHub Security Advisory (if enabled)
+- Contact repository maintainers through GitHub Discussions or direct GitHub communication
 - Provide detailed reproduction steps and supporting information
 
 When submitting a report, please include:

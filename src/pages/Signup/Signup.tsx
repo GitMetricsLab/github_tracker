@@ -286,7 +286,7 @@ const SignUp: React.FC = () => {
             <p
               className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}
             >
-              Don't have an account?
+              Already have an account?
               <Link
                 to="/login"
                 className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"

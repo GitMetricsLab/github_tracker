@@ -1,5 +1,5 @@
 {
-  "name": "github-tracker",
+  "name": "GitHub Tracker",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -54,7 +54,6 @@
 
     "autoprefixer": "^10.4.20",
     "bcryptjs": "^3.0.3",
-    "cors": "^2.8.5",
 
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",

@@ -1,12 +1,5 @@
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-
-// Resolve mongoose from the backend directory so this test and the User model
-// share one mongoose instance, avoiding connection-state mismatches when
-// backend/node_modules is present alongside the root node_modules.
-const mongoose = require(
-  require.resolve('mongoose', { paths: [`${__dirname}/../backend`] })
-);
-
 const User = require('../backend/models/User');
 
 describe('User Model', () => {

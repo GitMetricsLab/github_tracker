@@ -24,6 +24,7 @@ import {
   Alert,
   Tabs,
   Tab,
+  Skeleton,
   Select,
   MenuItem,
   FormControl,
@@ -331,8 +332,15 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
+        <Box sx={{padding:2}}>
+          {[1,2,3,4,5].map((item)=>(
+            <Skeleton
+            key={item}
+            variant="rounded"
+            height={45}
+            sx={{marginBottom:1.5}}
+            />
+          ))}
         </Box>
       ) : (
         <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>

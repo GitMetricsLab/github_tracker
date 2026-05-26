@@ -100,12 +100,10 @@ const SignUp: React.FC = () => {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/auth/signup`,
-        formData,
-        { withCredentials: true }
-      );
-      setMessage(response.data.message);
+      const response = await axios.post(`${backendUrl}/api/auth/signup`, formData, {
+        withCredentials: true,
+      });
+      setMessage(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup
       if (response.data.message === 'User created successfully') {

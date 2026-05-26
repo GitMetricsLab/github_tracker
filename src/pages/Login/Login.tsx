@@ -34,11 +34,9 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/auth/login`,
-        formData,
-        { withCredentials: true }
-      );
+      const response = await axios.post(`${backendUrl}/api/auth/login`, formData, {
+        withCredentials: true,
+      });
       setMessage(response.data.message);
 
       if (response.data.message === "Login successful") {

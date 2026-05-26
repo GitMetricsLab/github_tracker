@@ -103,8 +103,27 @@ Install backend dependencies:
 npm install
 ```
 
-Start the backend server:
+3. Configure environment variables
 
+   Copy the example files and fill in your values:
+   ```bash
+   # Frontend (.env in the repo root)
+   cp .env.example .env
+
+   # Backend (.env inside backend/)
+   cp backend/.env.example backend/.env
+   ```
+
+   Key variables to set:
+
+   | Variable | Where | Description |
+   |---|---|---|
+   | `VITE_BACKEND_URL` | root `.env` | URL of the backend (default: `http://localhost:5000`) |
+   | `MONGO_URI` | `backend/.env` | MongoDB connection string |
+   | `SESSION_SECRET` | `backend/.env` | Long random string used to sign session cookies |
+   | `FRONTEND_ORIGIN` | `backend/.env` | URL of the frontend — restricts CORS. **Required in production.** Defaults to `http://localhost:5173` in development. |
+
+4. Run the frontend
 ```bash
 npm run dev
 ```
@@ -115,18 +134,11 @@ The backend server will run on:
 http://localhost:5000
 ```
 
----
-
-# 🐳 Docker Development Workflow
-
-The project includes Docker configurations for both development and production environments.
-
-## 📦 Development Environment
-
-Run the complete development environment using Docker:
-
+5. Run the backend
 ```bash
-npm run docker:dev
+$ cd backend
+$ npm i
+$ npm start
 ```
 
 This command:

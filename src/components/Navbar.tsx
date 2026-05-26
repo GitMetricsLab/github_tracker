@@ -1,13 +1,12 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, Menu, X, Github } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const themeContext = useContext(ThemeContext);
-
   if (!themeContext) return null;
 
   const { toggleTheme, mode } = themeContext;
@@ -35,7 +34,6 @@ const Navbar: React.FC = () => {
             alt="CRL Icon"
             className="h-8 w-8 object-contain"
           />
-
           <span>GitHub Tracker</span>
         </Link>
 
@@ -47,6 +45,11 @@ const Navbar: React.FC = () => {
 
           <NavLink to="/track" className={navLinkStyles}>
             Tracker
+          </NavLink>
+
+          {/* ✅ NEW FEATURE */}
+          <NavLink to="/compare" className={navLinkStyles}>
+            Compare
           </NavLink>
 
           <NavLink to="/contributors" className={navLinkStyles}>
@@ -107,37 +110,27 @@ const Navbar: React.FC = () => {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="px-6 py-5 flex flex-col gap-3">
 
-            <NavLink
-              to="/"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
+            <NavLink to="/" className={navLinkStyles} onClick={closeMenu}>
               Home
             </NavLink>
 
-            <NavLink
-              to="/track"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
+            <NavLink to="/track" className={navLinkStyles} onClick={closeMenu}>
               Tracker
             </NavLink>
 
-            <NavLink
-              to="/contributors"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
+            {/* ✅ NEW FEATURE */}
+            <NavLink to="/compare" className={navLinkStyles} onClick={closeMenu}>
+              Compare
+            </NavLink>
+
+            <NavLink to="/contributors" className={navLinkStyles} onClick={closeMenu}>
               Contributors
             </NavLink>
 
-            <NavLink
-              to="/login"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
+            <NavLink to="/login" className={navLinkStyles} onClick={closeMenu}>
               Login
             </NavLink>
+
           </div>
         </div>
       )}

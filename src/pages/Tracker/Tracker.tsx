@@ -32,6 +32,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import DailyActivityStatus from "../../components/DailyActivityStatus";
 import { KeyIcon } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
@@ -66,6 +67,8 @@ const Home: React.FC = () => {
     totalPrs,
     loading,
     error: dataError,
+    dailyActivity,
+    dailyActivityLoaded,
     fetchData,
   } = useGitHubData(getOctokit);
 
@@ -241,6 +244,8 @@ const Home: React.FC = () => {
           </Box>
         </form>
       </Paper>
+
+      {dailyActivityLoaded && <DailyActivityStatus {...dailyActivity} />}
 
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>

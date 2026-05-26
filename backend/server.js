@@ -5,6 +5,7 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const cors = require('cors');
+const { createSessionConfig } = require('./config/session');
 
 // Passport configuration
 require('./config/passportConfig');
@@ -28,11 +29,10 @@ app.use(cors({
 
 // Middleware
 app.use(bodyParser.json());
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-}));
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+app.use(session(createSessionConfig()));
 app.use(passport.initialize());
 app.use(passport.session());
 

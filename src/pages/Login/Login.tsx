@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
-import { ArrowLeft } from "lucide-react";
+import Navbar from "../../components/Navbar";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -55,8 +55,10 @@ const Login: React.FC = () => {
   };
 
   return (
+    <>
+      <Navbar />
     <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
+      className={`min-h-screen pt-24 h-full w-full flex items-center justify-center relative overflow-hidden ${
         mode === "dark"
           ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
           : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
@@ -228,6 +230,7 @@ const Login: React.FC = () => {
         } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
       />
     </div>
+    </>
   );
 };
 

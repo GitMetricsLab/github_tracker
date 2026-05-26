@@ -112,9 +112,45 @@ export default function RegisterPage(): JSX.Element {
     return e;
   };
 
-  const handleChange = (field: keyof FormState) => (ev: ChangeEvent<HTMLInputElement>): void => {
-    setForm((f) => ({ ...f, [field]: ev.target.value }));
-    if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const usernameError = !formData.username.trim()
+      ? "Username is required"
+      : !/^[A-Za-z\s]+$/.test(formData.username)
+      ? "Only letters are allowed"
+      : "";
+    const emailError = !formData.email.trim()
+      ? "Email is required"
+      : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
+      ? "Enter a valid email"
+      : "";
+    const passwordError = !formData.password.trim()
+      ? "Password is required"
+      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(formData.password)
+      ? "Password must be 8+ characters with letters and numbers"
+      : "";
+    if (usernameError || emailError || passwordError) {
+      setErrors({ username: usernameError, email: emailError, password: passwordError });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/auth/signup`,
+        formData,
+        { withCredentials: true }
+      );
+      setMessage(response.data.message);
+
+      // Navigate to login page after successful signup
+      if (response.data.message === 'User created successfully') {
+        navigate("/login");
+      }
+    } catch (error: any) {
+      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (): Promise<void> => {

@@ -37,6 +37,7 @@ const Login: React.FC = () => {
       const response = await axios.post(
         `${backendUrl}/api/auth/login`,
         formData,
+        { withCredentials: true }
       );
       setMessage(response.data.message);
 

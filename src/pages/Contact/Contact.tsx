@@ -11,6 +11,9 @@ import {
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
+// Email validation regex - moved to module scope to avoid recreating on every render
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function Contact() {
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,9 +32,6 @@ function Contact() {
 
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
-
-  // Email validation regex
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -94,13 +94,14 @@ function Contact() {
     setIsSubmitting(false);
     setShowPopup(true);
 
-    // Reset form on successful submission
+    // Reset form and errors on successful submission
     setFormData({
       fullName: "",
       email: "",
       subject: "",
       message: "",
     });
+    setErrors({});
 
     // Auto-close popup after 5 seconds
     setTimeout(() => {
@@ -265,7 +266,8 @@ function Contact() {
           </div>
 
           {/* Contact Form */}
-          <div
+          <form
+            onSubmit={handleSubmit}
             className={`p-4 sm:p-6 rounded-xl sm:rounded-3xl shadow-2xl h-full flex flex-col backdrop-blur-lg ${
               mode === "dark"
                 ? "bg-white/10 border border-white/20"
@@ -432,7 +434,7 @@ function Contact() {
                   )}
 
                   <button
-                    onClick={handleSubmit}
+                    type="submit"
                     disabled={isSubmitting}
                     className={`absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       isSubmitting
@@ -446,7 +448,7 @@ function Contact() {
                 </div>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 

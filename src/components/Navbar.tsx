@@ -3,6 +3,7 @@ import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { Moon, Sun } from 'lucide-react';
 import ProfileDropDown from "./Profile/ProfileDropDown";
+import { logoutUser } from "../services/auth";
 
 
 const Navbar: React.FC = () => {
@@ -15,8 +16,15 @@ const Navbar: React.FC = () => {
 
   const { toggleTheme, mode } = themeContext;
   const storedUser = localStorage.getItem("user");
-  const user: any = storedUser ? JSON.parse(storedUser) : null;
-  console.log("User", user)
+  let user = null;
+
+  try {
+    user = storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    console.error("Invalid user data in local Storage");
+    localStorage.removeItem("user");
+    user = null;
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
@@ -57,7 +65,7 @@ const Navbar: React.FC = () => {
             Login
           </Link>)}
 
-          {user && <ProfileDropDown user={user}/>}
+          {user && <ProfileDropDown user={user} />}
           <button
             onClick={toggleTheme}
             className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
@@ -129,6 +137,26 @@ const Navbar: React.FC = () => {
                 Login
               </Link>
             )}
+            {user && (
+              <>
+                <Link
+                  to="/me"
+                  className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                  onClick={() => setIsOpen(false)}
+                >
+                  My Profile
+                </Link>
+                <button
+                  className="block w-full text-left text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                  onClick={
+                    logoutUser
+                  }
+                >
+                  Logout
+                </button>
+              </>
+            )}
+
             <button
               onClick={() => {
                 toggleTheme();

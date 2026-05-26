@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { LogOut, Settings, User } from "lucide-react";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { logoutUser } from "../../services/auth";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 type UserType = {
     id: string,
@@ -32,31 +34,6 @@ const ProfileDropDown = ({ user }: UserProps) => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
-
-    const handleLogout = async (): Promise<void> => {
-
-        try {
-
-            const response = await axios.get(`${backendUrl}/api/auth/logout`);
-
-            if (response.data) {
-
-                // Remove stored user
-                localStorage.removeItem("user");
-
-                // Redirect to login/home
-                window.location.href = "/login";
-
-                console.log(response.data.message);
-            }
-            else {
-                console.log(response.data.message);
-            }
-
-        } catch (error) {
-            console.log("Logout failed", error);
-        }
-    };
 
     return (
         <div className="relative inline-block text-left" ref={dropdownRef}>
@@ -105,21 +82,25 @@ const ProfileDropDown = ({ user }: UserProps) => {
                     {/* Menu Items */}
                     <div className="p-2">
 
-                        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
-                        dark:text-gray-200 dark:hover:bg-gray-800">
+                        <Link className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
+                        dark:text-gray-200 dark:hover:bg-gray-800"
+                            to={"/me"}
+                        >
                             <User size={18} />
                             My Profile
-                        </button>
+                        </Link>
 
-                        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
-                        dark:text-gray-200 dark:hover:bg-gray-800">
+                        <Link className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
+                        dark:text-gray-200 dark:hover:bg-gray-800"
+                        to={"/profile/edit"}
+                        >
                             <Settings size={18} />
                             Edit Profile
-                        </button>
+                        </Link>
 
                         <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition hover:bg-red-50
                         dark:hover:bg-red-900/2"
-                            onClick={() => handleLogout()}>
+                            onClick={logoutUser}>
                             <LogOut size={18} />
                             Logout
                         </button>

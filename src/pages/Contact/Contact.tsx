@@ -6,21 +6,15 @@ import {
   Send,
   X,
   CheckCircle,
-  ArrowLeft,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
 function Contact() {
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
-
-  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -57,33 +51,6 @@ function Contact() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-6 max-w-7xl flex flex-col pb-20">
-        {/* Back to Home Button */}
-        <div className="mb-6 flex justify-start">
-          <button
-            onClick={() => navigate("/")}
-            className={`group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl px-5 py-3 text-sm sm:text-base font-semibold shadow-lg backdrop-blur-xl border transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 active:scale-95 ${
-              mode === "dark"
-                ? "bg-white/10 text-white border-white/20 hover:bg-white/20"
-                : "bg-white/80 text-gray-800 border-gray-200 hover:bg-white"
-            }`}
-          >
-            {/* Glow Effect */}
-            <span className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-
-            {/* Icon */}
-            <div
-              className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 group-hover:-translate-x-1 ${
-                mode === "dark" ? "bg-white/10" : "bg-purple-100"
-              }`}
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </div>
-
-            {/* Text */}
-            <span className="relative z-10">Back to Home</span>
-          </button>
-        </div>
-
         {/* Header Section */}
         <div className="text-center mb-8 flex-shrink-0">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3 mb-4">
@@ -98,7 +65,6 @@ function Contact() {
                 className="w-10 h-10 sm:w-14 sm:h-14 object-contain"
               />
             </div>
-
             <h1
               className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold 
                          bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
@@ -106,7 +72,6 @@ function Contact() {
               GitHub Tracker
             </h1>
           </div>
-
           <p
             className={`text-sm sm:text-lg max-w-xl md:max-w-2xl mx-auto leading-relaxed ${
               mode === "dark" ? "text-gray-300" : "text-gray-700"
@@ -128,14 +93,13 @@ function Contact() {
               >
                 Let's Connect
               </h2>
-
               <p
                 className={`text-xs sm:text-base ${
                   mode === "dark" ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                We're here to help you track and manage your GitHub repositories
-                more effectively
+                We're here to help you track and manage your GitHub
+                repositories more effectively
               </p>
             </div>
 
@@ -164,10 +128,8 @@ function Contact() {
                     Icon: Github,
                   },
                 ];
-
                 const { title, iconBg, detail, sub, Icon } =
                   contactTypes[index];
-
                 return (
                   <div
                     key={title}
@@ -183,31 +145,36 @@ function Contact() {
                       >
                         <Icon
                           className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                            mode === "dark" ? "text-white" : "text-gray-800"
+                            mode === "dark"
+                              ? "text-white"
+                              : "text-gray-800"
                           }`}
                         />
                       </div>
-
                       <div>
                         <h3
                           className={`text-sm sm:text-base font-semibold ${
-                            mode === "dark" ? "text-white" : "text-gray-800"
+                            mode === "dark"
+                              ? "text-white"
+                              : "text-gray-800"
                           }`}
                         >
                           {title}
                         </h3>
-
                         <p
                           className={`text-xs sm:text-sm ${
-                            mode === "dark" ? "text-gray-300" : "text-gray-600"
+                            mode === "dark"
+                              ? "text-gray-300"
+                              : "text-gray-600"
                           }`}
                         >
                           {detail}
                         </p>
-
                         <p
                           className={`text-xs ${
-                            mode === "dark" ? "text-gray-400" : "text-gray-500"
+                            mode === "dark"
+                              ? "text-gray-400"
+                              : "text-gray-500"
                           }`}
                         >
                           {sub}
@@ -242,12 +209,13 @@ function Contact() {
                 <div>
                   <label
                     className={`block text-xs font-medium mb-1 ${
-                      mode === "dark" ? "text-gray-300" : "text-gray-700"
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     }`}
                   >
                     Full Name
                   </label>
-
                   <input
                     type="text"
                     placeholder="Enter your full name"
@@ -264,12 +232,13 @@ function Contact() {
                 <div>
                   <label
                     className={`block text-xs font-medium mb-1 ${
-                      mode === "dark" ? "text-gray-300" : "text-gray-700"
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     }`}
                   >
                     Email Address
                   </label>
-
                   <input
                     type="email"
                     placeholder="your.email@example.com"
@@ -286,17 +255,18 @@ function Contact() {
                 <div>
                   <label
                     className={`block text-xs font-medium mb-1 ${
-                      mode === "dark" ? "text-gray-300" : "text-gray-700"
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     }`}
                   >
                     Subject
                   </label>
-
                   <select
                     className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       mode === "dark"
-                        ? "bg-white/5 border border-white/20 text-white"
-                        : "bg-gray-50 border border-gray-300 text-gray-800"
+                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
+                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
                     }`}
                     required
                     defaultValue=""
@@ -304,7 +274,6 @@ function Contact() {
                     <option value="" disabled>
                       Select a subject
                     </option>
-
                     <option>General Inquiry</option>
                     <option>Bug Report</option>
                     <option>Feature Request</option>
@@ -316,12 +285,13 @@ function Contact() {
                 <div className="relative">
                   <label
                     className={`block text-xs font-medium mb-1 ${
-                      mode === "dark" ? "text-gray-300" : "text-gray-700"
+                      mode === "dark"
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     }`}
                   >
                     Message
                   </label>
-
                   <textarea
                     placeholder="Type your message here..."
                     required
@@ -343,7 +313,6 @@ function Contact() {
                     }`}
                   >
                     {isSubmitting ? "Sending..." : "Send"}
-
                     <Send className="w-4 h-4" />
                   </button>
                 </div>
@@ -363,11 +332,9 @@ function Contact() {
           }`}
         >
           <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7" />
-
           <div className="flex-1 text-xs sm:text-sm font-semibold">
             Thank you for contacting us! We will get back to you shortly.
           </div>
-
           <button
             onClick={handleClosePopup}
             className="text-lg sm:text-xl px-2 sm:px-3 py-1 rounded-xl hover:bg-green-200/40 focus:outline-none focus:ring-2 focus:ring-green-400"

@@ -39,10 +39,16 @@ const initialDailyActivity: DailyActivity = {
   reminders: [],
 };
 
-const getDateKey = (date: Date): string =>
-  date.toISOString().split('T')[0];
+const getDateKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
 
 const buildDailyReminders = ({
+
   commitCountToday,
   prOpenedToday,
   prMergedToday,

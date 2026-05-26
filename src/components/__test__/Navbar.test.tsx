@@ -1,6 +1,6 @@
 // src/components/__tests__/Navbar.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeContext } from "../../context/ThemeContext";
 import Navbar from '../Navbar.tsx'
@@ -51,31 +51,30 @@ describe('Navbar', () => {
   // --- Mobile menu ---
   it('mobile menu is hidden by default', () => {
     renderNavbar()
-    expect(screen.queryByText('About')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /^tracker$/i })).toHaveLength(1)
   })
 
   it('opens mobile menu when hamburger is clicked', () => {
     renderNavbar()
-    const hamburger = screen.getAllByRole('button')[1] // second button = hamburger
+    const hamburger = screen.getAllByRole('button')[2] // third button = hamburger
     fireEvent.click(hamburger)
-    expect(screen.getByText('About')).toBeInTheDocument()
-    expect(screen.getByText('Contact')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /^tracker$/i })).toHaveLength(2)
   })
 
   it('closes mobile menu when a nav link is clicked', () => {
     renderNavbar()
-    const hamburger = screen.getAllByRole('button')[1]
+    const hamburger = screen.getAllByRole('button')[2]
     fireEvent.click(hamburger)                          // open
+    expect(screen.getAllByRole('link', { name: /^tracker$/i })).toHaveLength(2)
     const homeLinks = screen.getAllByRole('link', { name: /home/i })
     fireEvent.click(homeLinks[homeLinks.length - 1]) // click the mobile one
-    expect(screen.queryByText('About')).not.toBeInTheDocument()  // closed
+    expect(screen.getAllByRole('link', { name: /^tracker$/i })).toHaveLength(1)  // closed
   })
 
-  it('calls toggleTheme from the mobile menu button', () => {
+  it('calls toggleTheme from the mobile theme button', () => {
     const { toggleTheme } = renderNavbar('dark')
-    const hamburger = screen.getAllByRole('button')[1]
-    fireEvent.click(hamburger)
-    fireEvent.click(screen.getByText(/light/i))
+    const mobileThemeBtn = screen.getAllByRole('button')[1] // second button = mobile theme toggle
+    fireEvent.click(mobileThemeBtn)
     expect(toggleTheme).toHaveBeenCalledTimes(1)
   })
 

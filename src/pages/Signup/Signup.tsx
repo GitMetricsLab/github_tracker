@@ -223,7 +223,11 @@ const SignUp: React.FC = () => {
                 placeholder="Enter your username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full px-4 py-4 rounded-2xl border"
+                className={`w-full px-4 py-4 rounded-2xl border focus:outline-none transition-all ${
+                  mode === "dark"
+                    ? "bg-white/5 border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                    : "bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                }`}
               />
               {errors.username && (
                 <p className="text-red-500 text-sm mt-2">{errors.username}</p>
@@ -238,7 +242,11 @@ const SignUp: React.FC = () => {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-4 rounded-2xl border"
+                className={`w-full px-4 py-4 rounded-2xl border focus:outline-none transition-all ${
+                  mode === "dark"
+                    ? "bg-white/5 border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                    : "bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                }`}
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-2">{errors.email}</p>
@@ -253,7 +261,11 @@ const SignUp: React.FC = () => {
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-4 rounded-2xl border"
+                className={`w-full px-4 py-4 rounded-2xl border focus:outline-none transition-all ${
+                  mode === "dark"
+                    ? "bg-white/5 border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                    : "bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                }`}
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-2">{errors.password}</p>

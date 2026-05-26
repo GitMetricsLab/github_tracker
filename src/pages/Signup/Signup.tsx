@@ -8,12 +8,13 @@ import type { ThemeContextType } from "../../context/ThemeContext";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-// Must mirror the Zod rule in backend/validators/authValidator.js exactly.
-// Requires: lowercase, uppercase, digit, and one special character from @$!%*?&
-// Minimum 8 characters, maximum enforced by the backend (100).
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const PASSWORD_ERROR =
-  "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (@$!%*?&)";
+// Username rules -- must mirror backend/validators/authValidator.js exactly.
+// Accepted characters: letters (a-z, A-Z), digits (0-9), and underscores.
+// Length: minimum 3, maximum 30 characters.
+const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
+const USERNAME_MIN = 3;
+const USERNAME_MAX = 30;
+const USERNAME_ERROR = "Username can only contain letters, numbers, and underscores";
 
 interface SignUpFormData {
   username: string;
@@ -46,8 +47,12 @@ const SignUp: React.FC = () => {
     if (name === "username") {
       if (!value.trim()) {
         errorMessage = "Username is required";
-      } else if (!/^[A-Za-z\s]+$/.test(value)) {
-        errorMessage = "Only letters are allowed";
+      } else if (value.trim().length < USERNAME_MIN) {
+        errorMessage = `Username must be at least ${USERNAME_MIN} characters long`;
+      } else if (value.trim().length > USERNAME_MAX) {
+        errorMessage = `Username must be at most ${USERNAME_MAX} characters long`;
+      } else if (!USERNAME_REGEX.test(value.trim())) {
+        errorMessage = USERNAME_ERROR;
       }
     }
     if (name === "email") {
@@ -69,10 +74,15 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const usernameError = !formData.username.trim()
+    const trimmedUsername = formData.username.trim();
+    const usernameError = !trimmedUsername
       ? "Username is required"
-      : !/^[A-Za-z\s]+$/.test(formData.username)
-      ? "Only letters are allowed"
+      : trimmedUsername.length < USERNAME_MIN
+      ? `Username must be at least ${USERNAME_MIN} characters long`
+      : trimmedUsername.length > USERNAME_MAX
+      ? `Username must be at most ${USERNAME_MAX} characters long`
+      : !USERNAME_REGEX.test(trimmedUsername)
+      ? USERNAME_ERROR
       : "";
     const emailError = !formData.email.trim()
       ? "Email is required"

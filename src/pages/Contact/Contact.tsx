@@ -268,6 +268,7 @@ function Contact() {
           {/* Contact Form */}
           <form
             onSubmit={handleSubmit}
+            noValidate
             className={`p-4 sm:p-6 rounded-xl sm:rounded-3xl shadow-2xl h-full flex flex-col backdrop-blur-lg ${
               mode === "dark"
                 ? "bg-white/10 border border-white/20"

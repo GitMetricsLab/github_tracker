@@ -46,6 +46,25 @@ const Hero = () => {
                   </span>
                 </span>
               </Link>
+
+              <Link to="/about" className="inline-flex items-center justify-center rounded-xl border border-slate-200/90 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-cyan-300 hover:text-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:border-slate-800/90 dark:bg-slate-900/40 dark:text-slate-200 dark:hover:border-cyan-500 dark:hover:text-cyan-300 dark:focus-visible:ring-offset-[#030712]">
+                Explore Features
+              </Link>
+            </div>
+
+            <div className="grid max-w-xl grid-cols-1 gap-2.5 pt-1 sm:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200/80 bg-white/70 px-3.5 py-2.5 shadow-sm backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/50">
+                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Public API</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Fast setup</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200/80 bg-white/70 px-3.5 py-2.5 shadow-sm backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/50">
+                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Multi-user</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Compare activity</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200/80 bg-white/70 px-3.5 py-2.5 shadow-sm backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/50">
+                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Live insights</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Track trends</div>
+              </div>
             </div>
           </div>
 
@@ -116,6 +135,21 @@ const Hero = () => {
                         />
                       );
                     })}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="rounded-xl border border-slate-200/60 bg-white/75 px-3 py-2.5 text-center shadow-sm dark:border-slate-800/40 dark:bg-slate-950/70">
+                    <div className="text-lg font-bold text-slate-900 dark:text-slate-100">8.4k</div>
+                    <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Views</div>
+                  </div>
+                  <div className="rounded-xl border border-slate-200/60 bg-white/75 px-3 py-2.5 text-center shadow-sm dark:border-slate-800/40 dark:bg-slate-950/70">
+                    <div className="text-lg font-bold text-slate-900 dark:text-slate-100">92%</div>
+                    <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Trend</div>
+                  </div>
+                  <div className="rounded-xl border border-slate-200/60 bg-white/75 px-3 py-2.5 text-center shadow-sm dark:border-slate-800/40 dark:bg-slate-950/70">
+                    <div className="text-lg font-bold text-slate-900 dark:text-slate-100">38</div>
+                    <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">PRs</div>
                   </div>
                 </div>
               </div>

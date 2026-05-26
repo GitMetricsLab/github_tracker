@@ -30,7 +30,7 @@ import {
 } from "@mui/material";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
-import { KeyIcon, GitBranchIcon } from "lucide-react";
+import { KeyIcon, GitBranch } from "lucide-react";
 import "./Tracker.css";
 
 const ROWS_PER_PAGE = 10;
@@ -171,7 +171,7 @@ const Home: React.FC = () => {
         {/* ── Auth Form ── */}
         <div className="tracker-glass-card">
           <div className="tracker-section-label">
-            <GitBranchIcon size={13} />
+            <GitBranch size={13} />
             Authentication
           </div>
           <form onSubmit={handleSubmit}>
@@ -339,7 +339,7 @@ const Home: React.FC = () => {
                       <TableRow>
                         <TableCell colSpan={4} sx={{ border: "none !important" }}>
                           <div className="tracker-empty-state">
-                            <GitBranchIcon size={40} />
+                            <GitBranch size={40} />
                             <p>
                               {username
                                 ? "No results found. Try adjusting your filters."

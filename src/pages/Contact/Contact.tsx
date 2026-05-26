@@ -8,6 +8,8 @@ import {
   CheckCircle,
   ChevronDown,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
@@ -289,6 +291,7 @@ function Contact() {
               Your parameters have been logged. The tracking team will review your payload data and connect within 24 hours.
             </p>
           </div>
+
           <button
             onClick={() => setShowPopup(false)}
             className="p-1 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-400 hover:text-slate-600"

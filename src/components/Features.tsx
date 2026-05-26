@@ -1,4 +1,91 @@
 import { BarChart3, Users, Search, Zap, Shield, Globe } from 'lucide-react';
+import type { CSSProperties, ReactNode } from 'react';
+
+type TerminalHeadingProps = {
+  title: string;
+  as?: 'h2' | 'h3' | 'h4';
+  className?: string;
+  promptClassName?: string;
+  titleClassName?: string;
+  animated?: boolean;
+};
+
+type TerminalCardProps = {
+  label: string;
+  children: ReactNode;
+  className?: string;
+  contentClassName?: string;
+  accent?: 'blue' | 'green';
+};
+
+const headingSizes: Record<NonNullable<TerminalHeadingProps['as']>, string> = {
+  h2: 'text-3xl md:text-4xl',
+  h3: 'text-xl md:text-2xl',
+  h4: 'text-lg md:text-xl',
+};
+
+const TerminalHeading = ({
+  title,
+  as: HeadingTag = 'h2',
+  className = '',
+  promptClassName = '',
+  titleClassName = '',
+  animated = false,
+}: TerminalHeadingProps) => {
+  const chars = title.length + 2;
+
+  return (
+    <HeadingTag
+      className={`inline-flex items-center gap-2 text-balance text-[#c9d1d9] ${headingSizes[HeadingTag]} ${className}`}
+      style={animated ? ({ '--terminal-chars': chars } as CSSProperties) : undefined}
+    >
+      <span
+        className={`font-["VT323"] text-[#58a6ff] ${animated ? 'terminal-typewriter inline-block' : ''} ${promptClassName}`}
+      >
+        &gt;
+      </span>
+      <span
+        className={`font-["VT323"] tracking-[0.03em] ${animated ? 'terminal-typewriter inline-block' : ''} ${titleClassName}`}
+      >
+        {title}
+      </span>
+    </HeadingTag>
+  );
+};
+
+const TerminalCard = ({
+  label,
+  children,
+  className = '',
+  contentClassName = '',
+  accent = 'blue',
+}: TerminalCardProps) => {
+  const accentClasses = accent === 'green' ? 'text-[#3fb950] border-[#3fb950]/30' : 'text-[#58a6ff] border-[#58a6ff]/30';
+
+  return (
+    <article
+      className={`group relative overflow-hidden rounded-2xl border border-[#30363d] bg-[#161b22] shadow-[0_12px_30px_rgba(1,4,9,0.22)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#58a6ff]/40 hover:shadow-[0_18px_38px_rgba(1,4,9,0.35)] ${className}`}
+    >
+      <div className="flex items-center justify-between gap-4 border-b border-[#30363d] bg-[#0d1117]/90 px-4 py-3">
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#f85149]/80" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#d29922]/80" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#3fb950]/80" />
+        </div>
+
+        <div className={`flex items-center gap-2 font-["VT323"] text-sm uppercase tracking-[0.22em] ${accentClasses}`}>
+          <span>{label}</span>
+          <span className="terminal-card-cursor opacity-0 transition-opacity duration-200 group-hover:opacity-100">_</span>
+        </div>
+      </div>
+
+      <div className={`relative px-5 py-5 sm:px-6 sm:py-6 ${contentClassName}`}>
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+        {children}
+      </div>
+    </article>
+  );
+};
 
 const Features = () => {
   const features = [
@@ -59,28 +146,67 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="px-6 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
-      <div className="mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Powerful Features</h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Everything you need to track, analyze, and understand GitHub activity patterns
+    <section
+      id="features"
+      className="relative left-1/2 right-1/2 w-screen -mx-[50vw] overflow-hidden bg-[linear-gradient(to_bottom,#f8fafc_0%,#dbe7f5_20%,#0d1117_100%)] px-6 py-16 text-[#c9d1d9] transition-colors duration-300 sm:py-20"
+      style={{
+        boxShadow: '0 -40px 80px rgba(88,166,255,0.08), 0 40px 80px rgba(88,166,255,0.05)',
+      }}
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(88,166,255,0.08),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(63,185,80,0.05),_transparent_28%)] pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f8fafc]/75 via-[#dbe7f5]/20 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d1117] via-[#0d1117]/70 to-transparent pointer-events-none" />
+      <div className="mx-auto max-w-7xl relative">
+        <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
+          <p className="font-['VT323'] text-sm uppercase tracking-[0.32em] text-[#58a6ff] sm:text-base">
+            &gt; initialize tracking capabilities
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-black md:text-4xl">
+            Powerful Features
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-[#8b949e] sm:text-base">
+            Everything you need to track, analyze, and understand GitHub activity patterns.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
+            const promptLabel = `feature-${String(index + 1).padStart(2, '0')}`;
+            const titleTone = index % 2 === 0 ? 'blue' : 'green';
             return (
-              <div key={index} className={`group h-72 w-full bg-gray-100 dark:bg-gray-800 ${feature.hoverColor} ${feature.borderColor} rounded-2xl shadow-md hover:shadow-2xl hover:shadow-blue-500/20 border dark:border-gray-800 transform hover:-translate-y-3 hover:scale-105 backdrop-blur-sm transition-all duration-300 ease-linear p-6`}>
-                <div className={`${feature.bgColor} w-12 h-12 rounded-lg flex items-center justify-center mb-6 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110`}>
-                  <IconComponent className={`h-6 w-6 ${feature.iconColor}`} />
+              <TerminalCard key={index} label={promptLabel} accent={titleTone} className="h-full">
+                <div className="flex h-full flex-col gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#30363d] bg-[#0d1117] text-[#58a6ff] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-105">
+                      <IconComponent className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <TerminalHeading
+                        title={feature.title}
+                        as="h3"
+                        className="items-start"
+                        titleClassName="text-[#f0f6fc]"
+                      />
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[#8b949e]">
+                        <span className="rounded-full border border-[#30363d] bg-[#0d1117] px-2.5 py-1 font-['VT323'] text-[#58a6ff]">
+                          cmd
+                        </span>
+                        <span className="font-['VT323']">gh tracker --feature</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-sm leading-relaxed text-[#8b949e] sm:text-[0.95rem]">
+                    {feature.description}
+                  </p>
+
+                  <div className="mt-auto flex items-center justify-between border-t border-[#30363d] pt-4 text-xs text-[#8b949e]">
+                    <span className="font-['VT323'] uppercase tracking-[0.2em] text-[#3fb950]">ready</span>
+                    <span className="font-['VT323'] text-[#58a6ff]">{feature.title.toLowerCase().replace(/\s+/g, '-')}</span>
+                  </div>
                 </div>
-                <h3 className="  text-2xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-black dark:group-hover:text-white transition-colors duration-300">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-base font-semibold leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300">
-                  {feature.description}
-                </p>
-              </div>
+              </TerminalCard>
             );
           })}
         </div>

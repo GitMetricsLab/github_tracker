@@ -35,9 +35,12 @@ passport.serializeUser((user, done) => {
 });
 
 // Deserialize user (retrieve user from session)
+// Select only the fields needed for request handling. Excluding password
+// prevents the bcrypt hash from being attached to req.user and accidentally
+// serialized into API responses.
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(id).select('-password -__v').lean();
         done(null, user);
     } catch (err) {
         done(err, null);

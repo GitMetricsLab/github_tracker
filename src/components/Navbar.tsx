@@ -1,16 +1,21 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, Menu, X, Github } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
+import { Moon, Sun, Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const themeContext = useContext(ThemeContext);
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  if (!themeContext) return null;
+  if (!themeContext || !authContext) return null;
 
   const { toggleTheme, mode } = themeContext;
+  const { isAuthenticated, logout } = authContext;
 
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
@@ -20,6 +25,12 @@ const Navbar: React.FC = () => {
     }`;
 
   const closeMenu = () => setIsOpen(false);
+
+  const handleLogout = async () => {
+    await logout();
+    closeMenu();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300 backdrop-blur">
@@ -53,9 +64,26 @@ const Navbar: React.FC = () => {
             Contributors
           </NavLink>
 
-          <NavLink to="/login" className={navLinkStyles}>
-            Login
-          </NavLink>
+          {!isAuthenticated && (
+            <>
+              <NavLink to="/login" className={navLinkStyles}>
+                Login
+              </NavLink>
+
+              <NavLink to="/signup" className={navLinkStyles}>
+                Signup
+              </NavLink>
+            </>
+          )}
+
+          {isAuthenticated && (
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-white bg-rose-500 hover:bg-rose-600 shadow-sm"
+            >
+              Logout
+            </button>
+          )}
 
           {/* Theme Toggle */}
           <button
@@ -131,13 +159,34 @@ const Navbar: React.FC = () => {
               Contributors
             </NavLink>
 
-            <NavLink
-              to="/login"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Login
-            </NavLink>
+            {!isAuthenticated && (
+              <>
+                <NavLink
+                  to="/login"
+                  className={navLinkStyles}
+                  onClick={closeMenu}
+                >
+                  Login
+                </NavLink>
+
+                <NavLink
+                  to="/signup"
+                  className={navLinkStyles}
+                  onClick={closeMenu}
+                >
+                  Signup
+                </NavLink>
+              </>
+            )}
+
+            {isAuthenticated && (
+              <button
+                onClick={handleLogout}
+                className="text-left px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-white bg-rose-500 hover:bg-rose-600 shadow-sm"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       )}

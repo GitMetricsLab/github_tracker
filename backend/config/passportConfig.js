@@ -35,9 +35,13 @@ passport.serializeUser((user, done) => {
 });
 
 // Deserialize user (retrieve user from session)
+// .select('-password -__v') excludes the bcrypt hash from req.user so it
+// cannot be accidentally serialized into an API response.
+// .lean() returns a plain object instead of a Mongoose document, preventing
+// model methods from being accessible on req.user.
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(id).select('-password -__v').lean();
         done(null, user);
     } catch (err) {
         done(err, null);

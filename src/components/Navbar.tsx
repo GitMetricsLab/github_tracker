@@ -15,8 +15,8 @@ const Navbar: React.FC = () => {
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
       isActive
-        ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
-        : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
+        ? "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/40 shadow-sm"
+        : "text-slate-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800"
     }`;
 
   const closeMenu = () => setIsOpen(false);

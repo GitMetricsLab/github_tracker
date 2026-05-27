@@ -6,7 +6,7 @@ import AuthShell from "../../components/AuthShell";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
 interface LoginFormData {
   email: string;
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, formData);
+      const response = await axios.post(`${backendUrl}/api/auth/login`, formData, { withCredentials: true });
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {

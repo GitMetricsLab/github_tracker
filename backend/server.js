@@ -14,7 +14,21 @@ const logger = require('./logger');
 const app = express();
 
 // CORS configuration
-app.use(cors('*'));
+const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
+app.use(cors({
+    origin: clientOrigin,
+    credentials: true,
+const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else{
+            callback(new Error('Blocked by CORS policy'));
+        }
+    },
+    credentials: true
+}));
 
 // Middleware
 app.use(bodyParser.json());
@@ -26,16 +40,44 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// When MongoDB is unavailable, auth routes use a file-backed session user.
+if (!process.env.MONGO_URI) {
+    app.use((req, res, next) => {
+        if (req.session?.authUser) {
+            req.user = req.session.authUser;
+        }
+
+        next();
+    });
+}
+
 // Routes
 const authRoutes = require('./routes/auth');
+const discussionRoutes = require('./routes/discussions');
 app.use('/api/auth', authRoutes);
+app.use('/api/discussions', discussionRoutes);
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {}).then(() => {
-    logger.info('Connected to MongoDB');
-    app.listen(process.env.PORT, () => {
-        logger.info(`Server running on port ${process.env.PORT}`);
+const startServer = () => {
+    const port = process.env.PORT || 5000;
+
+    app.listen(port, () => {
+        logger.info(`Server running on port ${port}`);
     });
-}).catch((err) => {
-    logger.error('MongoDB connection error', err);
-});
+};
+
+// Connect to MongoDB when available, but do not block community discussions if it is not.
+if (process.env.MONGO_URI) {
+    mongoose.connect(process.env.MONGO_URI, {})
+        .then(() => {
+            logger.info('Connected to MongoDB');
+            startServer();
+        })
+        .catch((err) => {
+            logger.error('MongoDB connection error', err);
+            logger.warn('Starting without MongoDB; auth routes may fail, but the discussion backend remains available');
+            startServer();
+        });
+} else {
+    logger.warn('MONGO_URI is not set; starting without MongoDB');
+    startServer();
+}

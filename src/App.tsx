@@ -17,7 +17,7 @@ function App() {
 
         {!isFullscreen && <Navbar />}
 
-        <main className={`flex justify-center items-center ${isFullscreen ? "flex-1" : "flex-grow bg-gray-50 dark:bg-gray-800"}`}>
+        <main className={`flex w-full flex-col ${isFullscreen ? "flex-1" : "flex-grow bg-gray-50 dark:bg-gray-800"}`}>
           <Router />
         </main>
 

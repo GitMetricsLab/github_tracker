@@ -1,0 +1,30 @@
+{
+  "discussions": [
+    {
+      "id": "b3808b42-91e4-4d81-991a-07a96d7a549f",
+      "title": "Test discussion from shell",
+      "body": "This is a sufficiently long discussion body to pass validation and save.",
+      "category": "Help",
+      "tags": [
+        "test",
+        "api"
+      ],
+      "authorId": "8d706914-51d9-40ca-981c-ac9dcb6a1881",
+      "authorName": "Guest",
+      "likes": [
+        "c8cf4cfd-145c-4950-8392-5f40f2a9ccde"
+      ],
+      "comments": [
+        {
+          "id": "d1b1bcad-6989-49ff-a587-667f8426198e",
+          "text": "Yes",
+          "authorId": "c8cf4cfd-145c-4950-8392-5f40f2a9ccde",
+          "authorName": "arpit",
+          "createdAt": "2026-05-27T12:56:14.816Z"
+        }
+      ],
+      "createdAt": "2026-05-27T11:55:11.307Z",
+      "updatedAt": "2026-05-27T13:00:24.816Z"
+    }
+  ]
+}

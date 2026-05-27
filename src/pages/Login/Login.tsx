@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || ""; // Fallback to an empty string if VITE_BACKEND_URL is undefined to ensure relative routing
 
 interface LoginFormData {
   email: string;

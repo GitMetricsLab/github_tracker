@@ -6,7 +6,7 @@ import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || ""; // Fallback to an empty string if VITE_BACKEND_URL is undefined to ensure relative routing
 
 interface SignUpFormData {
   username: string;
@@ -92,8 +92,12 @@ const SignUp: React.FC = () => {
       if (response.data.message === 'User created successfully') {
         navigate("/login");
       }
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+      } else {
+        setMessage("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

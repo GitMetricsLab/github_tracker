@@ -1,3 +1,4 @@
+import { CodingPersonaWidget } from '../../components/CodingPersonaWidget';
 import React, { useState, useEffect } from "react"
 import {
   IssueOpenedIcon,
@@ -273,6 +274,14 @@ const Home: React.FC = () => {
           sx={{ minWidth: 150 }}
         />
       </Box>
+
+      {/* 🌟 FIXED WIDGET ARRAY PROPS DATA PIPELINE 🌟 */}
+      {/* Feeds both dataset logs together seamlessly to prevent premature pagination caps */}
+      {!loading && (issues.length > 0 || prs.length > 0) && (
+        <Box sx={{ mb: 2 }}>
+          <CodingPersonaWidget issues={issues} pullRequests={prs} />
+        </Box>
+      )}
 
       {/* Tabs + State Filter */}
       <Box

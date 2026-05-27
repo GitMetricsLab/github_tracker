@@ -6,7 +6,7 @@ import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 interface SignUpFormData {
   username: string;
@@ -39,8 +39,8 @@ const SignUp: React.FC = () => {
     if (name === "username") {
       if (!value.trim()) {
         errorMessage = "Username is required";
-      } else if (!/^[A-Za-z\s]+$/.test(value)) {
-        errorMessage = "Only letters are allowed";
+      } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+        errorMessage = "Username can contain letters, numbers and underscores only";
       }
     }
     if (name === "email") {
@@ -53,8 +53,8 @@ const SignUp: React.FC = () => {
     if (name === "password") {
       if (!value.trim()) {
         errorMessage = "Password is required";
-      } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)) {
-        errorMessage = "Password must be 8+ characters with letters and numbers";
+      } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)) {
+        errorMessage = "Password must be 8+ chars and include uppercase, lowercase, number, and special char";
       }
     }
     setErrors((prev) => ({ ...prev, [name]: errorMessage }));
@@ -64,28 +64,28 @@ const SignUp: React.FC = () => {
     e.preventDefault();
     const usernameError = !formData.username.trim()
       ? "Username is required"
-      : !/^[A-Za-z\s]+$/.test(formData.username)
-      ? "Only letters are allowed"
-      : "";
+      : !/^[a-zA-Z0-9_]+$/.test(formData.username)
+        ? "Username can contain letters, numbers and underscores only"
+        : "";
     const emailError = !formData.email.trim()
       ? "Email is required"
       : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
-      ? "Enter a valid email"
-      : "";
+        ? "Enter a valid email"
+        : "";
     const passwordError = !formData.password.trim()
       ? "Password is required"
-      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(formData.password)
-      ? "Password must be 8+ characters with letters and numbers"
-      : "";
+      : !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(formData.password)
+        ? "Password must be 8+ chars and include uppercase, lowercase, number, and special char"
+        : "";
     if (usernameError || emailError || passwordError) {
       setErrors({ username: usernameError, email: emailError, password: passwordError });
       return;
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
-      );
+      const response = await axios.post(`${backendUrl}/api/auth/signup`, formData, {
+        withCredentials: true,
+      });
       setMessage(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup
@@ -101,32 +101,27 @@ const SignUp: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
-        mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
-      }`}
+      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${mode === "dark"
+        ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+        : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+        }`}
     >
       <div className="absolute inset-0">
         <div
-          className={`absolute -top-40 -right-40 w-96 h-96 ${
-            mode === "dark" ? "bg-purple-500" : "bg-purple-300"
-          } rounded-full blur-3xl opacity-30 animate-pulse`}
+          className={`absolute -top-40 -right-40 w-96 h-96 ${mode === "dark" ? "bg-purple-500" : "bg-purple-300"
+            } rounded-full blur-3xl opacity-30 animate-pulse`}
         />
         <div
-          className={`absolute -bottom-40 -left-40 w-96 h-96 ${
-            mode === "dark" ? "bg-blue-500" : "bg-blue-300"
-          } rounded-full blur-3xl opacity-30 animate-pulse`}
+          className={`absolute -bottom-40 -left-40 w-96 h-96 ${mode === "dark" ? "bg-blue-500" : "bg-blue-300"
+            } rounded-full blur-3xl opacity-30 animate-pulse`}
         />
         <div
-          className={`absolute top-40 left-40 w-96 h-96 ${
-            mode === "dark" ? "bg-pink-500" : "bg-pink-300"
-          } rounded-full blur-3xl opacity-30 animate-pulse`}
+          className={`absolute top-40 left-40 w-96 h-96 ${mode === "dark" ? "bg-pink-500" : "bg-pink-300"
+            } rounded-full blur-3xl opacity-30 animate-pulse`}
         />
         <div
-          className={`absolute top-1/2 right-1/4 w-64 h-64 ${
-            mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"
-          } rounded-full blur-2xl opacity-20 animate-pulse delay-1000`}
+          className={`absolute top-1/2 right-1/4 w-64 h-64 ${mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"
+            } rounded-full blur-2xl opacity-20 animate-pulse delay-1000`}
         />
       </div>
 
@@ -148,17 +143,15 @@ const SignUp: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${
-            mode === "dark"
-              ? "bg-white/10 backdrop-blur-xl border-white/20 text-white"
-              : "bg-white border-gray-200 text-black"
-          }`}
-        >
-          
-          <h2
-            className={`text-2xl font-bold text-center mb-8 ${
-              mode === "dark" ? "text-white" : "text-gray-800"
+          className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${mode === "dark"
+            ? "bg-white/10 backdrop-blur-xl border-white/20 text-white"
+            : "bg-white border-gray-200 text-black"
             }`}
+        >
+
+          <h2
+            className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"
+              }`}
           >
             Create Account
           </h2>
@@ -196,7 +189,7 @@ const SignUp: React.FC = () => {
                 <input type={showPassword ? "text" : "password"} name="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} required
                   className={`w-full pl-12 pr-12 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}
+                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"}
                   className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 ${mode === "dark" ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}>
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -231,9 +224,8 @@ const SignUp: React.FC = () => {
       </div>
 
       <div
-        className={`${
-          mode === "dark" ? "from-slate-900" : "from-slate-100"
-        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
+        className={`${mode === "dark" ? "from-slate-900" : "from-slate-100"
+          } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
       />
     </div>
   );

@@ -1,0 +1,20 @@
+{
+  "discussions": [
+    {
+      "id": "b3808b42-91e4-4d81-991a-07a96d7a549f",
+      "title": "Test discussion from shell",
+      "body": "This is a sufficiently long discussion body to pass validation and save.",
+      "category": "Help",
+      "tags": [
+        "test",
+        "api"
+      ],
+      "authorId": "8d706914-51d9-40ca-981c-ac9dcb6a1881",
+      "authorName": "Guest",
+      "likes": [],
+      "comments": [],
+      "createdAt": "2026-05-27T11:55:11.307Z",
+      "updatedAt": "2026-05-27T12:08:46.911Z"
+    }
+  ]
+}

@@ -1,14 +1,87 @@
 const express = require("express");
 const passport = require("passport");
+const fs = require("fs/promises");
+const path = require("path");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const User = require("../models/User");
 const { signupSchema, loginSchema } = require("../validators/authValidator");
 const { validateRequest } = require("../validators/validationRequest");
 const router = express.Router();
 
+const useMongoAuth = Boolean(process.env.MONGO_URI);
+const dataDir = path.join(__dirname, "..", "data");
+const usersFile = path.join(dataDir, "users.json");
+
+const ensureUsersFile = async () => {
+    await fs.mkdir(dataDir, { recursive: true });
+
+    try {
+        await fs.access(usersFile);
+    } catch {
+        await fs.writeFile(usersFile, JSON.stringify({ users: [] }, null, 2), "utf8");
+    }
+};
+
+const readUsers = async () => {
+    await ensureUsersFile();
+    const raw = await fs.readFile(usersFile, "utf8");
+
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed.users) ? parsed.users : [];
+    } catch {
+        return [];
+    }
+};
+
+const writeUsers = async (users) => {
+    await ensureUsersFile();
+    await fs.writeFile(usersFile, JSON.stringify({ users }, null, 2), "utf8");
+};
+
+const createSessionUser = (req, user) => {
+    req.session.authUser = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+    };
+
+    req.user = req.session.authUser;
+};
+
 // Signup route
 router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
     const { username,  email, password } = req.body;
+
+    if (!useMongoAuth) {
+        try {
+            const users = await readUsers();
+            const existingUser = users.find((user) => user.email === email || user.username === username);
+
+            if (existingUser) {
+                return res.status(400).json({ message: 'User already exists' });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            const newUser = {
+                id: crypto.randomUUID(),
+                username,
+                email,
+                password: hashedPassword,
+            };
+
+            users.push(newUser);
+            await writeUsers(users);
+
+            return res.status(201).json({ message: 'User created successfully' });
+        } catch (err) {
+            return res.status(500).json({ message: 'Error creating user', error: err.message });
+        }
+    }
 
     try {
         const existingUser = await User.findOne({
@@ -31,12 +104,66 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 });
 
 // Login route
-router.post("/login", validateRequest(loginSchema), passport.authenticate('local'), (req, res) => {
-    res.status(200).json( { message: 'Login successful', user: req.user } );
+router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
+    if (!useMongoAuth) {
+        try {
+            const { email, password } = req.body;
+            const users = await readUsers();
+            const user = users.find((item) => item.email === email);
+
+            if (!user) {
+                return res.status(401).json({ message: 'Email is invalid ' });
+            }
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ message: 'Invalid password' });
+            }
+
+            createSessionUser(req, user);
+
+            return res.status(200).json({
+                message: 'Login successful',
+                user: req.user,
+            });
+        } catch (err) {
+            return res.status(500).json({ message: 'Login failed', error: err.message });
+        }
+    }
+
+    return passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+
+        if (!user) {
+            return res.status(401).json({ message: info?.message || 'Invalid credentials' });
+        }
+
+        req.logIn(user, (loginErr) => {
+            if (loginErr) {
+                return next(loginErr);
+            }
+
+            return res.status(200).json({ message: 'Login successful', user: req.user });
+        });
+    })(req, res, next);
 });
 
 // Logout route
 router.get("/logout", (req, res) => {
+
+    if (!useMongoAuth) {
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Logout failed', error: err.message });
+            }
+
+            return res.status(200).json({ message: 'Logged out successfully' });
+        });
+
+        return;
+    }
 
     req.logout((err) => {
 

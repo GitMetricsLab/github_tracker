@@ -8,6 +8,7 @@ import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
 import Activity from "../pages/Activity.tsx"; 
+import Community from "../pages/Community/Community.tsx";
 
 const Router = () => {
   return (
@@ -23,6 +24,8 @@ const Router = () => {
 
       {/* ✅ new route */}
       <Route path="/activity" element={<Activity />} />
+      <Route path="/community" element={<Community />} />
+      <Route path="/discussions" element={<Community />} />
     </Routes>
   );
 };

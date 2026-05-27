@@ -6,7 +6,7 @@ import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 interface SignUpFormData {
   username: string;
@@ -83,8 +83,10 @@ const SignUp: React.FC = () => {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
+      const response = await axios.post(
+        `${backendUrl}/api/auth/signup`,
+        formData,
+        { withCredentials: true }
       );
       setMessage(response.data.message); // Show success message from backend
 

@@ -53,6 +53,10 @@ const Navbar: React.FC = () => {
             Contributors
           </NavLink>
 
+          <NavLink to="/community" className={navLinkStyles}>
+            Community
+          </NavLink>
+
           <NavLink to="/login" className={navLinkStyles}>
             Login
           </NavLink>
@@ -129,6 +133,14 @@ const Navbar: React.FC = () => {
               onClick={closeMenu}
             >
               Contributors
+            </NavLink>
+
+            <NavLink
+              to="/community"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Community
             </NavLink>
 
             <NavLink

@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
   if (!themeContext || !authContext) return null;
 
   const { toggleTheme, mode } = themeContext;
-  const { isAuthenticated, logout } = authContext;
+  const { isAuthenticated, isLoading, logout } = authContext;
 
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
@@ -27,9 +27,14 @@ const Navbar: React.FC = () => {
   const closeMenu = () => setIsOpen(false);
 
   const handleLogout = async () => {
-    await logout();
-    closeMenu();
-    navigate("/login", { replace: true });
+    try {
+      await logout();
+      navigate("/login", { replace: true });
+    } catch {
+      // optionally surface a toast/message
+    } finally {
+      closeMenu();
+    }
   };
 
   return (
@@ -64,7 +69,7 @@ const Navbar: React.FC = () => {
             Contributors
           </NavLink>
 
-          {!isAuthenticated && (
+          {!isLoading && !isAuthenticated && (
             <>
               <NavLink to="/login" className={navLinkStyles}>
                 Login
@@ -76,7 +81,7 @@ const Navbar: React.FC = () => {
             </>
           )}
 
-          {isAuthenticated && (
+          {!isLoading && isAuthenticated && (
             <button
               onClick={handleLogout}
               className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-white bg-rose-500 hover:bg-rose-600 shadow-sm"
@@ -159,7 +164,7 @@ const Navbar: React.FC = () => {
               Contributors
             </NavLink>
 
-            {!isAuthenticated && (
+            {!isLoading && !isAuthenticated && (
               <>
                 <NavLink
                   to="/login"
@@ -179,7 +184,7 @@ const Navbar: React.FC = () => {
               </>
             )}
 
-            {isAuthenticated && (
+            {!isLoading && isAuthenticated && (
               <button
                 onClick={handleLogout}
                 className="text-left px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-white bg-rose-500 hover:bg-rose-600 shadow-sm"

@@ -27,4 +27,5 @@ jobs:
         labels: |
             level:intermediate
             quality:clean
+            type:accessibility
             gssoc:approved

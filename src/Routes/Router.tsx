@@ -9,6 +9,7 @@ import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.t
 import Home from "../pages/Home/Home.tsx";
 import Activity from "../pages/Activity.tsx"; 
 import Community from "../pages/Community/Community.tsx";
+import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
 
 const Router = () => {
   return (
@@ -21,11 +22,12 @@ const Router = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/contributors" element={<Contributors />} />
       <Route path="/contributor/:username" element={<ContributorProfile />} />
-
-      {/* ✅ new route */}
       <Route path="/activity" element={<Activity />} />
       <Route path="/community" element={<Community />} />
       <Route path="/discussions" element={<Community />} />
+
+      {/* Privacy Policy page route */}
+      <Route path="/privacy" element={<PrivacyPolicy />} />
     </Routes>
   );
 };

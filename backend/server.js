@@ -18,6 +18,16 @@ const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(cors({
     origin: clientOrigin,
     credentials: true,
+const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else{
+            callback(new Error('Blocked by CORS policy'));
+        }
+    },
+    credentials: true
 }));
 
 // Middleware

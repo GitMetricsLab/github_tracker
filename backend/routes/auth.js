@@ -36,14 +36,16 @@ router.post("/login", validateRequest(loginSchema), passport.authenticate('local
 });
 
 // Logout route
-router.get("/logout", (req, res) => {
-
+router.post("/logout", (req, res) => {
     req.logout((err) => {
-
         if (err)
             return res.status(500).json({ message: 'Logout failed', error: err.message });
-        else
+        req.session.destroy((destroyErr) => {
+            if (destroyErr)
+                return res.status(500).json({ message: 'Session cleanup failed', error: destroyErr.message });
+            res.clearCookie('connect.sid');
             res.status(200).json({ message: 'Logged out successfully' });
+        });
     });
 });
 

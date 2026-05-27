@@ -128,7 +128,7 @@ const Login: React.FC = () => {
           {/* Message */}
           {message && (
             <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
-              message === "Login successful"
+              message === "Login successful!"
                 ? "bg-green-500/20 text-green-300 border border-green-500/30"
                 : "bg-red-500/20 text-red-300 border border-red-500/30"
             }`}>

@@ -4,9 +4,11 @@ const securityHeaders = helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'nonce-randomvalue'"],
             scriptSrc: ["'self'"],
-            imgSrc: ["'self'", 'data:', 'https:'],
+            imgSrc: ["'self'", 'data:', 'https://api.github.com', 'https://avatars.githubusercontent.com'],
+            connectSrc: ["'self'", 'https://api.github.com'],
+            fontSrc: ["'self'", 'https://fonts.googleapis.com'],
         },
     },
     hsts: {

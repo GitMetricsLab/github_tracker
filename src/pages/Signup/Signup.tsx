@@ -208,7 +208,7 @@ const SignUp: React.FC = () => {
           </form>
 
           {message && (
-            <div className={`text-center mt-6 p-3 rounded-xl ${message.includes("successfully") ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+            <div className={`text-center mt-6 p-3 rounded-xl ${message.includes("successful") ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
               {message}
             </div>
           )}

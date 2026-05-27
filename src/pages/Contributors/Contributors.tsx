@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import { FaGithub } from "react-icons/fa";
 import { Link } from "react-router-dom";
-// import axios from "axios";
 import axiosClient, { isAxiosError } from "../../api/axiosClient";
 import { GITHUB_REPO_CONTRIBUTORS_URL } from "../../utils/constants";
 
@@ -38,8 +37,10 @@ const ContributorsPage = () => {
           withCredentials: false,
         });
         setContributors(response.data);
-      } catch {
-        setError("Failed to fetch contributors. Please try again later.");
+      } catch (err) {
+        if (isAxiosError(err)) {
+          setError("Failed to fetch contributors. Please try again later.");
+        }
       } finally {
         setLoading(false);
       }

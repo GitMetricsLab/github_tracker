@@ -18,11 +18,16 @@ router.post("/signup", validateRequest(signupSchema), asyncHandler(async (req, r
     });
 
     if (existingUser)
-        return res.status(400).json({ message: 'User already exists' });
+        return res.status(400).json({
+        success: false,
+        message: 'User already exists' 
+    });
 
     const newUser = new User({ username, email, password });
     await newUser.save();
-    res.status(201).json({ message: 'User created successfully' });
+    res.status(201).json({
+        success: true,
+        message: 'User created successfully' });
 }));
 
 // Login route
@@ -31,7 +36,7 @@ router.post("/login", validateRequest(loginSchema), (req, res, next) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({
             success: false,
-            message: info?.message || 'Invalid credentials'
+            message: 'Invalid email or password'
         });
 
         req.session.regenerate((regenerateErr) => {
@@ -61,8 +66,20 @@ router.get("/logout", requireAuth, asyncHandler(async (req, res) => {
         }
         res.status(200).json({
             success: true,
-            message: 'Logout successful'
+            message: 'Logged out successfully'
         });
+    });
+}));
+
+// Get current user route with authentication check
+router.get("/me", requireAuth, asyncHandler(async (req, res) => {
+    res.status(200).json({
+        success: true,
+        user: {
+            id: req.user.id,
+            username: req.user.username,
+            email: req.user.email,
+        },
     });
 }));
 

@@ -12,8 +12,42 @@ const router = express.Router();
 const useMongoAuth = Boolean(process.env.MONGO_URI);
 const dataDir = path.join(__dirname, "..", "data");
 const usersFile = path.join(dataDir, "users.json");
+const usersLockFile = `${usersFile}.lock`;
 
-const ensureUsersFile = async () => {
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const acquireUsersLock = async () => {
+    const retries = 80;
+    const delayMs = 25;
+
+    for (let attempt = 0; attempt < retries; attempt += 1) {
+        try {
+            const handle = await fs.open(usersLockFile, "wx");
+            return handle;
+        } catch (error) {
+            if (error.code !== "EEXIST") {
+                throw error;
+            }
+
+            await sleep(delayMs);
+        }
+    }
+
+    throw new Error("Could not acquire users file lock");
+};
+
+const withUsersLock = async (callback) => {
+    const lockHandle = await acquireUsersLock();
+
+    try {
+        return await callback();
+    } finally {
+        await lockHandle.close();
+        await fs.unlink(usersLockFile).catch(() => {});
+    }
+};
+
+const ensureUsersFileUnlocked = async () => {
     await fs.mkdir(dataDir, { recursive: true });
 
     try {
@@ -23,8 +57,8 @@ const ensureUsersFile = async () => {
     }
 };
 
-const readUsers = async () => {
-    await ensureUsersFile();
+const readUsersUnlocked = async () => {
+    await ensureUsersFileUnlocked();
     const raw = await fs.readFile(usersFile, "utf8");
 
     try {
@@ -35,10 +69,29 @@ const readUsers = async () => {
     }
 };
 
-const writeUsers = async (users) => {
-    await ensureUsersFile();
-    await fs.writeFile(usersFile, JSON.stringify({ users }, null, 2), "utf8");
+const writeUsersUnlocked = async (users) => {
+    await ensureUsersFileUnlocked();
+    const tempFile = `${usersFile}.${process.pid}.${Date.now()}.tmp`;
+
+    // Write to a temporary file first, then atomically replace the target file.
+    await fs.writeFile(tempFile, JSON.stringify({ users }, null, 2), "utf8");
+    await fs.rename(tempFile, usersFile);
 };
+
+const readUsersWithLock = async () => withUsersLock(readUsersUnlocked);
+
+const createUserIfNotExistsWithLock = async (newUser) => withUsersLock(async () => {
+    const users = await readUsersUnlocked();
+    const existingUser = users.find((user) => user.email === newUser.email || user.username === newUser.username);
+
+    if (existingUser) {
+        return false;
+    }
+
+    users.push(newUser);
+    await writeUsersUnlocked(users);
+    return true;
+});
 
 const createSessionUser = (req, user) => {
     req.session.authUser = {
@@ -57,13 +110,6 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
     if (!useMongoAuth) {
         try {
-            const users = await readUsers();
-            const existingUser = users.find((user) => user.email === email || user.username === username);
-
-            if (existingUser) {
-                return res.status(400).json({ message: 'User already exists' });
-            }
-
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -74,8 +120,11 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
                 password: hashedPassword,
             };
 
-            users.push(newUser);
-            await writeUsers(users);
+            const created = await createUserIfNotExistsWithLock(newUser);
+
+            if (!created) {
+                return res.status(400).json({ message: 'User already exists' });
+            }
 
             return res.status(201).json({ message: 'User created successfully' });
         } catch (err) {
@@ -108,7 +157,7 @@ router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
     if (!useMongoAuth) {
         try {
             const { email, password } = req.body;
-            const users = await readUsers();
+            const users = await readUsersWithLock();
             const user = users.find((item) => item.email === email);
 
             if (!user) {

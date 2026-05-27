@@ -2,11 +2,14 @@ const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
+const { discussionSchema, commentSchema } = require('../validators/discussionValidator');
+const { validateRequest } = require('../validators/validationRequest');
 
 const router = express.Router();
 
 const dataDir = path.join(__dirname, '..', 'data');
 const dataFile = path.join(dataDir, 'discussions.json');
+let storeMutex = Promise.resolve();
 
 const ensureDataFile = async () => {
   await fs.mkdir(dataDir, { recursive: true });
@@ -25,8 +28,8 @@ const readStore = async () => {
   try {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed.discussions) ? parsed.discussions : [];
-  } catch {
-    return [];
+  } catch (error) {
+    throw new Error(`Invalid discussions store JSON in ${dataFile}: ${error.message}`);
   }
 };
 
@@ -35,11 +38,48 @@ const writeStore = async (discussions) => {
   await fs.writeFile(dataFile, JSON.stringify({ discussions }, null, 2), 'utf8');
 };
 
+const updateStore = async (updater) => {
+  let releaseLock;
+  const waitForTurn = storeMutex;
+  storeMutex = new Promise((resolve) => {
+    releaseLock = resolve;
+  });
+
+  await waitForTurn;
+
+  try {
+    const discussions = await readStore();
+    const result = await updater(discussions);
+    const nextDiscussions = Array.isArray(result?.discussions) ? result.discussions : discussions;
+
+    if (result?.persist !== false) {
+      await writeStore(nextDiscussions);
+    }
+
+    return { ...result, discussions: nextDiscussions };
+  } finally {
+    releaseLock();
+  }
+};
+
 const normalizeTags = (tags = []) =>
   tags
     .map((tag) => String(tag).trim())
     .filter(Boolean)
     .map((tag) => tag.replace(/^#?/, '').toLowerCase());
+
+const requireAuth = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  return next();
+};
+
+const getAuthenticatedIdentity = (req) => ({
+  id: req.user._id?.toString?.() || req.user.id || req.user.email || 'user',
+  name: req.user.username || req.user.email || 'Member',
+});
 
 const getCommunityIdentity = (req) => {
   if (req.user) {
@@ -90,28 +130,6 @@ const toPublicDiscussion = (discussion, currentUserId) => ({
   updatedAt: discussion.updatedAt,
 });
 
-const validatePayload = (payload) => {
-  const errors = [];
-
-  if (!payload.title || String(payload.title).trim().length < 4) {
-    errors.push({ field: 'title', message: 'Title must be at least 4 characters long' });
-  }
-
-  if (!payload.body || String(payload.body).trim().length < 20) {
-    errors.push({ field: 'body', message: 'Post body must be at least 20 characters long' });
-  }
-
-  if (!payload.category || String(payload.category).trim().length < 2) {
-    errors.push({ field: 'category', message: 'Category is required' });
-  }
-
-  if (payload.tags && !Array.isArray(payload.tags)) {
-    errors.push({ field: 'tags', message: 'Tags must be an array of strings' });
-  }
-
-  return errors;
-};
-
 router.get('/', async (req, res) => {
   try {
     const discussions = await readStore();
@@ -159,15 +177,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', requireAuth, validateRequest(discussionSchema), async (req, res) => {
   try {
-    const errors = validatePayload(req.body);
-    if (errors.length > 0) {
-      return res.status(400).json({ success: false, message: 'Validation failed', errors });
-    }
-
-    const discussions = await readStore();
-    const identity = getCommunityIdentity(req);
+    const identity = getAuthenticatedIdentity(req);
     const now = new Date().toISOString();
 
     const discussion = {
@@ -184,8 +196,10 @@ router.post('/', async (req, res) => {
       updatedAt: now,
     };
 
-    discussions.unshift(discussion);
-    await writeStore(discussions);
+    await updateStore((discussions) => {
+      discussions.unshift(discussion);
+      return { discussions };
+    });
 
     return res.status(201).json({
       message: 'Discussion created successfully',
@@ -196,58 +210,63 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAuth, validateRequest(discussionSchema), async (req, res) => {
   try {
-    const errors = validatePayload(req.body);
-    if (errors.length > 0) {
-      return res.status(400).json({ success: false, message: 'Validation failed', errors });
+    const identity = getAuthenticatedIdentity(req);
+    const result = await updateStore((discussions) => {
+      const discussion = discussions.find((item) => item.id === req.params.id);
+
+      if (!discussion) {
+        return { status: 404, message: 'Discussion not found', persist: false };
+      }
+
+      if (String(discussion.authorId) !== String(identity.id)) {
+        return { status: 403, message: 'You can only edit your own discussion', persist: false };
+      }
+
+      discussion.title = String(req.body.title).trim();
+      discussion.body = String(req.body.body).trim();
+      discussion.category = String(req.body.category).trim();
+      discussion.tags = normalizeTags(req.body.tags || []);
+      discussion.updatedAt = new Date().toISOString();
+
+      return { discussions, discussion };
+    });
+
+    if (result.status) {
+      return res.status(result.status).json({ message: result.message });
     }
-
-    const discussions = await readStore();
-    const identity = getCommunityIdentity(req);
-    const discussion = discussions.find((item) => item.id === req.params.id);
-
-    if (!discussion) {
-      return res.status(404).json({ message: 'Discussion not found' });
-    }
-
-    if (String(discussion.authorId) !== String(identity.id)) {
-      return res.status(403).json({ message: 'You can only edit your own discussion' });
-    }
-
-    discussion.title = String(req.body.title).trim();
-    discussion.body = String(req.body.body).trim();
-    discussion.category = String(req.body.category).trim();
-    discussion.tags = normalizeTags(req.body.tags || []);
-    discussion.updatedAt = new Date().toISOString();
-
-    await writeStore(discussions);
 
     return res.status(200).json({
       message: 'Discussion updated successfully',
-      discussion: toPublicDiscussion(discussion, identity.id),
+      discussion: toPublicDiscussion(result.discussion, identity.id),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Unable to update discussion', error: error.message });
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAuth, async (req, res) => {
   try {
-    const discussions = await readStore();
-    const identity = getCommunityIdentity(req);
-    const discussionIndex = discussions.findIndex((item) => item.id === req.params.id);
+    const identity = getAuthenticatedIdentity(req);
+    const result = await updateStore((discussions) => {
+      const discussionIndex = discussions.findIndex((item) => item.id === req.params.id);
 
-    if (discussionIndex === -1) {
-      return res.status(404).json({ message: 'Discussion not found' });
+      if (discussionIndex === -1) {
+        return { status: 404, message: 'Discussion not found', persist: false };
+      }
+
+      if (String(discussions[discussionIndex].authorId) !== String(identity.id)) {
+        return { status: 403, message: 'You can only delete your own discussion', persist: false };
+      }
+
+      discussions.splice(discussionIndex, 1);
+      return { discussions };
+    });
+
+    if (result.status) {
+      return res.status(result.status).json({ message: result.message });
     }
-
-    if (String(discussions[discussionIndex].authorId) !== String(identity.id)) {
-      return res.status(403).json({ message: 'You can only delete your own discussion' });
-    }
-
-    discussions.splice(discussionIndex, 1);
-    await writeStore(discussions);
 
     return res.status(200).json({ message: 'Discussion deleted successfully' });
   } catch (error) {
@@ -255,66 +274,69 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.post('/:id/likes', async (req, res) => {
+router.post('/:id/likes', requireAuth, async (req, res) => {
   try {
-    const discussions = await readStore();
-    const identity = getCommunityIdentity(req);
-    const discussion = discussions.find((item) => item.id === req.params.id);
+    const identity = getAuthenticatedIdentity(req);
+    const result = await updateStore((discussions) => {
+      const discussion = discussions.find((item) => item.id === req.params.id);
 
-    if (!discussion) {
-      return res.status(404).json({ message: 'Discussion not found' });
+      if (!discussion) {
+        return { status: 404, message: 'Discussion not found', persist: false };
+      }
+
+      const alreadyLiked = discussion.likes.includes(identity.id);
+      discussion.likes = alreadyLiked
+        ? discussion.likes.filter((likeId) => String(likeId) !== String(identity.id))
+        : [...discussion.likes, identity.id];
+      discussion.updatedAt = new Date().toISOString();
+
+      return { discussions, discussion, alreadyLiked };
+    });
+
+    if (result.status) {
+      return res.status(result.status).json({ message: result.message });
     }
 
-    const alreadyLiked = discussion.likes.includes(identity.id);
-    discussion.likes = alreadyLiked
-      ? discussion.likes.filter((likeId) => String(likeId) !== String(identity.id))
-      : [...discussion.likes, identity.id];
-    discussion.updatedAt = new Date().toISOString();
-
-    await writeStore(discussions);
-
     return res.status(200).json({
-      message: alreadyLiked ? 'Discussion unliked' : 'Discussion liked',
-      discussion: toPublicDiscussion(discussion, identity.id),
+      message: result.alreadyLiked ? 'Discussion unliked' : 'Discussion liked',
+      discussion: toPublicDiscussion(result.discussion, identity.id),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Unable to update like state', error: error.message });
   }
 });
 
-router.post('/:id/comments', async (req, res) => {
+router.post('/:id/comments', requireAuth, validateRequest(commentSchema), async (req, res) => {
   try {
-    const commentText = String(req.body?.text || '').trim();
-    if (commentText.length < 2) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: [{ field: 'text', message: 'Comment must be at least 2 characters long' }],
+    const commentText = req.body.text;
+
+    const identity = getAuthenticatedIdentity(req);
+    const result = await updateStore((discussions) => {
+      const discussion = discussions.find((item) => item.id === req.params.id);
+
+      if (!discussion) {
+        return { status: 404, message: 'Discussion not found', persist: false };
+      }
+
+      discussion.comments.push({
+        id: crypto.randomUUID(),
+        text: commentText,
+        authorId: identity.id,
+        authorName: identity.name,
+        createdAt: new Date().toISOString(),
       });
-    }
+      discussion.updatedAt = new Date().toISOString();
 
-    const discussions = await readStore();
-    const identity = getCommunityIdentity(req);
-    const discussion = discussions.find((item) => item.id === req.params.id);
-
-    if (!discussion) {
-      return res.status(404).json({ message: 'Discussion not found' });
-    }
-
-    discussion.comments.push({
-      id: crypto.randomUUID(),
-      text: commentText,
-      authorId: identity.id,
-      authorName: identity.name,
-      createdAt: new Date().toISOString(),
+      return { discussions, discussion };
     });
-    discussion.updatedAt = new Date().toISOString();
 
-    await writeStore(discussions);
+    if (result.status) {
+      return res.status(result.status).json({ message: result.message });
+    }
 
     return res.status(201).json({
       message: 'Comment added successfully',
-      discussion: toPublicDiscussion(discussion, identity.id),
+      discussion: toPublicDiscussion(result.discussion, identity.id),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Unable to add comment', error: error.message });

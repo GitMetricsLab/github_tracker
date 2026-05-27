@@ -43,13 +43,16 @@ const DiscussionSchema = new mongoose.Schema(
       trim: true,
       maxlength: 60,
     },
-    tags: [
-      {
-        type: String,
-        trim: true,
-        maxlength: 30,
-      },
-    ],
+    tags: {
+      type: [
+        {
+          type: String,
+          trim: true,
+          maxlength: 30,
+        },
+      ],
+      default: [],
+    },
     authorId: {
       type: String,
       required: true,
@@ -59,12 +62,18 @@ const DiscussionSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    likes: [
-      {
-        type: String,
-      },
-    ],
-    comments: [CommentSchema],
+    likes: {
+      type: [
+        {
+          type: String,
+        },
+      ],
+      default: [],
+    },
+    comments: {
+      type: [CommentSchema],
+      default: [],
+    },
   },
   { timestamps: true }
 );

@@ -1,22 +1,10 @@
 {
   "users": [
     {
-      "id": "a95e96b8-c655-4122-b949-9a9a2e166e96",
-      "username": "testuser_api",
-      "email": "testuser_api@example.com",
-      "password": "$2a$10$.jtIXdJ7BOg4Sdg2YZaVD.UcsOJYXYkvjXDcur6Duk6Ds74yC2XjO"
-    },
-    {
-      "id": "7a565adc-7c6b-4254-bd38-874c22d88892",
-      "username": "arpitshirbhate",
-      "email": "arpitshirbhate2@gmail.com",
-      "password": "$2a$10$xFIsrIOJYpWpaNcm.OiKJesWnGy5nsWT11v9kVPepkT7HfvkNMpDK"
-    },
-    {
-      "id": "a6775248-35ef-410c-b529-220e350210f2",
+      "id": "c8cf4cfd-145c-4950-8392-5f40f2a9ccde",
       "username": "arpit",
       "email": "arpitshirbhate5@gmail.com",
-      "password": "$2a$10$OZ.3v4/LRDIB0Z1mMTvR8uL97b9UODDje1GJmBcfnio4gdw9pCXEu"
+      "password": "$2a$10$6MsaZTunN.oNj5UOHdwfrOYELPdptaMQxK5Tj4/2kFekFY/jVL4mi"
     }
   ]
 }

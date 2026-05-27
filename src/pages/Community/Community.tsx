@@ -74,6 +74,15 @@ const stripTags = (value: string) =>
     .map((tag) => tag.trim().replace(/^#/, ""))
     .filter(Boolean);
 
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (!axios.isAxiosError(error)) {
+    return fallback;
+  }
+
+  const firstValidationError = error.response?.data?.errors?.[0]?.message;
+  return firstValidationError || error.response?.data?.message || fallback;
+};
+
 export default function Community() {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
@@ -124,6 +133,8 @@ export default function Community() {
 
       setDiscussions(response.data.items || []);
       setCategories(response.data.categories?.length ? response.data.categories : categoryPresets.slice(1));
+      setIsAuthenticated(true);
+      setError("");
     } catch (requestError) {
       setError("Unable to load community discussions right now.");
       if (axios.isAxiosError(requestError) && requestError.response?.status === 401) {
@@ -158,11 +169,24 @@ export default function Community() {
     setIsSubmitting(true);
     setMessage("");
 
+    const tags = stripTags(form.tags);
+    if (tags.length > 6) {
+      setMessage("Use up to 6 tags per discussion.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (tags.some((tag) => tag.length > 30)) {
+      setMessage("Each tag must be 30 characters or fewer.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const payload = {
       title: form.title.trim(),
       body: form.body.trim(),
       category: form.category.trim(),
-      tags: stripTags(form.tags),
+      tags,
     };
 
     try {
@@ -180,10 +204,7 @@ export default function Community() {
         return;
       }
 
-      const responseMessage = axios.isAxiosError(requestError)
-        ? requestError.response?.data?.message
-        : "Unable to save discussion.";
-      setMessage(responseMessage || "Unable to save discussion.");
+      setMessage(getApiErrorMessage(requestError, "Unable to save discussion."));
     } finally {
       setIsSubmitting(false);
     }
@@ -220,7 +241,13 @@ export default function Community() {
 
   const handleComment = async (discussionId: string) => {
     const commentText = commentDrafts[discussionId]?.trim();
-    if (!commentText) {
+    if (!commentText || commentText.length < 2) {
+      setMessage("Comment must be at least 2 characters long.");
+      return;
+    }
+
+    if (commentText.length > 1000) {
+      setMessage("Comment must be at most 1000 characters long.");
       return;
     }
 
@@ -238,7 +265,7 @@ export default function Community() {
         setMessage("Sign in to comment on discussions.");
         return;
       }
-      setMessage("Unable to add comment.");
+      setMessage(getApiErrorMessage(requestError, "Unable to add comment."));
     }
   };
 
@@ -412,6 +439,8 @@ export default function Community() {
               <div className="mt-5 grid gap-4">
                 <input
                   required
+                  minLength={4}
+                  maxLength={140}
                   value={form.title}
                   onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
                   placeholder="Discussion title"
@@ -421,6 +450,8 @@ export default function Community() {
                 <textarea
                   required
                   rows={6}
+                  minLength={20}
+                  maxLength={4000}
                   value={form.body}
                   onChange={(event) => setForm((current) => ({ ...current, body: event.target.value }))}
                   placeholder="Describe your idea, question, or repository topic..."
@@ -430,6 +461,8 @@ export default function Community() {
                 <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
                   <input
                     required
+                    minLength={2}
+                    maxLength={60}
                     value={form.category}
                     onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
                     placeholder="Category"
@@ -562,6 +595,8 @@ export default function Community() {
 
                       <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                         <input
+                          minLength={2}
+                          maxLength={1000}
                           value={commentDrafts[discussion.id] || ""}
                           onChange={(event) =>
                             setCommentDrafts((current) => ({

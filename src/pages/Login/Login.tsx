@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
 interface LoginFormData {
   email: string;

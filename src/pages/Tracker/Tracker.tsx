@@ -72,7 +72,7 @@ const Home: React.FC = () => {
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
-
+  const [hasFetched, setHasFetched] = useState(false);
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
   const [searchTitle, setSearchTitle] = useState("");
@@ -91,6 +91,7 @@ const Home: React.FC = () => {
     e.preventDefault();
     setPage(0);
     fetchData(username, 1, ROWS_PER_PAGE);
+    setHasFetched(true);
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -373,11 +374,11 @@ const Home: React.FC = () => {
                 {currentFilteredData.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} align="center">
-                      No Github activity found with current filters.
+                      No GitHub activity found with current filters.
                     </TableCell>
                   </TableRow>
                 )}
-                {currentFilteredData.map((item) => (
+                {hasFetched && currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
 
                     <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

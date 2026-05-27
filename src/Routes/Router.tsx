@@ -10,6 +10,7 @@ import Home from "../pages/Home/Home.tsx";
 import Activity from "../pages/Activity.tsx"; 
 import Community from "../pages/Community/Community.tsx";
 import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
+import TermsOfService from "../pages/Terms/TermsOfService.tsx";
 
 const Router = () => {
   return (
@@ -28,6 +29,7 @@ const Router = () => {
 
       {/* Privacy Policy page route */}
       <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
     </Routes>
   );
 };

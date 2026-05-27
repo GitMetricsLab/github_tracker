@@ -9,7 +9,7 @@ const { signupSchema, loginSchema } = require("../validators/authValidator");
 const { validateRequest } = require("../validators/validationRequest");
 const router = express.Router();
 
-const useMongoAuth = Boolean(process.env.MONGO_URI);
+const getUseMongoAuth = () => typeof global.mongooseConnected !== "undefined" ? global.mongooseConnected : Boolean(process.env.MONGO_URI);
 const dataDir = path.join(__dirname, "..", "data");
 const usersFile = path.join(dataDir, "users.json");
 const usersLockFile = `${usersFile}.lock`;
@@ -64,8 +64,8 @@ const readUsersUnlocked = async () => {
     try {
         const parsed = JSON.parse(raw);
         return Array.isArray(parsed.users) ? parsed.users : [];
-    } catch {
-        return [];
+    } catch (error) {
+        throw new Error(`Failed to parse users file at ${usersFile}: ${error.message}`);
     }
 };
 
@@ -108,7 +108,7 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
     const { username,  email, password } = req.body;
 
-    if (!useMongoAuth) {
+    if (!getUseMongoAuth()) {
         try {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
@@ -154,26 +154,32 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
 // Login route
 router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
-    if (!useMongoAuth) {
+    if (!getUseMongoAuth()) {
         try {
             const { email, password } = req.body;
             const users = await readUsersWithLock();
             const user = users.find((item) => item.email === email);
 
             if (!user) {
-                return res.status(401).json({ message: 'Email is invalid ' });
+                return res.status(401).json({ message: 'Invalid email or password' });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(401).json({ message: 'Invalid password' });
+                return res.status(401).json({ message: 'Invalid email or password' });
             }
 
-            createSessionUser(req, user);
+            req.session.regenerate((err) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Login failed', error: err.message });
+                }
 
-            return res.status(200).json({
-                message: 'Login successful',
-                user: req.user,
+                createSessionUser(req, user);
+
+                return res.status(200).json({
+                    message: 'Login successful',
+                    user: req.user,
+                });
             });
         } catch (err) {
             return res.status(500).json({ message: 'Login failed', error: err.message });
@@ -202,7 +208,7 @@ router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
 // Logout route
 router.get("/logout", (req, res) => {
 
-    if (!useMongoAuth) {
+    if (!getUseMongoAuth()) {
         req.session.destroy((err) => {
             if (err) {
                 return res.status(500).json({ message: 'Logout failed', error: err.message });

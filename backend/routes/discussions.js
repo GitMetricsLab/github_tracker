@@ -35,7 +35,11 @@ const readStore = async () => {
 
 const writeStore = async (discussions) => {
   await ensureDataFile();
-  await fs.writeFile(dataFile, JSON.stringify({ discussions }, null, 2), 'utf8');
+  const tempFile = `${dataFile}.${process.pid}.${Date.now()}.tmp`;
+
+  // Write to a temporary file first, then atomically replace the target file.
+  await fs.writeFile(tempFile, JSON.stringify({ discussions }, null, 2), 'utf8');
+  await fs.rename(tempFile, dataFile);
 };
 
 const updateStore = async (updater) => {
@@ -134,7 +138,7 @@ router.get('/', async (req, res) => {
   try {
     const discussions = await readStore();
     const { search = '', category = '', tag = '', sort = 'recent' } = req.query;
-    const currentUserId = getCommunityIdentity(req).id;
+    const currentUserId = req.user ? getCommunityIdentity(req).id : (req.session?.communityUserId || null);
 
     let filtered = discussions;
 
@@ -171,6 +175,7 @@ router.get('/', async (req, res) => {
     return res.status(200).json({
       items: filtered.map((discussion) => toPublicDiscussion(discussion, currentUserId)),
       categories: Array.from(new Set(filtered.map((discussion) => discussion.category))).sort(),
+      isAuthenticated: !!req.user,
     });
   } catch (error) {
     return res.status(500).json({ message: 'Unable to load discussions', error: error.message });

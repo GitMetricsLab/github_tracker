@@ -1,10 +1,10 @@
 {
   "users": [
     {
-      "id": "c8cf4cfd-145c-4950-8392-5f40f2a9ccde",
-      "username": "arpit",
-      "email": "arpitshirbhate5@gmail.com",
-      "password": "$2a$10$6MsaZTunN.oNj5UOHdwfrOYELPdptaMQxK5Tj4/2kFekFY/jVL4mi"
+      "id": "00000000-0000-0000-0000-000000000000",
+      "username": "demo-user",
+      "email": "user@example.com",
+      "password": "$2a$10$00000000000000000000000000000000000000000000000000000"
     }
   ]
 }

@@ -14,10 +14,6 @@ const logger = require('./logger');
 const app = express();
 
 // CORS configuration
-const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
-app.use(cors({
-    origin: clientOrigin,
-    credentials: true,
 const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
 app.use(cors({
     origin: function (origin, callback) {
@@ -40,16 +36,17 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// When MongoDB is unavailable, auth routes use a file-backed session user.
-if (!process.env.MONGO_URI) {
-    app.use((req, res, next) => {
+global.mongooseConnected = false;
+
+app.use((req, res, next) => {
+    if (!global.mongooseConnected) {
         if (req.session?.authUser) {
             req.user = req.session.authUser;
         }
+    }
 
-        next();
-    });
-}
+    next();
+});
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -70,14 +67,17 @@ if (process.env.MONGO_URI) {
     mongoose.connect(process.env.MONGO_URI, {})
         .then(() => {
             logger.info('Connected to MongoDB');
+            global.mongooseConnected = true;
             startServer();
         })
         .catch((err) => {
             logger.error('MongoDB connection error', err);
-            logger.warn('Starting without MongoDB; auth routes may fail, but the discussion backend remains available');
+            logger.warn('Starting without MongoDB; falling back to JSON file-backed authentication');
+            global.mongooseConnected = false;
             startServer();
         });
 } else {
     logger.warn('MONGO_URI is not set; starting without MongoDB');
+    global.mongooseConnected = false;
     startServer();
 }

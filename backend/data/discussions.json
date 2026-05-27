@@ -12,14 +12,14 @@
       "authorId": "8d706914-51d9-40ca-981c-ac9dcb6a1881",
       "authorName": "Guest",
       "likes": [
-        "c8cf4cfd-145c-4950-8392-5f40f2a9ccde"
+        "00000000-0000-0000-0000-000000000000"
       ],
       "comments": [
         {
           "id": "d1b1bcad-6989-49ff-a587-667f8426198e",
           "text": "Yes",
-          "authorId": "c8cf4cfd-145c-4950-8392-5f40f2a9ccde",
-          "authorName": "arpit",
+          "authorId": "00000000-0000-0000-0000-000000000000",
+          "authorName": "demo-user",
           "createdAt": "2026-05-27T12:56:14.816Z"
         }
       ],

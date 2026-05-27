@@ -63,14 +63,14 @@ const AuthShell: React.FC<AuthShellProps> = ({ mode, badge, title, subtitle, hig
             <div className="grid gap-4 sm:grid-cols-2">
               {highlights.map((highlight) => (
                 <div key={highlight.title} className={`rounded-2xl border p-4 backdrop-blur-xl ${panelClass}`}>
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300/90">{highlight.title}</p>
+                  <p className={`text-sm font-semibold uppercase tracking-[0.2em] ${mode === "light" ? "text-cyan-600/90" : "text-cyan-300/90"}`}>{highlight.title}</p>
                   <p className={`mt-2 text-sm leading-6 ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>{highlight.description}</p>
                 </div>
               ))}
             </div>
 
             <div className={`rounded-[1.75rem] border p-5 backdrop-blur-xl ${panelClass}`}>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-300/90">Why it works</p>
+              <p className={`text-sm font-semibold uppercase tracking-[0.2em] ${mode === "light" ? "text-fuchsia-600/90" : "text-fuchsia-300/90"}`}>Why it works</p>
               <div className="mt-4 space-y-3">
                 {[
                   "A focused form card keeps the primary action obvious.",

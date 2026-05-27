@@ -6,7 +6,7 @@ import AuthShell from "../../components/AuthShell";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
 interface SignUpFormData {
   username: string;
@@ -165,7 +165,7 @@ const SignUp: React.FC = () => {
                 className={`w-full bg-transparent text-sm outline-none ${mode === "dark" ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"}`}
               />
             </div>
-            {errors.username && <p className="text-sm text-rose-300">{errors.username}</p>}
+            {errors.username && <p className="text-sm text-rose-600 dark:text-rose-300">{errors.username}</p>}
           </label>
 
           <label className="block space-y-2">
@@ -182,7 +182,7 @@ const SignUp: React.FC = () => {
                 className={`w-full bg-transparent text-sm outline-none ${mode === "dark" ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"}`}
               />
             </div>
-            {errors.email && <p className="text-sm text-rose-300">{errors.email}</p>}
+            {errors.email && <p className="text-sm text-rose-600 dark:text-rose-300">{errors.email}</p>}
           </label>
 
           <label className="block space-y-2">
@@ -208,7 +208,7 @@ const SignUp: React.FC = () => {
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
-            {errors.password && <p className="text-sm text-rose-300">{errors.password}</p>}
+            {errors.password && <p className="text-sm text-rose-600 dark:text-rose-300">{errors.password}</p>}
           </label>
 
           <button
@@ -225,8 +225,8 @@ const SignUp: React.FC = () => {
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
               message.includes("successfully")
-                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                : "border-rose-500/30 bg-rose-500/10 text-rose-300"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
             }`}
           >
             <div className="flex items-start gap-2">

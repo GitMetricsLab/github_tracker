@@ -20,7 +20,7 @@ import {
   MessagesSquare,
 } from "lucide-react";
 
-const apiBase = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const apiBase = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
 type DiscussionComment = {
   id: string;
@@ -133,8 +133,7 @@ export default function Community() {
 
       setDiscussions(response.data.items || []);
       setCategories(response.data.categories?.length ? response.data.categories : categoryPresets.slice(1));
-      setIsAuthenticated(true);
-      setError("");
+      setIsAuthenticated(!!response.data.isAuthenticated);
     } catch (requestError) {
       setError("Unable to load community discussions right now.");
       if (axios.isAxiosError(requestError) && requestError.response?.status === 401) {
@@ -364,6 +363,7 @@ export default function Community() {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="Search discussions, tags, or categories"
+                    aria-label="Search discussions, tags, or categories"
                     className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
                   />
                 </label>
@@ -372,6 +372,7 @@ export default function Community() {
                   <select
                     value={selectedCategory}
                     onChange={(event) => setSelectedCategory(event.target.value)}
+                    aria-label="Filter by category"
                     className="w-full bg-transparent text-sm font-medium outline-none"
                   >
                     {["All", ...categories.filter((category) => category !== "All")].map((category) => (

@@ -333,13 +333,24 @@ const Home: React.FC = () => {
 
       {loading ? (
         <Box sx={{padding:2}}>
-          {[1,2,3,4,5].map((item)=>(
-            <Skeleton
-            key={item}
-            variant="rounded"
-            height={45}
-            sx={{marginBottom:1.5}}
-            />
+          {[1,2,3,4,5].map((row)=>(
+            <Box 
+            key={row}
+            sx={{
+              display:"flex",
+              marginBottom:2,
+              gap:2,
+            }}
+            >
+            <Skeleton variant="text" width={250}
+       height={35}/>
+            <Skeleton variant="rectangular" width={120}
+       height={35}/>
+            <Skeleton variant="rectangular" width={100}
+       height={35}/>
+            <Skeleton variant="rectangular" width={120}
+       height={35}/>
+            </Box>
           ))}
         </Box>
       ) : (
@@ -359,6 +370,13 @@ const Home: React.FC = () => {
               </TableHead>
 
               <TableBody>
+                {currentFilteredData.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      No Github activity found with current filters.
+                    </TableCell>
+                  </TableRow>
+                )}
                 {currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
 

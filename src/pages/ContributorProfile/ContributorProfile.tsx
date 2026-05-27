@@ -29,8 +29,13 @@ export default function ContributorProfile() {
         const userData = await userRes.json();
         setProfile(userData);
 
+        const searchParams = new URLSearchParams({
+          q: `author:${username} AND is:pr`,
+          advanced_search: "true",
+        });
+
         const prsRes = await fetch(
-          `https://api.github.com/search/issues?q=author:${username}+type:pr`
+          `https://api.github.com/search/issues?${searchParams.toString()}`
         );
         const prsData = await prsRes.json();
         setPRs(prsData.items);

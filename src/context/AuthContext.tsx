@@ -95,10 +95,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 password,
             });
 
-            if (response.data.success) {
+            if (response.status === 201 && response.data.success) {
                 setError(null);
             } else {
                 setError(response.data.message || 'Signup failed');
+                throw new Error(response.data.message || 'Signup failed');
             }
         } catch (err: any) {
             const message = err.response?.data?.message || 'Signup failed';

@@ -54,7 +54,9 @@ export const useGitHubData = (
     ];
 
     if (filters.search) {
-      queryParts.push(`${filters.search} in:title`);
+      const escapedSearch =
+        filters.search.trim().replace(/"/g, '\\"');
+      queryParts.push(`in:title:"${escapedSearch}"`);
     }
 
     if (filters.repo) {

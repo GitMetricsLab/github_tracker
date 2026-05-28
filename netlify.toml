@@ -1,0 +1,17 @@
+[build]
+  command = "npm install && npm run build"
+  publish = "dist"
+  environment = { NODE_VERSION = "18" }
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

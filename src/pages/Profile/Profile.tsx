@@ -1,29 +1,133 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, BadgeCheck, CalendarDays, Clock3, History, Mail, ShieldCheck, Sparkles, UserCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ThemeContext } from "../../context/ThemeContext";
 
+type ProfileUser = {
+  id?: string;
+  username?: string;
+  email?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  status?: string;
+  emailVerified?: boolean;
+  avatarUrl?: string;
+  bio?: string;
+  phone?: string;
+  socialLinks?: Record<string, string | undefined>;
+};
+
+const AUTH_STORAGE_KEY = "github_tracker_auth_user";
+
+const calculateProfileCompleteness = (profile: ProfileUser | null) => {
+  const checks = [
+    { weight: 15, value: profile?.username },
+    { weight: 15, value: profile?.email },
+    { weight: 10, value: profile?.id },
+    { weight: 10, value: profile?.createdAt },
+    { weight: 5, value: profile?.updatedAt },
+    { weight: 10, value: profile?.emailVerified === true },
+    { weight: 10, value: profile?.avatarUrl },
+    { weight: 10, value: profile?.bio },
+    { weight: 10, value: profile?.phone },
+    {
+      weight: 5,
+      value: profile?.socialLinks && Object.values(profile.socialLinks).some(Boolean),
+    },
+  ];
+
+  const totalWeight = checks.reduce((sum, check) => sum + check.weight, 0);
+  const earnedWeight = checks.reduce(
+    (sum, check) => sum + (check.value ? check.weight : 0),
+    0
+  );
+
+  return totalWeight === 0 ? 0 : Math.round((earnedWeight / totalWeight) * 100);
+};
+
 const Profile = () => {
   const themeContext = useContext(ThemeContext);
+  const navigate = useNavigate();
+  const [user, setUser] = useState<ProfileUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   if (!themeContext) return null;
 
   const { mode } = themeContext;
 
-  const profile = {
-    username: "Profile",
-    email: "profile@githubtracker.dev",
-    joined: "Always available",
-    status: "Active",
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storedUser = window.localStorage.getItem(AUTH_STORAGE_KEY);
+
+    if (!storedUser) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    try {
+      const parsedUser = JSON.parse(storedUser) as ProfileUser;
+
+      if (!parsedUser?.username || !parsedUser?.email) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      setUser(parsedUser);
+    } catch {
+      setError("Unable to read your profile data.");
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  const joinedDate = useMemo(() => {
+    if (user?.createdAt) {
+      return new Date(user.createdAt).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    return "Unavailable";
+  }, [user?.createdAt]);
+
+  const profileCompleteness = calculateProfileCompleteness(user);
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+
+    navigate("/login", { replace: true });
   };
 
-  const profileCompleteness = 100;
-
   const quickStats = [
-    { label: "Account status", value: "Active", icon: BadgeCheck, tone: "text-emerald-500" },
+    { label: "Account status", value: user?.status ?? "Active", icon: BadgeCheck, tone: "text-emerald-500" },
     { label: "Session", value: "Secure", icon: ShieldCheck, tone: "text-cyan-500" },
     { label: "Profile score", value: `${profileCompleteness}%`, icon: Sparkles, tone: "text-fuchsia-500" },
   ];
+
+  if (loading) {
+    return (
+      <div className={`w-full px-4 py-20 text-center ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>
+        Loading profile...
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="w-full px-4 py-20 text-center text-red-600 dark:text-red-300">{error}</div>;
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className={`min-h-[calc(100vh-8rem)] w-full overflow-hidden px-4 py-10 ${mode === "dark" ? "bg-slate-950 text-white" : "bg-slate-50 text-slate-900"}`}>
@@ -52,7 +156,7 @@ const Profile = () => {
 
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
                 <Clock3 className="h-4 w-4" />
-                Updated today
+                Updated {joinedDate}
               </div>
             </div>
           </div>
@@ -66,10 +170,10 @@ const Profile = () => {
                   </div>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-3xl font-extrabold tracking-tight">{profile.username}</h2>
+                      <h2 className="text-3xl font-extrabold tracking-tight">{user.username}</h2>
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-500">
                         <BadgeCheck className="h-3.5 w-3.5" />
-                        {profile.status}
+                        {user.status ?? "Active"}
                       </span>
                     </div>
                     <p className={`${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>
@@ -93,7 +197,7 @@ const Profile = () => {
                     <Mail className="h-4 w-4" />
                     Email
                   </div>
-                  <p className="mt-3 break-all text-base font-semibold">{profile.email}</p>
+                  <p className="mt-3 break-all text-base font-semibold">{user.email}</p>
                 </div>
 
                 <div className={`rounded-2xl border p-4 ${mode === "dark" ? "border-white/10 bg-white/5" : "border-slate-200 bg-white"}`}>
@@ -101,7 +205,7 @@ const Profile = () => {
                     <CalendarDays className="h-4 w-4" />
                     Joined
                   </div>
-                  <p className="mt-3 text-base font-semibold">{profile.joined}</p>
+                  <p className="mt-3 text-base font-semibold">{joinedDate}</p>
                 </div>
 
                 <div className={`rounded-2xl border p-4 ${mode === "dark" ? "border-white/10 bg-white/5" : "border-slate-200 bg-white"}`}>
@@ -109,7 +213,7 @@ const Profile = () => {
                     <History className="h-4 w-4" />
                     Account ID
                   </div>
-                  <p className="mt-3 break-all text-sm font-semibold text-slate-900 dark:text-slate-100">profile</p>
+                  <p className="mt-3 break-all text-sm font-semibold text-slate-900 dark:text-slate-100">{user.id ?? user.username ?? "Unknown ID"}</p>
                 </div>
               </div>
 
@@ -136,6 +240,12 @@ const Profile = () => {
                   <ArrowRight className="h-4 w-4" />
                   Go to tracker
                 </Link>
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700 transition hover:-translate-y-0.5 hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
+                >
+                  Logout
+                </button>
               </div>
             </div>
 
@@ -156,19 +266,19 @@ const Profile = () => {
                 <dl className="mt-6 space-y-5 text-sm">
                   <div>
                     <dt className={`${mode === "dark" ? "text-slate-400" : "text-slate-500"}`}>Session state</dt>
-                    <dd className="mt-1 font-semibold text-emerald-500">Ready</dd>
+                    <dd className="mt-1 font-semibold text-emerald-500">{user.status ?? "Ready"}</dd>
                   </div>
                   <div>
                     <dt className={`${mode === "dark" ? "text-slate-400" : "text-slate-500"}`}>Username</dt>
-                    <dd className="mt-1 font-semibold">{profile.username}</dd>
+                    <dd className="mt-1 font-semibold">{user.username}</dd>
                   </div>
                   <div>
                     <dt className={`${mode === "dark" ? "text-slate-400" : "text-slate-500"}`}>Email</dt>
-                    <dd className="mt-1 break-all font-semibold">{profile.email}</dd>
+                    <dd className="mt-1 break-all font-semibold">{user.email}</dd>
                   </div>
                   <div>
                     <dt className={`${mode === "dark" ? "text-slate-400" : "text-slate-500"}`}>Joined</dt>
-                    <dd className="mt-1 font-semibold">{profile.joined}</dd>
+                    <dd className="mt-1 font-semibold">{joinedDate}</dd>
                   </div>
                 </dl>
               </div>

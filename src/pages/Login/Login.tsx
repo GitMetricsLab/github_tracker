@@ -34,6 +34,9 @@ const Login: React.FC = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
+        if (typeof window !== "undefined" && response.data.user) {
+          window.localStorage.setItem("github_tracker_auth_user", JSON.stringify(response.data.user));
+        }
         navigate("/");
       }
     } catch (error: unknown) {

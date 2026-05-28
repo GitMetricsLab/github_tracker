@@ -49,11 +49,10 @@ const Login: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
-        mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
-      }`}
+      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${mode === "dark"
+        ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+        : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+        }`}
     >
       {/* Animated background elements */}
       <div className="absolute inset-0">
@@ -70,11 +69,10 @@ const Login: React.FC = () => {
             <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
           </div>
 
-          <h1 className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${
-            mode === "dark"
-              ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
-              : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
-          }`}>
+          <h1 className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${mode === "dark"
+            ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
+            : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
+            }`}>
             GitHubTracker
           </h1>
           <p className={`${mode === "dark" ? "text-slate-300" : "text-gray-700"} text-lg font-medium`}>
@@ -98,11 +96,10 @@ const Login: React.FC = () => {
                 onChange={handleChange}
                 autoComplete="username"
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
-                  mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-                }`}
+                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                  }`}
               />
             </div>
 
@@ -115,18 +112,17 @@ const Login: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
-                  mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-                }`}
+                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                  }`}
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-slate-100 text-slate-900 border-2 border-pink-300 py-4 px-6 rounded-2xl font-semibold shadow-sm focus:ring-4 focus:ring-slate-300 transition-all duration-300 hover:bg-slate-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
@@ -134,11 +130,10 @@ const Login: React.FC = () => {
 
           {/* Message */}
           {message && (
-            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
-              message === "Login successful"
-                ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                : "bg-red-500/20 text-red-300 border border-red-500/30"
-            }`}>
+            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${message === "Login successful"
+              ? "bg-green-500/20 text-green-300 border border-green-500/30"
+              : "bg-red-500/20 text-red-300 border border-red-500/30"
+              }`}>
               {message}
             </div>
           )}

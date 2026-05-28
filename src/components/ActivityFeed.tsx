@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface EventType {
   id: string;
@@ -12,6 +12,8 @@ interface EventType {
 export default function ActivityFeed({ username }: { username: string }) {
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
+  const isMounted = useRef(true);
+  const hasLoadedOnce = useRef(false);
 
   // 🕒 time ago function
   const getTimeAgo = (dateString: string) => {
@@ -26,27 +28,39 @@ export default function ActivityFeed({ username }: { username: string }) {
   };
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    isMounted.current = true;
+
+    const fetchEvents = async (isBackground = false) => {
       try {
-        setLoading(true);
+        if (!isBackground || !hasLoadedOnce.current) {
+          setLoading(true);
+        }
 
         const res = await fetch(
           `https://api.github.com/users/${username}/events`
         );
         const data = await res.json();
 
-        setEvents(data);
+        if (!isMounted.current) return;
+
+        setEvents(data || []);
+        hasLoadedOnce.current = true;
         setLoading(false);
       } catch (err) {
         console.error(err);
-        setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     };
 
     fetchEvents();
 
-    const interval = setInterval(fetchEvents, 30000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => fetchEvents(true), 120000);
+    return () => {
+      isMounted.current = false;
+      clearInterval(interval);
+    };
   }, [username]);
 
   return (

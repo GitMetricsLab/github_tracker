@@ -33,6 +33,8 @@ import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { KeyIcon } from "lucide-react";
+import Dashboard from "../../components/Dashboard";
+
 
 const ROWS_PER_PAGE = 10;
 
@@ -335,7 +337,14 @@ const Home: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+        <>
+          <Dashboard
+            totalIssues={totalIssues}
+            totalPrs={totalPrs}
+            data={[...issues, ...prs]}
+            theme={theme}
+          />
+          <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
 
@@ -395,6 +404,7 @@ const Home: React.FC = () => {
 
           </TableContainer>
         </Box>
+        </>
       )}
     </Container>
   );

@@ -339,9 +339,7 @@ const Home: React.FC = () => {
       ) : (
         <>
           <Dashboard
-            totalIssues={totalIssues}
-            totalPrs={totalPrs}
-            data={[...issues, ...prs]}
+            data={currentFilteredData}
             theme={theme}
           />
           <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>

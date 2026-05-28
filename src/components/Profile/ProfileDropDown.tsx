@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LogOut, Settings, User } from "lucide-react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { logoutUser } from "../../services/auth";
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 type UserType = {
     id: string,
     username: string,
@@ -16,7 +14,22 @@ interface UserProps {
 const ProfileDropDown = ({ user }: UserProps) => {
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [avatar, setAvatar] = useState("");
 
+    useEffect(() => {
+
+        const dashboard =
+            JSON.parse(
+                localStorage.getItem(
+                    "githubDashboard"
+                ) || "{}"
+            );
+
+        setAvatar(
+            dashboard.profile?.avatar_url || ""
+        );
+
+    }, []);
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -58,7 +71,7 @@ const ProfileDropDown = ({ user }: UserProps) => {
                     dark:border-gray-800">
                         <div className="flex items-center gap-3">
                             <img
-                                src="https://i.pravatar.cc/50"
+                                src={avatar}
                                 alt="profile"
                                 className="h-12 w-12 rounded-full"
                             />
@@ -82,25 +95,34 @@ const ProfileDropDown = ({ user }: UserProps) => {
                     {/* Menu Items */}
                     <div className="p-2">
 
-                        <Link className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
-                        dark:text-gray-200 dark:hover:bg-gray-800"
+                        <Link
+                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
+    dark:text-gray-200 dark:hover:bg-gray-800"
                             to={"/me"}
+                            onClick={() => setOpen(false)}
                         >
                             <User size={18} />
                             My Profile
                         </Link>
 
-                        <Link className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
-                        dark:text-gray-200 dark:hover:bg-gray-800"
-                        to={"/profile/edit"}
+                        <Link
+                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-gray-700 transition hover:bg-gray-100
+    dark:text-gray-200 dark:hover:bg-gray-800"
+                            to={"/profile/edit"}
+                            onClick={() => setOpen(false)}
                         >
                             <Settings size={18} />
                             Edit Profile
                         </Link>
 
-                        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition hover:bg-red-50
-                        dark:hover:bg-red-900/2"
-                            onClick={logoutUser}>
+                        <button
+                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition hover:bg-red-50
+    dark:hover:bg-red-900/2"
+                            onClick={() => {
+                                setOpen(false);
+                                logoutUser();
+                            }}
+                        >
                             <LogOut size={18} />
                             Logout
                         </button>

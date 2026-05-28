@@ -1,34 +1,58 @@
-const LanguageChart = () => {
-    return (
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+interface LanguageChartProps {
+    languages: Record<string, number>;
+}
 
-            <h2 className="mb-4 text-xl font-semibold">
+const LanguageChart = ({ languages }: LanguageChartProps) => {
+    const total = Object.values(languages).reduce((sum, count) => sum + count, 0);
+    return (
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6
+                                        dark:border-zinc-800 dark:bg-zinc-900">
+
+            <h2 className="mb-4 text-xl font-semibold text-zinc-700 dark:text-zinc-300">
                 Languages Used
             </h2>
-
             <div className="space-y-4">
 
-                <div>
-                    <div className="mb-1 flex justify-between">
-                        <span>TypeScript</span>
-                        <span>40%</span>
-                    </div>
+                {Object.entries(languages)
+                    .map(([language, count]) => {
 
-                    <div className="h-3 rounded-full bg-zinc-800">
-                        <div className="h-3 w-[40%] rounded-full bg-blue-500" />
-                    </div>
-                </div>
+                        const percentage =
+                            Math.round(
+                                (count / total) * 100
+                            );
 
-                <div>
-                    <div className="mb-1 flex justify-between">
-                        <span>JavaScript</span>
-                        <span>30%</span>
-                    </div>
+                        return (
 
-                    <div className="h-3 rounded-full bg-zinc-800">
-                        <div className="h-3 w-[30%] rounded-full bg-yellow-500" />
-                    </div>
-                </div>
+                            <div key={language} className="rounded-xl shadow-xl border-zinc-200 dark:border-zinc-800 p-2">
+
+                                <div className="mb-1 flex justify-between">
+
+                                    <span className="text-zinc-700 dark:text-zinc-300">
+                                        {language}
+                                    </span>
+
+                                    <span className="text-zinc-700 dark:text-zinc-300">
+                                        {percentage}%
+                                    </span>
+
+                                </div>
+
+                                <div className="h-3 rounded-full bg-white dark:bg-zinc-900">
+
+                                    <div
+                                        className="h-3 rounded-full bg-blue-500"
+                                        style={{
+                                            width: `${percentage}%`
+                                        }}
+                                    />
+
+                                </div>
+
+                            </div>
+
+                        );
+
+                    })}
 
             </div>
         </div>

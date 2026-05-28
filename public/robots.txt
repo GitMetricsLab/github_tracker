@@ -4,4 +4,4 @@ Disallow: /api/
 Disallow: /admin/
 Crawl-delay: 1
 
-Sitemap: https://github-tracker.example.com/sitemap.xml
++Sitemap: https://github-spy.netlify.app/sitemap.xml

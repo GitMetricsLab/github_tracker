@@ -2,6 +2,22 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileSidebar from "../../components/Profile/ProfileSidebar";
 
+const safeParseDashboard = () => {
+    try {
+        return JSON.parse(
+            localStorage.getItem(
+                "githubDashboard"
+            ) || "{}"
+        );
+    } catch (error) {
+        console.error(
+            "Failed to parse githubDashboard",
+            error
+        );
+        return {};
+    }
+};
+
 const EditProfile = () => {
 
     const navigate = useNavigate();
@@ -19,12 +35,7 @@ const EditProfile = () => {
 
     useEffect(() => {
 
-        const dashboard =
-            JSON.parse(
-                localStorage.getItem(
-                    "githubDashboard"
-                ) || "{}"
-            );
+        const dashboard = safeParseDashboard();
 
         if (dashboard.profile) {
 
@@ -59,12 +70,7 @@ const EditProfile = () => {
 
     const handleSave = () => {
 
-        const dashboard =
-            JSON.parse(
-                localStorage.getItem(
-                    "githubDashboard"
-                ) || "{}"
-            );
+        const dashboard = safeParseDashboard();
 
         dashboard.profile = {
             ...dashboard.profile,
@@ -331,7 +337,7 @@ const EditProfile = () => {
                                 </button>
 
                                 <button
-                                    onClick={() => navigate("/profile")}
+                                    onClick={() => navigate("/me")}
                                     className="
                                         rounded-xl
                                         border

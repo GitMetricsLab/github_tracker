@@ -152,7 +152,7 @@ const Navbar: React.FC = () => {
                   className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
                   onClick={() => setIsOpen(false)}
                 >
-                  My Profile
+                  Edit Profile
                 </Link>
                 <button
                   className="block w-full text-left text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"

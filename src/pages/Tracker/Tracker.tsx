@@ -92,7 +92,7 @@ const Home: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
-    fetchProfile();
+    fetchProfile(username);
     fetchRepositories(username);
     fetchActivity(username);
     fetchData(username, 1, ROWS_PER_PAGE);
@@ -194,8 +194,13 @@ const Home: React.FC = () => {
     fetchActivity
   } = useGitHubActivity(getOctokit)
   useEffect(() => {
-    if (!profile || !repos.length || !activities.length) return;
-
+    if (
+      !profile ||
+      repos == null ||
+      activities == null
+    ) {
+      return;
+    }
     try {
       const gitHubDashBoard = {
         profile,
@@ -210,18 +215,29 @@ const Home: React.FC = () => {
           totalIssues,
           totalPrs,
         },
-        activities
+        activities,
       };
-
       localStorage.setItem(
         "githubDashboard",
         JSON.stringify(gitHubDashBoard)
       );
-
     } catch (error) {
-      console.error("Something went wrong while saving profile or RepoStats.");
+      console.error(
+        "Something went wrong while saving profile or RepoStats.",
+        error
+      );
     }
-  })
+  }, [
+    profile,
+    repos,
+    totalStars,
+    totalForks,
+    topRepositories,
+    languages,
+    totalIssues,
+    totalPrs,
+    activities,
+  ]);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>

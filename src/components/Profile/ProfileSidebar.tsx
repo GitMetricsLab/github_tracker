@@ -21,7 +21,7 @@ const ProfileSidebar = ({ profile }: ProfileProps) => {
             <div className="flex flex-col">
 
                 {/* <User2Icon className="h-28 w-28 rounded-full" /> */}
-                <img src={profile.imageUrl} alt="User Avatar" className="h-45 w-45 rounded-full
+                <img src={profile.imageUrl} alt="User Avatar" className="h-52 w-52 rounded-full
                                                                             object-cover border border-zinc-300 dark:border-zinc-700" />
 
                 <h1 className="mt-4 text-2xl font-bold text-zinc-900 dark:text-white">
@@ -34,7 +34,7 @@ const ProfileSidebar = ({ profile }: ProfileProps) => {
             </div>
 
             <div className="mt-6 space-y-4 text-sm text-zinc-700 dark:text-zinc-300">
-                <span className="flex items-left gap-2">
+                <span className="flex gap-2">
                     <LocationIcon className="w-4 h-4" />
                     <p>{profile.location}</p>
                 </span>

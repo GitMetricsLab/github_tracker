@@ -17,9 +17,9 @@ const LanguageChart = ({ languages }: LanguageChartProps) => {
                     .map(([language, count]) => {
 
                         const percentage =
-                            Math.round(
-                                (count / total) * 100
-                            );
+                            total > 0
+                                ? Math.round((count / total) * 100)
+                                : 0;
 
                         return (
 

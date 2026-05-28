@@ -10,21 +10,30 @@ export const useGitHubActivity = (
     const fetchActivity = async (
         username: string
     ) => {
-
         const octokit = getOctokit();
-
-        const response =
-            await octokit.request(
-                "GET /users/{username}/events",
-                {
-                    username,
-                    per_page: 10,
-                }
+        if (!octokit) {
+            console.error("Octokit client unavailable");
+            setActivities([]);
+            return;
+        }
+        try {
+            const response =
+                await octokit.request(
+                    "GET /users/{username}/events",
+                    {
+                        username,
+                        per_page: 10,
+                    }
+                );
+            setActivities(response.data);
+        } catch (error) {
+            console.error(
+                "Failed to fetch GitHub activity",
+                error
             );
-
-        setActivities(response.data);
+            setActivities([]);
+        }
     };
-
     return {
         activities,
         fetchActivity,

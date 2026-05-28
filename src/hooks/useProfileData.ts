@@ -26,27 +26,28 @@ export const useGitHubProfile = (
   const [error, setError] =
     useState("");
 
-  const fetchProfile = useCallback(async () => {
+  const fetchProfile = useCallback(async (
+    username?: string
+  ) => {
     const octokit = getOctokit();
-
     if (!octokit) return;
-
     setLoading(true);
     setError("");
-
     try {
-      const response =
-        await octokit.request("GET /user");
-
+      const response = username
+        ? await octokit.request(
+          "GET /users/{username}",
+          { username }
+        )
+        : await octokit.request(
+          "GET /user"
+        );
       setProfile(response.data);
-
     } catch (err: any) {
-
       setError(
         err.message ||
         "Failed to fetch profile"
       );
-
     } finally {
       setLoading(false);
     }

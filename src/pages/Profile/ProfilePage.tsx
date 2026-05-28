@@ -29,12 +29,20 @@ const ProfilePage = () => {
     const [languages, setLanguages] = useState<Record<string, number>>({});
     const [activities, setActivities] = useState([]);
     useEffect(() => {
-        const dashboard =
-            JSON.parse(
-                localStorage.getItem(
-                    "githubDashboard"
-                ) || "{}"
+        let dashboard: any = {};
+        try {
+            dashboard =
+                JSON.parse(
+                    localStorage.getItem(
+                        "githubDashboard"
+                    ) || "{}"
+                );
+        } catch (error) {
+            console.error(
+                "Failed to parse githubDashboard",
+                error
             );
+        }
         if (dashboard.profile && dashboard.repositories) {
             setUserInfo({
                 username: dashboard.profile.login || "",
@@ -47,8 +55,8 @@ const ProfilePage = () => {
             });
             setStats({
                 stars: dashboard.repositories.totalStars || 0,
-                issues: dashboard.analytics.totalIssues || 0,
-                pullrequests: dashboard.analytics.totalPrs || 0
+                issues: dashboard.analytics?.totalIssues ?? 0,
+                pullrequests: dashboard.analytics?.totalPrs ?? 0
             });
             setTopRepos(
                 dashboard.repositories.topRepositories || [],

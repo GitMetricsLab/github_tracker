@@ -36,8 +36,8 @@ export const useGitHubRepositories = (
 
             try {
 
-                const response =
-                    await octokit.request(
+                const repositories =
+                    await octokit.paginate(
                         "GET /users/{username}/repos",
                         {
                             username,
@@ -45,9 +45,6 @@ export const useGitHubRepositories = (
                             sort: "updated",
                         }
                     );
-
-                const repositories =
-                    response.data;
 
                 setRepos(repositories);
 

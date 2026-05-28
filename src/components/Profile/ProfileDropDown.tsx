@@ -18,17 +18,24 @@ const ProfileDropDown = ({ user }: UserProps) => {
 
     useEffect(() => {
 
-        const dashboard =
-            JSON.parse(
-                localStorage.getItem(
-                    "githubDashboard"
-                ) || "{}"
+        try {
+            const dashboard =
+                JSON.parse(
+                    localStorage.getItem(
+                        "githubDashboard"
+                    ) || "{}"
+                );
+            setAvatar(
+                dashboard.profile?.avatar_url || ""
             );
+        } catch (error) {
 
-        setAvatar(
-            dashboard.profile?.avatar_url || ""
-        );
-
+            console.error(
+                "Failed to parse githubDashboard",
+                error
+            );
+            setAvatar("");
+        }
     }, []);
     // Close dropdown when clicking outside
     useEffect(() => {

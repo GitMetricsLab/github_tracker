@@ -31,7 +31,7 @@ const RecentActivity = ({
                 return "Opened a pull request";
 
             case "IssueCommentEvent":
-                return "Created an issue";
+                return "Commented on an issue";
 
             case "WatchEvent":
                 return "Starred a repository";
@@ -102,7 +102,7 @@ const RecentActivity = ({
                 ))}
 
                 {
-                    activities.length > 5 && (
+                    activities.length > 3 && (
 
                         <button
                             onClick={() =>

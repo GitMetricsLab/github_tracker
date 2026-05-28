@@ -9,6 +9,8 @@ import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.t
 import Home from "../pages/Home/Home.tsx";
 import ProfilePage from "../pages/Profile/ProfilePage.tsx";
 import EditProfilePage from "../pages/Profile/EditProfilePage.tsx";
+import Activity from "../pages/Activity.tsx";
+import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
 
 const Router = () => {
   return (
@@ -23,6 +25,10 @@ const Router = () => {
       <Route path="/contributor/:username" element={<ContributorProfile />} />
       <Route path="/me" element={<ProfilePage />}></Route>
       <Route path="/profile/edit" element={<EditProfilePage />}></Route>
+      <Route path="/activity" element={<Activity />} />
+
+      {/* Privacy Policy page route */}
+      <Route path="/privacy" element={<PrivacyPolicy />} />
     </Routes>
   );
 };

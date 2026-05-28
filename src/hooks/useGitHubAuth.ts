@@ -4,11 +4,13 @@ import { Octokit } from '@octokit/core';
 export const useGitHubAuth = () => {
   const [username, setUsername] = useState('');
   const [token, setToken] = useState('');
-  const [error, setError] = useState('');
 
   const octokit = useMemo(() => {
-    if (!username || !token) return null;
+    if (!username) return null;
+    if(token){
     return new Octokit({ auth: token });
+    }
+    return new Octokit();
   }, [username, token]);
 
   const getOctokit = () => octokit;
@@ -18,8 +20,6 @@ export const useGitHubAuth = () => {
     setUsername,
     token,
     setToken,
-    error,
-    setError,
     getOctokit,
   };
 };

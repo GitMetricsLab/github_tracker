@@ -9,10 +9,22 @@ const cors = require('cors');
 // Passport configuration
 require('./config/passportConfig');
 
+const logger = require('./logger');
+
 const app = express();
 
 // CORS configuration
-app.use(cors('*'));
+const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else{
+            callback(new Error('Blocked by CORS policy'));
+        }
+    },
+    credentials: true
+}));
 
 // Middleware
 app.use(bodyParser.json());
@@ -30,10 +42,12 @@ app.use('/api/auth', authRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {}).then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(process.env.PORT, () => {
-        console.log(`Server running on port ${process.env.PORT}`);
+    logger.info('Connected to MongoDB');
+
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        logger.info(`Server running on port ${PORT}`);
     });
 }).catch((err) => {
-    console.log('MongoDB connection error:', err);
+    logger.error('MongoDB connection error', err);
 });

@@ -1,18 +1,17 @@
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun } from 'lucide-react';
 import ProfileDropDown from "./Profile/ProfileDropDown";
 import { logoutUser } from "../services/auth";
 
+import { Moon, Sun, Menu, X, Github } from "lucide-react";
 
 const Navbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const themeContext = useContext(ThemeContext);
 
-  if (!themeContext)
-    return null;
+  if (!themeContext) return null;
 
   const { toggleTheme, mode } = themeContext;
   const storedUser = localStorage.getItem("user");
@@ -26,136 +25,154 @@ const Navbar: React.FC = () => {
     user = null;
   }
 
+  const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
+    `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${isActive
+      ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
+      : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
+    }`;
+
+  const closeMenu = () => setIsOpen(false);
+
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo Section */}
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300 backdrop-blur">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+        {/* Logo */}
         <Link
           to="/"
-          className="text-2xl font-bold hover:text-gray-300 cursor-pointer flex items-center"
+          className="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white"
         >
-          <img src="/crl-icon.png" alt="CRL Icon" className="h-8 mr-2" />
-          GitHub Tracker
+          <img
+            src="/crl-icon.png"
+            alt="CRL Icon"
+            className="h-8 w-8 object-contain"
+          />
+
+          <span>GitHub Tracker</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6">
-          <Link
-            to="/"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-3">
+          <NavLink to="/" className={navLinkStyles}>
             Home
-          </Link>
-          <Link
-            to="/track"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
+          </NavLink>
+
+          <NavLink to="/track" className={navLinkStyles}>
             Tracker
-          </Link>
-          <Link
-            to="/contributors"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
+          </NavLink>
+
+          <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
-          </Link>
-          {!user && (<Link
+          </NavLink>
+          {!user && (<NavLink
             to="/login"
             className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
           >
             Login
-          </Link>)}
+          </NavLink>)}
 
           {user && <ProfileDropDown user={user} />}
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200"
+            className="ml-2 p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Theme"
           >
-            {mode === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {mode === "dark" ? (
+              <Sun className="h-5 w-5 text-yellow-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-slate-700" />
+            )}
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        {/* Mobile Controls */}
+        <div className="md:hidden flex items-center gap-2">
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Theme"
+          >
+            {mode === "dark" ? (
+              <Sun className="h-5 w-5 text-yellow-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-white" />
+            )}
+          </button>
+
+          {/* Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="relative w-8 h-8 flex flex-col space-y-[5px] items-center group focus:outline-none"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Menu"
           >
-            <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${isOpen ? "rotate-45 translate-y-2" : ""
-                }`}
-            ></span>
-            <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-opacity duration-300 ${isOpen ? "opacity-0" : ""
-                }`}
-            ></span>
-            <span
-              className={`block h-[3px] w-full bg-black dark:bg-white rounded-lg transition-transform duration-300 ${isOpen ? "-rotate-45 -translate-y-2" : ""
-                }`}
-            ></span>
+            {isOpen ? (
+              <X className="h-6 w-6 text-slate-900 dark:text-white" />
+            ) : (
+              <Menu className="h-6 w-6 text-slate-900 dark:text-white" />
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Links */}
+      {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-800 text-black dark:text-white">
-          <div className="space-y-4 px-6 py-4">
-            <Link
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+          <div className="px-6 py-5 flex flex-col gap-3">
+
+            <NavLink
               to="/"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-              onClick={() => setIsOpen(false)}
+              className={navLinkStyles}
+              onClick={closeMenu}
             >
               Home
-            </Link>
-            <Link
-              to="/about"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-              onClick={() => setIsOpen(false)}
+            </NavLink>
+
+            <NavLink
+              to="/track"
+              className={navLinkStyles}
+              onClick={closeMenu}
             >
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-              onClick={() => setIsOpen(false)}
-            >
-              Contact
-            </Link>
-            <Link
+              Tracker
+            </NavLink>
+
+            <NavLink
               to="/contributors"
-              className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-              onClick={() => setIsOpen(false)}
+              className={navLinkStyles}
+              onClick={closeMenu}
             >
               Contributors
-            </Link>
+            </NavLink>
             {!user && (
-              <Link
+              <NavLink
                 to="/login"
                 className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMenu}
               >
                 Login
-              </Link>
+              </NavLink>
             )}
             {user && (
               <>
-                <Link
+                <NavLink
                   to="/me"
-                  className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                  className={navLinkStyles}
                   onClick={() => setIsOpen(false)}
                 >
                   My Profile
-                </Link>
+                </NavLink>
 
-                <Link
+                <NavLink
                   to="/profile/edit"
-                  className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                  className={navLinkStyles}
                   onClick={() => setIsOpen(false)}
                 >
                   Edit Profile
-                </Link>
+                </NavLink>
                 <button
-                  className="block w-full text-left text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 shadow-sm text-start"
                   onClick={
                     logoutUser
                   }

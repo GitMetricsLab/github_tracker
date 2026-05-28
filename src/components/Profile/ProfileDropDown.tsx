@@ -61,11 +61,10 @@ const ProfileDropDown = ({ user }: UserProps) => {
             {/* Profile Button */}
             <button
                 onClick={() => setOpen(!open)}
-                className="text-sm font-semibold px-3 py-1 rounded border border-gray-500 hover:text-gray-300 hover:border-gray-300 transition duration-200
-                
-                "
+                className="ml-2 p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle Theme"
             >
-                <User className="h-8 w-5" />
+                <User className="h-5 w-5" />
             </button>
 
             {/* Dropdown */}

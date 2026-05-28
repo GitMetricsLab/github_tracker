@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
@@ -15,6 +16,7 @@ const Login: React.FC = () => {
   const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
@@ -108,20 +110,27 @@ const Login: React.FC = () => {
 
             <div className="relative">
               <input
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
-                  mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-                }`}
-              />
-            </div>
+               type={showPassword ? "text" : "password"}
+               name="password"
+               autoComplete="current-password"
+               placeholder="Enter your password"
+               value={formData.password}
+               onChange={handleChange}
+               required
+               className={`w-full pl-4 pr-12 py-4 rounded-2xl focus:outline-none transition-all ${
+                 mode === "dark"
+                   ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                   : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+               }`}
+            />
+              <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+             </div>
 
             <button
               type="submit"

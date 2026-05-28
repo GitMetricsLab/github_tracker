@@ -23,20 +23,23 @@ export function calculateCodingPersona(items: ContributionItem[]): PersonaResult
 
     const date = new Date(dateString);
     
-    // 🌟 Uses UTC standard hours directly to bypass local machine timezone conversions
-    const hour = date.getUTCHours(); 
+    // Fix 1: Guard against invalid timestamps before bucketing to prevent data leakage
+    if (isNaN(date.getTime())) return;
 
-    // ☀️ Early Bird Bucket: 5:00 AM to 11:59 AM UTC
+    // Fix 2: Changed to local getHours() to calculate personas based on actual user timezone timing
+    const hour = date.getHours(); 
+
+    // ☀️ Early Bird Bucket: 5:00 AM to 11:59 AM
     if (hour >= 5 && hour < 12) {
       earlyBirdCount++;
       validTimestampsCount++;
     } 
-    // 🦉 Night Owl Bucket: 10:00 PM to 4:59 AM UTC
+    // 🦉 Night Owl Bucket: 10:00 PM to 4:59 AM
     else if (hour >= 22 || hour < 5) {
       nightOwlCount++;
       validTimestampsCount++;
     }
-    // 🚀 Mid-Day / Afternoon Builder: 12:00 PM to 9:59 PM UTC
+    // 🚀 Mid-Day / Afternoon Builder: 12:00 PM to 9:59 PM
     else {
       midDayCount++;
       validTimestampsCount++;

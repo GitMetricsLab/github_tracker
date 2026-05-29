@@ -2,7 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import ActivityFeed from './ActivityFeed';
 
-global.fetch = vi.fn();
+// 1. Capture the original global fetch to prevent side effects
+const originalFetch = global.fetch;
 
 const mockEvents = [
   { 
@@ -13,13 +14,32 @@ const mockEvents = [
   }
 ];
 
+// Helper to generate a full Response-like object to satisfy TypeScript
+const createMockResponse = (data: any): Partial<Response> => ({
+  ok: true,
+  status: 200,
+  statusText: 'OK',
+  json: async () => data,
+});
+
 describe('ActivityFeed Component', () => {
-  beforeEach(() => {
+  beforeAll(() => {
+    // Mock fetch before the suite runs
+    global.fetch = vi.fn();
+  });
+
+  afterEach(() => {
+    // Clear mock history between individual tests
     vi.clearAllMocks();
   });
 
+  afterAll(() => {
+    // 2. Restore original fetch after the suite finishes to prevent leaks
+    global.fetch = originalFetch;
+  });
+
   it('displays the loading state initially', () => {
-    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
+    vi.mocked(global.fetch).mockResolvedValueOnce(createMockResponse([]) as Response);
     
     render(<ActivityFeed username="testuser" />);
     
@@ -27,9 +47,7 @@ describe('ActivityFeed Component', () => {
   });
 
   it('renders activity events after successful fetch', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      json: async () => mockEvents,
-    });
+    vi.mocked(global.fetch).mockResolvedValueOnce(createMockResponse(mockEvents) as Response);
 
     render(<ActivityFeed username="testuser" />);
 
@@ -42,9 +60,7 @@ describe('ActivityFeed Component', () => {
   });
 
   it('displays a fallback message when no activity is found', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      json: async () => [],
-    });
+    vi.mocked(global.fetch).mockResolvedValueOnce(createMockResponse([]) as Response);
 
     render(<ActivityFeed username="testuser" />);
 

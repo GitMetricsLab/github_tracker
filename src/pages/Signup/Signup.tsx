@@ -39,8 +39,8 @@ const SignUp: React.FC = () => {
     if (name === "username") {
       if (!value.trim()) {
         errorMessage = "Username is required";
-      } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
-        errorMessage = "Username can contain only letters, numbers, and underscores";
+      } else if (!/^[A-Za-z\s]+$/.test(value)) {
+        errorMessage = "Only letters are allowed";
       }
     }
     if (name === "email") {
@@ -70,8 +70,8 @@ const SignUp: React.FC = () => {
     const emailError = !formData.email.trim()
       ? "Email is required"
       : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
-        ? "Enter a valid email"
-        : "";
+      ? "Enter a valid email"
+      : "";
     const passwordError = !formData.password.trim()
       ? "Password is required"
       : !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(formData.password)
@@ -102,27 +102,32 @@ const SignUp: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${mode === "dark"
-        ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-        : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
-        }`}
+      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
+        mode === "dark"
+          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+      }`}
     >
       <div className="absolute inset-0">
         <div
-          className={`absolute -top-40 -right-40 w-96 h-96 ${mode === "dark" ? "bg-purple-500" : "bg-purple-300"
-            } rounded-full blur-3xl opacity-30 animate-pulse`}
+          className={`absolute -top-40 -right-40 w-96 h-96 ${
+            mode === "dark" ? "bg-purple-500" : "bg-purple-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
         />
         <div
-          className={`absolute -bottom-40 -left-40 w-96 h-96 ${mode === "dark" ? "bg-blue-500" : "bg-blue-300"
-            } rounded-full blur-3xl opacity-30 animate-pulse`}
+          className={`absolute -bottom-40 -left-40 w-96 h-96 ${
+            mode === "dark" ? "bg-blue-500" : "bg-blue-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
         />
         <div
-          className={`absolute top-40 left-40 w-96 h-96 ${mode === "dark" ? "bg-pink-500" : "bg-pink-300"
-            } rounded-full blur-3xl opacity-30 animate-pulse`}
+          className={`absolute top-40 left-40 w-96 h-96 ${
+            mode === "dark" ? "bg-pink-500" : "bg-pink-300"
+          } rounded-full blur-3xl opacity-30 animate-pulse`}
         />
         <div
-          className={`absolute top-1/2 right-1/4 w-64 h-64 ${mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"
-            } rounded-full blur-2xl opacity-20 animate-pulse delay-1000`}
+          className={`absolute top-1/2 right-1/4 w-64 h-64 ${
+            mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"
+          } rounded-full blur-2xl opacity-20 animate-pulse delay-1000`}
         />
       </div>
 
@@ -144,15 +149,17 @@ const SignUp: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${mode === "dark"
-            ? "bg-white/10 backdrop-blur-xl border-white/20 text-white"
-            : "bg-white border-gray-200 text-black"
-            }`}
+          className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${
+            mode === "dark"
+              ? "bg-white/10 backdrop-blur-xl border-white/20 text-white"
+              : "bg-white border-gray-200 text-black"
+          }`}
         >
-
+          
           <h2
-            className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"
-              }`}
+            className={`text-2xl font-bold text-center mb-8 ${
+              mode === "dark" ? "text-white" : "text-gray-800"
+            }`}
           >
             Create Account
           </h2>
@@ -225,8 +232,9 @@ const SignUp: React.FC = () => {
       </div>
 
       <div
-        className={`${mode === "dark" ? "from-slate-900" : "from-slate-100"
-          } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
+        className={`${
+          mode === "dark" ? "from-slate-900" : "from-slate-100"
+        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
       />
     </div>
   );

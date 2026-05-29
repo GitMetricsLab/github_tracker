@@ -103,24 +103,29 @@ function Footer() {
               onSubmit={handleSubscribe}
               className="flex flex-col sm:flex-row items-stretch gap-2"
             >
-              <input
-                type="email"
-                required
-                placeholder="Enter email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="
-                  flex-grow text-sm px-4 py-3
-                  bg-zinc-50 dark:bg-zinc-800/40
-                  border border-zinc-200 dark:border-zinc-700/50
-                  rounded-xl
-                  focus:outline-none focus:ring-2
-                  focus:ring-blue-500/20 focus:border-blue-500
-                  text-zinc-900 dark:text-white
-                  placeholder-zinc-400 dark:placeholder-zinc-500
-                  transition-all
-                "
-              />
+              <div className="relative flex-grow">
+                <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="Enter email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="
+                    w-full text-sm px-4 py-3
+                    bg-zinc-50 dark:bg-zinc-800/40
+                    border border-zinc-200 dark:border-zinc-700/50
+                    rounded-xl
+                    focus:outline-none focus:ring-2
+                    focus:ring-blue-500/20 focus:border-blue-500
+                    text-zinc-900 dark:text-white
+                    placeholder-zinc-400 dark:placeholder-zinc-500
+                    transition-all
+                  "
+                />
+              </div>
 
               <button
                 type="submit"

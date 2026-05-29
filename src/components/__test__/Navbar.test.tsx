@@ -1,6 +1,6 @@
 // src/components/__tests__/Navbar.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi} from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeContext } from "../../context/ThemeContext";
 import Navbar from '../Navbar.tsx'

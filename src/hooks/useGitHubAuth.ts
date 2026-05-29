@@ -1,19 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Octokit } from '@octokit/core';
 
 export const useGitHubAuth = () => {
   const [username, setUsername] = useState('');
   const [token, setToken] = useState('');
+  const octokitRef = useRef(new Octokit());
 
-  const octokit = useMemo(() => {
-    if (!username) return null;
+  useEffect(() => {
     if(token){
-    return new Octokit({ auth: token });
+      octokitRef.current = new Octokit({ auth: token });
+      return;
     }
-    return new Octokit();
-  }, [username, token]);
+    octokitRef.current = new Octokit();
+  }, [token]);
 
-  const getOctokit = () => octokit;
+  const getOctokit = useCallback(() => octokitRef.current, []);
 
   return {
     username,

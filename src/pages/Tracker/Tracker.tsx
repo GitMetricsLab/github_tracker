@@ -81,29 +81,35 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Prefill from user context on mount
-  useEffect(() => {
-    const user = userContext?.user;
-    if (user?.username) setUsername(user.username);
-    if (user?.token) setToken(user.token);
-  }, []);
+  const [debouncedUsername, setDebouncedUsername] = useState(username);
 
-  const debouncedUsername = useDebounce(username, 800);
-
-  // Auto-fetch when debounced username or token changes
   useEffect(() => {
-    if (debouncedUsername) {
-      setPage(0);
-      fetchData(debouncedUsername, 1, ROWS_PER_PAGE);
+    if (!username) {
+      setDebouncedUsername("");
+      return;
     }
-  }, [debouncedUsername, token]);
+    const handler = setTimeout(() => {
+      setDebouncedUsername(username);
+    }, 500);
 
-  // Fetch when tab or page changes (username already set)
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [username]);
+
+  // Fetch data when debouncedUsername, tab, or page changes
   useEffect(() => {
-    if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+    if (debouncedUsername && debouncedUsername.trim().length >= 1) {
+      fetchData(debouncedUsername, page + 1, ROWS_PER_PAGE);
     }
-  }, [tab, page]);
+  }, [debouncedUsername, tab, page]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    setPage(0);
+    setDebouncedUsername(username);
+    fetchData(username, 1, ROWS_PER_PAGE);
+  };
 
   const handlePageChange = (_: unknown, newPage: number) => {
 

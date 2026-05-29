@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -9,7 +9,6 @@ import {
 import {
   Box,
   TextField,
-  Button,
   Paper,
   Table,
   TableBody,
@@ -27,6 +26,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Tooltip,
 } from "@mui/material";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
@@ -45,6 +45,36 @@ interface GitHubItem {
   html_url: string;
 }
 
+const LANGUAGE_COLORS: Record<string, string> = {
+  JavaScript: "#f1e05a",
+  TypeScript: "#3178c6",
+  Python: "#3572A5",
+  Java: "#b07219",
+  HTML: "#e34c26",
+  CSS: "#563d7c",
+  C: "#555555",
+  "C++": "#f34b7d",
+  "C#": "#178600",
+  PHP: "#4F5D95",
+  Ruby: "#701516",
+  Go: "#00ADD8",
+  Rust: "#dea584",
+  Kotlin: "#A97BFF",
+  Swift: "#F05138",
+};
+
+const getLanguageFromRepo = (repoName: string): string => {
+  const lowerRepo = repoName.toLowerCase();
+
+  if (lowerRepo.includes("react") || lowerRepo.includes("js")) return "JavaScript";
+  if (lowerRepo.includes("ts") || lowerRepo.includes("typescript")) return "TypeScript";
+  if (lowerRepo.includes("python") || lowerRepo.includes("py")) return "Python";
+  if (lowerRepo.includes("java")) return "Java";
+  if (lowerRepo.includes("html")) return "HTML";
+  if (lowerRepo.includes("css")) return "CSS";
+
+  return "Unknown";
+};
 const Home: React.FC = () => {
 
   const {
@@ -60,13 +90,17 @@ const Home: React.FC = () => {
     prs,
     totalIssues,
     totalPrs,
+    contributionScore,
     loading,
     error: dataError,
+    dailyActivity,
+    dailyActivityLoaded,
     fetchData,
   } = useGitHubData(getOctokit);
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
+  const [submittedUsername, setSubmittedUsername] = useState("");
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
@@ -75,20 +109,37 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  // Fetch data after submit, then refresh when tab or page changes.
   useEffect(() => {
-    if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+    if (submittedUsername) {
+      fetchData(submittedUsername, page + 1, ROWS_PER_PAGE);
     }
-  }, [tab, page]);
+  }, [fetchData, page, submittedUsername, tab]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    const trimmedUsername = username.trim();
+
+    if (!trimmedUsername) {
+      return;
+    }
+
+    if (page !== 0) {
+      setPage(0);
+    }
+
+    if (submittedUsername !== trimmedUsername) {
+      setSubmittedUsername(trimmedUsername);
+      return;
+    }
+
+    if (page === 0) {
+      fetchData(trimmedUsername, 1, ROWS_PER_PAGE);
+    }
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
+
     setPage(newPage);
   };
 
@@ -151,6 +202,32 @@ const Home: React.FC = () => {
   const currentRawData = tab === 0 ? issues : prs;
   const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
   const totalCount = tab === 0 ? totalIssues : totalPrs;
+  const scoreItems = [
+    {
+      label: "Merged PRs",
+      count: contributionScore.mergedPrs,
+      points: contributionScore.mergedPrs * 5,
+      weight: "+5 each",
+    },
+    {
+      label: "Open PRs",
+      count: contributionScore.openPrs,
+      points: contributionScore.openPrs * 2,
+      weight: "+2 each",
+    },
+    {
+      label: "Closed PRs",
+      count: contributionScore.closedPrs,
+      points: contributionScore.closedPrs,
+      weight: "+1 each",
+    },
+    {
+      label: "Issues Created",
+      count: contributionScore.issuesCreated,
+      points: contributionScore.issuesCreated,
+      weight: "+1 each",
+    },
+  ];
 
   return (
     <div className="tracker-root">

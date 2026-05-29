@@ -1,3 +1,16 @@
+/* Global theme transition styles */
+:root {
+  --transition-duration: 300ms;
+}
+
+html.theme-transitioning,
+html.theme-transitioning * {
+  transition: background-color var(--transition-duration) ease-in-out,
+              color var(--transition-duration) ease-in-out,
+              border-color var(--transition-duration) ease-in-out,
+              box-shadow var(--transition-duration) ease-in-out !important;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;

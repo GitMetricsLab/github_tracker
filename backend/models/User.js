@@ -16,11 +16,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  token: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
 });
 
 // ✅ FIXED: no next()
-UserSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
@@ -32,3 +37,4 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
 };
 
 module.exports = mongoose.model("User", UserSchema);
+

@@ -208,6 +208,8 @@ function Contact() {
                     Full Name
                   </label>
                   <input
+                    id="fullname"
+                    name="fullname"
                     type="text"
                     placeholder="Enter your full name"
                     required
@@ -229,6 +231,8 @@ function Contact() {
                     Email Address
                   </label>
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     placeholder="your.email@example.com"
                     required
@@ -278,6 +282,8 @@ function Contact() {
                     Message
                   </label>
                   <textarea
+                    id="message"
+                    name="message"
                     placeholder="Type your message here..."
                     required
                     rows={4}

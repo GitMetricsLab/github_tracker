@@ -26,14 +26,28 @@ export default function ContributorProfile() {
 
       try {
         const userRes = await fetch(`https://api.github.com/users/${username}`);
+        if (!userRes.ok) {
+          if (userRes.status === 404) {
+            setProfile(null);
+            setPRs([]);
+            return;
+          }
+          throw new Error(`Failed to load user (${userRes.status})`);
+        }
         const userData = await userRes.json();
-        setProfile(userData);
+        setProfile(userData as Profile);
 
         const prsRes = await fetch(
           `https://api.github.com/search/issues?q=author:${username}+type:pr`
         );
-        const prsData = await prsRes.json();
-        setPRs(prsData.items);
+        if (!prsRes.ok) {
+          // avoid crashing — show empty PR list and notify user
+          setPRs([]);
+          toast.error("Failed to load pull requests.");
+        } else {
+          const prsData = await prsRes.json();
+          setPRs(prsData.items ?? []);
+        }
       } catch {
         toast.error("Failed to fetch user data.");
       } finally {

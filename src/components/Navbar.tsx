@@ -85,17 +85,9 @@ const Navbar: React.FC = () => {
             aria-label="Toggle Theme"
           >
             {mode === "dark" ? (
-              <Sun
-                className={`h-5 w-5 text-yellow-400 transition-all duration-300 ${
-                  isThemeToggling ? 'rotate-180 scale-0' : 'rotate-0 scale-100'
-                }`}
-              />
+              <Sun key="sun-icon" className="theme-toggle-icon h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon
-                className={`h-5 w-5 text-slate-700 transition-all duration-300 ${
-                  isThemeToggling ? 'rotate-180 scale-0' : 'rotate-0 scale-100'
-                }`}
-              />
+              <Moon key="moon-icon" className="theme-toggle-icon h-5 w-5 text-slate-700 dark:text-white" />
             )}
           </button>
         </div>
@@ -116,11 +108,7 @@ const Navbar: React.FC = () => {
                 }`}
               />
             ) : (
-              <Moon
-                className={`h-5 w-5 text-white transition-all duration-300 ${
-                  isThemeToggling ? 'rotate-180 scale-0' : 'rotate-0 scale-100'
-                }`}
-              />
+              <Moon key="moon-icon-mobile" className="theme-toggle-icon h-5 w-5 text-slate-700 dark:text-white" />
             )}
           </button>
 

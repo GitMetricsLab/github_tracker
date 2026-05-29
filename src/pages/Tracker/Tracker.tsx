@@ -32,8 +32,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
-import { useDebounce } from "../../hooks/useDebounce";
-import { UserContext } from "../../context/UserContext";
+import DailyActivityStatus from "../../components/DailyActivityStatus";
 import { KeyIcon } from "lucide-react";
 import BackToTopButton from "../../components/Backtotop";
 
@@ -100,6 +99,8 @@ const Home: React.FC = () => {
     contributionScore,
     loading,
     error: dataError,
+    dailyActivity,
+    dailyActivityLoaded,
     fetchData,
   } = useGitHubData(getOctokit);
 
@@ -286,6 +287,8 @@ const Home: React.FC = () => {
           />
         </Box>
       </Paper>
+
+      {dailyActivityLoaded && <DailyActivityStatus {...dailyActivity} />}
 
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>

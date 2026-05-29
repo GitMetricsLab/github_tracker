@@ -21,167 +21,66 @@ interface FetchFilters {
   state?: string;
 }
 
-interface ContributionScore {
-  mergedPrs: number;
-  openPrs: number;
-  closedPrs: number;
-  issuesCreated: number;
-  total: number;
+interface DailyActivity {
+  commitCountToday: number;
+  prOpenedToday: number;
+  prMergedToday: number;
+  issueActivityCountToday: number;
+  streakCount: number;
+  reminders: string[];
 }
 
-interface FetchPaginatedResult {
-  items: GitHubItem[];
-  total: number;
-}
-
-const SCORE_WEIGHTS = {
-  mergedPr: 5,
-  openPr: 2,
-  closedPr: 1,
-  issueCreated: 1,
+const initialDailyActivity: DailyActivity = {
+  commitCountToday: 0,
+  prOpenedToday: 0,
+  prMergedToday: 0,
+  issueActivityCountToday: 0,
+  streakCount: 0,
+  reminders: [],
 };
 
-const emptyContributionScore: ContributionScore = {
-  mergedPrs: 0,
-  openPrs: 0,
-  closedPrs: 0,
-  issuesCreated: 0,
-  total: 0,
+const getDateKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
 };
 
-const fetchPaginated = async (
-  octokit: Octokit,
-  username: string,
-  type: 'issue' | 'pr',
-  page = 1,
-  perPage = 10,
-  filters: FetchFilters = {}
-): Promise<FetchPaginatedResult> => {
-  let q = `author:${username} is:${type}`;
+const buildDailyReminders = ({
 
-  if (filters.search) {
-    q += ` ${filters.search} in:title`;
+  commitCountToday,
+  prOpenedToday,
+  prMergedToday,
+  issueActivityCountToday,
+}: DailyActivity): string[] => {
+  const reminders: string[] = [];
+
+  if (commitCountToday === 0) {
+    reminders.push('🚀 You haven’t committed today');
+  }
+  if (prOpenedToday === 0) {
+    reminders.push('💻 No pull request opened today');
+  }
+  if (prMergedToday === 0) {
+    reminders.push('🎯 No PR merged today');
+  }
+  if (issueActivityCountToday === 0) {
+    reminders.push('📌 Try contributing through issues');
+  }
+  if (
+    commitCountToday === 0 &&
+    prOpenedToday === 0 &&
+    prMergedToday === 0 &&
+    issueActivityCountToday === 0
+  ) {
+    reminders.push('🔥 Your contribution streak is at risk');
+  }
+  if (reminders.length > 0) {
+    reminders.push('🏆 Keep your streak alive');
   }
 
-  if (filters.repo) {
-    q += ` repo:${filters.repo}`;
-  }
-
-  if (filters.startDate) {
-    q += ` created:>=${filters.startDate}`;
-  }
-
-  if (filters.endDate) {
-    q += ` created:<=${filters.endDate}`;
-  }
-
-  if (filters.state === 'open' || filters.state === 'closed') {
-    q += ` is:${filters.state}`;
-  }
-
-  if (filters.state === 'merged' && type === 'pr') {
-    q += ` is:merged`;
-  }
-
-  const response = await octokit.request(
-    'GET /search/issues',
-    {
-      q,
-      sort: 'created',
-      order: 'desc',
-      per_page: perPage,
-      page,
-    }
-  );
-
-  return {
-    items: response.data.items as GitHubItem[],
-    total: response.data.total_count,
-  };
-};
-
-const buildScoreQuery = (
-  username: string,
-  type: 'issue' | 'pr',
-  qualifiers: string[],
-  filters: FetchFilters = {}
-) => {
-  let q = `author:${username} is:${type} ${qualifiers.join(' ')}`;
-
-  if (filters.search) {
-    q += ` ${filters.search} in:title`;
-  }
-
-  if (filters.repo) {
-    q += ` repo:${filters.repo}`;
-  }
-
-  if (filters.startDate) {
-    q += ` created:>=${filters.startDate}`;
-  }
-
-  if (filters.endDate) {
-    q += ` created:<=${filters.endDate}`;
-  }
-
-  return q.trim();
-};
-
-const fetchCount = async (octokit: Octokit, q: string) => {
-  const response = await octokit.request('GET /search/issues', {
-    q,
-    per_page: 1,
-    page: 1,
-  });
-
-  return response.data.total_count;
-};
-
-const fetchContributionScore = async (
-  octokit: Octokit,
-  username: string,
-  filters: FetchFilters = {}
-): Promise<ContributionScore> => {
-  const [
-    mergedPrs,
-    openPrs,
-    closedPrs,
-    issuesCreated,
-  ] = await Promise.all([
-    fetchCount(
-      octokit,
-      buildScoreQuery(username, 'pr', ['is:merged'], filters)
-    ),
-    fetchCount(
-      octokit,
-      buildScoreQuery(username, 'pr', ['is:open'], filters)
-    ),
-    fetchCount(
-      octokit,
-      buildScoreQuery(
-        username,
-        'pr',
-        ['is:closed', '-is:merged'],
-        filters
-      )
-    ),
-    fetchCount(
-      octokit,
-      buildScoreQuery(username, 'issue', [], filters)
-    ),
-  ]);
-
-  return {
-    mergedPrs,
-    openPrs,
-    closedPrs,
-    issuesCreated,
-    total:
-      mergedPrs * SCORE_WEIGHTS.mergedPr +
-      openPrs * SCORE_WEIGHTS.openPr +
-      closedPrs * SCORE_WEIGHTS.closedPr +
-      issuesCreated * SCORE_WEIGHTS.issueCreated,
-  };
+  return reminders;
 };
 
 export const useGitHubData = (
@@ -196,10 +95,141 @@ export const useGitHubData = (
   const [contributionScore, setContributionScore] =
     useState<ContributionScore>(emptyContributionScore);
   const [rateLimited, setRateLimited] = useState(false);
+  const [dailyActivity, setDailyActivity] = useState<DailyActivity>(initialDailyActivity);
+  const [dailyActivityLoaded, setDailyActivityLoaded] = useState(false);
 
   // Prevent stale responses overwriting latest data
   const lastRequestId = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  const getSearchCount = async (
+    octokit: Octokit,
+    endpoint: 'GET /search/issues' | 'GET /search/commits',
+    q: string
+  ) => {
+    try {
+      const response = await octokit.request(endpoint, {
+        q,
+        per_page: 1,
+        headers:
+          endpoint === 'GET /search/commits'
+            ? {
+                accept: 'application/vnd.github.cloak-preview+json',
+              }
+            : undefined,
+      });
+
+      return response.data.total_count ?? 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  const fetchStreakFromEvents = async (
+    octokit: Octokit,
+    username: string
+  ) => {
+    try {
+      const response = await octokit.request('GET /users/{username}/events', {
+        username,
+        per_page: 100,
+      });
+
+      const eventDates = new Set<string>();
+      response.data.forEach((event: any) => {
+        const eventType = event.type;
+        const createdAt = event.created_at;
+        if (
+          ['PushEvent', 'PullRequestEvent', 'IssuesEvent',
+           'IssueCommentEvent', 'PullRequestReviewCommentEvent',
+           'PullRequestReviewEvent'].includes(eventType) &&
+          createdAt
+        ) {
+          eventDates.add(getDateKey(new Date(createdAt)));
+        }
+      });
+
+      let streak = 0;
+      for (let i = 0; i < 7; i += 1) {
+        const day = getDateKey(
+          new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+        );
+        if (eventDates.has(day)) {
+          streak += 1;
+        } else {
+          break;
+        }
+      }
+
+      return streak;
+    } catch {
+      return 0;
+    }
+  };
+
+  const fetchDailyActivity = async (
+    octokit: Octokit,
+    username: string,
+    requestId: number
+  ) => {
+    const today = getDateKey(new Date());
+
+    const [
+      issueCreatedToday,
+      issueCommentedToday,
+      prOpenedToday,
+      prMergedToday,
+    ] = await Promise.all([
+      getSearchCount(
+        octokit,
+        'GET /search/issues',
+        `author:${username} type:issue created:>=${today}`
+      ),
+      getSearchCount(
+        octokit,
+        'GET /search/issues',
+        `commenter:${username} type:issue updated:>=${today}`
+      ),
+      getSearchCount(
+        octokit,
+        'GET /search/issues',
+        `author:${username} type:pr created:>=${today}`
+      ),
+      getSearchCount(
+        octokit,
+        'GET /search/issues',
+        `author:${username} type:pr is:merged merged:>=${today}`
+      ),
+    ]);
+
+    const commitCountToday = await getSearchCount(
+      octokit,
+      'GET /search/commits',
+      `author:${username} author-date:>=${today}`
+    );
+
+    const issueActivityCountToday = issueCreatedToday + issueCommentedToday;
+    const streakCount = await fetchStreakFromEvents(octokit, username);
+
+    if (requestId !== lastRequestId.current) {
+      return;
+    }
+
+    setDailyActivity({
+      commitCountToday,
+      prOpenedToday,
+      prMergedToday,
+      issueActivityCountToday,
+      streakCount,
+      reminders: buildDailyReminders({
+        commitCountToday,
+        prOpenedToday,
+        prMergedToday,
+        issueActivityCountToday,
+      }),
+    });
+    setDailyActivityLoaded(true);
+  };
 
   const fetchData = useCallback(
     async (
@@ -264,6 +294,8 @@ export const useGitHubData = (
             )
           );
         }
+
+        requests.push(fetchDailyActivity(octokit, username, requestId));
 
         const results = await Promise.allSettled(requests);
 
@@ -420,6 +452,8 @@ export const useGitHubData = (
     loading,
     error,
     rateLimited,
+    dailyActivity,
+    dailyActivityLoaded,
     fetchData,
   };
 };

@@ -1,30 +1,16 @@
 import { NavLink, Link } from "react-router-dom";
-import { useState, useContext, useRef } from "react";
+import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, Menu, X} from "lucide-react";
+import { Moon, Sun, Menu, X, Github } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isThemeToggling, setIsThemeToggling] = useState(false);
-  const themeToggleRef = useRef<HTMLButtonElement>(null);
 
   const themeContext = useContext(ThemeContext);
-  const userContext = useContext(UserContext);
 
   if (!themeContext) return null;
 
   const { toggleTheme, mode } = themeContext;
-  const user = userContext?.user ?? null;
-
-  const handleThemeToggle = () => {
-    setIsThemeToggling(true);
-    toggleTheme();
-    
-    // Reset animation state after transition
-    setTimeout(() => {
-      setIsThemeToggling(false);
-    }, 300);
-  };
 
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
@@ -67,27 +53,20 @@ const Navbar: React.FC = () => {
             Contributors
           </NavLink>
 
-          {user ? (
-            <NavLink to="/profile" className={navLinkStyles}>
-              {user.username}
-            </NavLink>
-          ) : (
-            <NavLink to="/login" className={navLinkStyles}>
-              Login
-            </NavLink>
-          )}
+          <NavLink to="/login" className={navLinkStyles}>
+            Login
+          </NavLink>
 
           {/* Theme Toggle */}
           <button
-            ref={themeToggleRef}
-            onClick={handleThemeToggle}
-            className="ml-2 p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300"
+            onClick={toggleTheme}
+            className="ml-2 p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Toggle Theme"
           >
             {mode === "dark" ? (
-              <Sun key="sun-icon" className="theme-toggle-icon h-5 w-5 text-yellow-400" />
+              <Sun className="h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon key="moon-icon" className="theme-toggle-icon h-5 w-5 text-slate-700 dark:text-white" />
+              <Moon className="h-5 w-5 text-slate-700" />
             )}
           </button>
         </div>
@@ -97,18 +76,14 @@ const Navbar: React.FC = () => {
 
           {/* Theme Toggle */}
           <button
-            onClick={handleThemeToggle}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300"
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Toggle Theme"
           >
             {mode === "dark" ? (
-              <Sun
-                className={`h-5 w-5 text-yellow-400 transition-all duration-300 ${
-                  isThemeToggling ? 'rotate-180 scale-0' : 'rotate-0 scale-100'
-                }`}
-              />
+              <Sun className="h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon key="moon-icon-mobile" className="theme-toggle-icon h-5 w-5 text-slate-700 dark:text-white" />
+              <Moon className="h-5 w-5 text-white" />
             )}
           </button>
 
@@ -156,15 +131,13 @@ const Navbar: React.FC = () => {
               Contributors
             </NavLink>
 
-            {user ? (
-              <NavLink to="/profile" className={navLinkStyles} onClick={closeMenu}>
-                {user.username}
-              </NavLink>
-            ) : (
-              <NavLink to="/login" className={navLinkStyles} onClick={closeMenu}>
-                Login
-              </NavLink>
-            )}
+            <NavLink
+              to="/login"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Login
+            </NavLink>
           </div>
         </div>
       )}

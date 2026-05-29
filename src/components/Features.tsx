@@ -1,237 +1,89 @@
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { BarChart3, Users, Search, Zap, Shield, Globe } from 'lucide-react';
-import { useRef, useState } from 'react';
-
-const features = [
-  {
-    icon: BarChart3,
-    title: 'Activity Analytics',
-    description: 'Comprehensive charts showing commit patterns, contribution streaks, and repository activity over time.',
-    iconBg: 'bg-blue-500/15 dark:bg-blue-500/20',
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    glow: '59,130,246',
-    border: 'hover:border-blue-400/50 dark:hover:border-blue-500/50',
-  },
-  {
-    icon: Users,
-    title: 'Multi-User Tracking',
-    description: 'Monitor multiple GitHub users simultaneously and compare contribution patterns side by side.',
-    iconBg: 'bg-emerald-500/15 dark:bg-emerald-500/20',
-    iconColor: 'text-emerald-600 dark:text-emerald-400',
-    glow: '16,185,129',
-    border: 'hover:border-emerald-400/50 dark:hover:border-emerald-500/50',
-  },
-  {
-    icon: Search,
-    title: 'Smart Search',
-    description: 'Intelligent search with auto-suggestions to instantly find and add users to your dashboard.',
-    iconBg: 'bg-violet-500/15 dark:bg-violet-500/20',
-    iconColor: 'text-violet-600 dark:text-violet-400',
-    glow: '139,92,246',
-    border: 'hover:border-violet-400/50 dark:hover:border-violet-500/50',
-  },
-  {
-    icon: Zap,
-    title: 'Real-time Updates',
-    description: 'Instant notifications when tracked users push commits, open PRs, or create repositories.',
-    iconBg: 'bg-amber-500/15 dark:bg-amber-500/20',
-    iconColor: 'text-amber-600 dark:text-amber-400',
-    glow: '245,158,11',
-    border: 'hover:border-amber-400/50 dark:hover:border-amber-500/50',
-  },
-  {
-    icon: Shield,
-    title: 'Privacy First',
-    description: 'Public GitHub APIs only. Zero personal data stored, no authentication required from users.',
-    iconBg: 'bg-rose-500/15 dark:bg-rose-500/20',
-    iconColor: 'text-rose-600 dark:text-rose-400',
-    glow: '244,63,94',
-    border: 'hover:border-rose-400/50 dark:hover:border-rose-500/50',
-  },
-  {
-    icon: Globe,
-    title: 'Export & Share',
-    description: 'Export activity reports and share insights with your team through various formats and integrations.',
-    iconBg: 'bg-cyan-500/15 dark:bg-cyan-500/20',
-    iconColor: 'text-cyan-600 dark:text-cyan-400',
-    glow: '6,182,212',
-    border: 'hover:border-cyan-400/50 dark:hover:border-cyan-500/50',
-  },
-];
-
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 28, filter: 'blur(6px)' },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: { type: 'spring', stiffness: 70, damping: 18 },
-  },
-};
-
-const FeatureCard = ({ feature }: { feature: typeof features[0] }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState(false);
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [5, -5]), {
-    stiffness: 250,
-    damping: 28,
-  });
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-5, 5]), {
-    stiffness: 250,
-    damping: 28,
-  });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-    setHovered(false);
-  };
-
-  const Icon = feature.icon;
-
-  return (
-    <motion.div
-      variants={cardVariants}
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-      whileHover={{ y: -8, scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-      className={`group relative rounded-2xl border border-gray-200 dark:border-white/[0.08] ${feature.border}
-        bg-white dark:bg-white/[0.03] backdrop-blur-md
-        shadow-sm hover:shadow-2xl
-        transition-colors duration-300 cursor-default overflow-hidden`}
-    >
-      {/* Strong ambient glow on hover */}
-      <div
-        className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-400"
-        style={{
-          opacity: hovered ? 1 : 0,
-          background: `radial-gradient(ellipse at 50% 0%, rgba(${feature.glow},0.22) 0%, transparent 60%)`,
-        }}
-      />
-
-      {/* Bottom glow puddle */}
-      <div
-        className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-12 rounded-full pointer-events-none transition-opacity duration-400 blur-xl"
-        style={{
-          opacity: hovered ? 0.5 : 0,
-          background: `rgba(${feature.glow}, 0.35)`,
-        }}
-      />
-
-      {/* Top accent line */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl pointer-events-none transition-opacity duration-300"
-        style={{
-          opacity: hovered ? 1 : 0,
-          background: `linear-gradient(90deg, transparent, rgba(${feature.glow},0.8), transparent)`,
-        }}
-      />
-
-      {/* Card content */}
-      <div className="relative z-10 p-7 min-h-[230px] flex flex-col">
-        {/* Icon */}
-        <motion.div
-          className={`${feature.iconBg} w-14 h-14 rounded-xl flex items-center justify-center mb-5`}
-          animate={
-            hovered
-              ? { rotate: 8, scale: 1.12 }
-              : { rotate: 0, scale: 1 }
-          }
-          transition={{ type: 'spring', stiffness: 350, damping: 16 }}
-        >
-          <Icon className={`h-6 w-6 ${feature.iconColor}`} />
-        </motion.div>
-
-        {/* Title */}
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 tracking-tight leading-snug">
-          {feature.title}
-        </h3>
-
-        {/* Description */}
-        <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed">
-          {feature.description}
-        </p>
-      </div>
-    </motion.div>
-  );
-};
 
 const Features = () => {
+  const features = [
+    {
+      icon: BarChart3,
+      title: 'Activity Analytics',
+      description: 'Comprehensive charts and graphs showing commit patterns, contribution streaks, and repository activity over time.',
+      bgColor: 'bg-blue-100',
+      iconColor: 'text-blue-600',
+      hoverColor: 'hover:bg-blue-400/50 dark:hover:bg-blue-900/30',
+      borderColor: 'hover:border-blue-200 dark:hover:border-blue-700'
+    },
+    {
+      icon: Users,
+      title: 'Multi-User Tracking',
+      description: 'Monitor multiple GitHub users simultaneously and compare their activity levels and contribution patterns.',
+      bgColor: 'bg-green-100',
+      iconColor: 'text-green-600',
+      hoverColor: 'hover:bg-green-400/50 dark:hover:bg-green-900/30',
+      borderColor: 'hover:border-green-200 dark:hover:border-green-700'
+    },
+    {
+      icon: Search,
+      title: 'Smart Search',
+      description: 'Quickly find and add users to your tracking list with intelligent search and auto-suggestions.',
+      bgColor: 'bg-purple-100',
+      iconColor: 'text-purple-600',
+      hoverColor: 'hover:bg-purple-400/50 dark:hover:bg-purple-900/30',
+      borderColor: 'hover:border-purple-200 dark:hover:border-purple-700'
+    },
+    {
+      icon: Zap,
+      title: 'Real-time Updates',
+      description: 'Get instant notifications and updates when tracked users make new contributions or repositories.',
+      bgColor: 'bg-orange-100',
+      iconColor: 'text-orange-600',
+      hoverColor: 'hover:bg-orange-400/50 dark:hover:bg-orange-900/30',
+      borderColor: 'hover:border-orange-200 dark:hover:border-orange-700'
+    },
+    {
+      icon: Shield,
+      title: 'Privacy First',
+      description: 'All data is fetched from public GitHub APIs. We don\'t store personal information or require GitHub access.',
+      bgColor: 'bg-red-100',
+      iconColor: 'text-red-600',
+      hoverColor: 'hover:bg-red-400/50 dark:hover:bg-red-900/30',
+      borderColor: 'hover:border-red-200 dark:hover:border-red-700'
+    },
+    {
+      icon: Globe,
+      title: 'Export & Share',
+      description: 'Export activity reports and share insights with your team through various formats and integrations.',
+      bgColor: 'bg-indigo-100',
+      iconColor: 'text-indigo-600',
+      hoverColor: 'hover:bg-indigo-400/50 dark:hover:bg-indigo-900/30',
+      borderColor: 'hover:border-indigo-200 dark:hover:border-indigo-700'
+    }
+  ];
+
   return (
-    <section
-      id="features"
-      className="relative py-16 overflow-hidden transition-colors duration-300"
-    >
-      {/* Dot grid */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-[0.07]"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle, #94a3b8 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-        }}
-      />
+    <section id="features" className="px-6 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
+      <div className="mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Powerful Features</h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Everything you need to track, analyze, and understand GitHub activity patterns
+          </p>
+        </div>
 
-      {/* Ambient blobs */}
-      <div className="pointer-events-none absolute -top-48 -left-48 w-[500px] h-[500px] rounded-full bg-blue-400/10 dark:bg-blue-500/10 blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-48 -right-48 w-[500px] h-[500px] rounded-full bg-violet-400/10 dark:bg-violet-500/10 blur-[100px]" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-indigo-300/5 dark:bg-indigo-500/5 blur-[80px]" />
-
-      <div className="relative max-w-5xl mx-auto px-4">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
-        >
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-5 tracking-tight">
-            Powerful Features
-          </h2>
-
-          {/* Premium pill subtitle — no eyebrow badge */}
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10 backdrop-blur-sm shadow-md shadow-gray-100 dark:shadow-none">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
-            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-              Everything you need to track, analyze, and understand GitHub activity patterns
-            </p>
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
-          </div>
-        </motion.div>
-
-        {/* Cards grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-fr"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-        >
-          {features.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} />
-          ))}
-        </motion.div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => {
+            const IconComponent = feature.icon;
+            return (
+              <div key={index} className={`group h-72 w-full bg-gray-100 dark:bg-gray-800 ${feature.hoverColor} ${feature.borderColor} rounded-2xl shadow-md hover:shadow-2xl hover:shadow-blue-500/20 border dark:border-gray-800 transform hover:-translate-y-3 hover:scale-105 backdrop-blur-sm transition-all duration-300 ease-linear p-6`}>
+                <div className={`${feature.bgColor} w-12 h-12 rounded-lg flex items-center justify-center mb-6 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110`}>
+                  <IconComponent className={`h-6 w-6 ${feature.iconColor}`} />
+                </div>
+                <h3 className="  text-2xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-black dark:group-hover:text-white transition-colors duration-300">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-base font-semibold leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300">
+                  {feature.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

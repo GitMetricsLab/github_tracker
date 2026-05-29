@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -10,7 +10,6 @@ import {
   Container,
   Box,
   TextField,
-  Button,
   Paper,
   Table,
   TableBody,
@@ -33,7 +32,10 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import { useDebounce } from "../../hooks/useDebounce";
+import { UserContext } from "../../context/UserContext";
 import { KeyIcon } from "lucide-react";
+import BackToTopButton from "../../components/Backtotop";
 
 const ROWS_PER_PAGE = 10;
 
@@ -50,13 +52,13 @@ interface GitHubItem {
 const Home: React.FC = () => {
 
   const theme = useTheme();
+  const userContext = useContext(UserContext);
 
   const {
     username,
     setUsername,
     token,
     setToken,
-    error: authError,
     getOctokit,
   } = useGitHubAuth();
 
@@ -112,6 +114,7 @@ const Home: React.FC = () => {
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
+
     setPage(newPage);
   };
 
@@ -212,79 +215,46 @@ const Home: React.FC = () => {
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
       {/* Auth Form */}
       <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              label="GitHub Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-            />
-            <TextField
-              label="Personal Access Token"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              type="password"
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-              helperText={
-                <Box
-                    component="span"
-                    sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    fontSize: "0.75rem",
-                    }}
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <TextField
+            label="GitHub Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            sx={{ flex: 1, minWidth: 150 }}
+          />
+          <TextField
+            label="Personal Access Token"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            type="password"
+            sx={{ flex: 1, minWidth: 150 }}
+            helperText={
+              <Box
+                component="span"
+                sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: "0.75rem" }}
+              >
+                <Link
+                  href="https://github.com/settings/tokens/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ fontSize: "0.75rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 0.5 }}
                 >
-                    <Link
-                    href="https://github.com/settings/tokens/new"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                    }}
-                    >
-                    <KeyIcon size={12} />
-                    Generate new token
-                    </Link>
-
-                    <Box component="span" sx={{ opacity: 0.6 }}>
-                    •
-                    </Box>
-
-                    <Link
-                    href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
-                    }}
-                    >
-                    Learn more
-                    </Link>
-                </Box>
-              }
-            />
-            <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                    minWidth: "100px",
-                    minHeight: "55px",
-                    alignSelf: "flex-start",
-            }}
-            >
-                Fetch Data
-            </Button>
-          </Box>
-        </form>
+                  <KeyIcon size={12} />
+                  Generate new token
+                </Link>
+                <Box component="span" sx={{ opacity: 0.6 }}>•</Box>
+                <Link
+                  href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ fontSize: "0.75rem", textDecoration: "none" }}
+                >
+                  Learn more
+                </Link>
+              </Box>
+            }
+          />
+        </Box>
       </Paper>
 
       {/* Filters */}
@@ -344,6 +314,9 @@ const Home: React.FC = () => {
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
           <Select
+            id="state-select"
+            name="state-select"
+            autoComplete="off"
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
               tab === 0
@@ -365,13 +338,13 @@ const Home: React.FC = () => {
             <MenuItem value="open">Open</MenuItem>
             <MenuItem value="closed">Closed</MenuItem>
             {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
-          </Select>
+          </Select> 
         </FormControl>
       </Box>
 
-      {(authError || dataError) && (
+      {dataError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {authError || dataError}
+          {dataError}
         </Alert>
       )}
 
@@ -503,6 +476,7 @@ const Home: React.FC = () => {
           </TableContainer>
         </Box>
       )}
+      <BackToTopButton/>
     </Container>
   );
 };

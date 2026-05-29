@@ -27,6 +27,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
@@ -66,6 +67,7 @@ const Home: React.FC = () => {
     prs,
     totalIssues,
     totalPrs,
+    contributionScore,
     loading,
     error: dataError,
     fetchData,
@@ -73,6 +75,7 @@ const Home: React.FC = () => {
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
+  const [submittedUsername, setSubmittedUsername] = useState("");
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
@@ -81,34 +84,33 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const [debouncedUsername, setDebouncedUsername] = useState(username);
-
+  // Fetch data after submit, then refresh when tab or page changes.
   useEffect(() => {
-    if (!username) {
-      setDebouncedUsername("");
-      return;
+    if (submittedUsername) {
+      fetchData(submittedUsername, page + 1, ROWS_PER_PAGE);
     }
-    const handler = setTimeout(() => {
-      setDebouncedUsername(username);
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [username]);
-
-  // Fetch data when debouncedUsername, tab, or page changes
-  useEffect(() => {
-    if (debouncedUsername && debouncedUsername.trim().length >= 1) {
-      fetchData(debouncedUsername, page + 1, ROWS_PER_PAGE);
-    }
-  }, [debouncedUsername, tab, page]);
+  }, [fetchData, page, submittedUsername, tab]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setPage(0);
-    setDebouncedUsername(username);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    const trimmedUsername = username.trim();
+
+    if (!trimmedUsername) {
+      return;
+    }
+
+    if (page !== 0) {
+      setPage(0);
+    }
+
+    if (submittedUsername !== trimmedUsername) {
+      setSubmittedUsername(trimmedUsername);
+      return;
+    }
+
+    if (page === 0) {
+      fetchData(trimmedUsername, 1, ROWS_PER_PAGE);
+    }
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -182,6 +184,32 @@ const Home: React.FC = () => {
   const currentRawData = tab === 0 ? issues : prs;
   const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
   const totalCount = tab === 0 ? totalIssues : totalPrs;
+  const scoreItems = [
+    {
+      label: "Merged PRs",
+      count: contributionScore.mergedPrs,
+      points: contributionScore.mergedPrs * 5,
+      weight: "+5 each",
+    },
+    {
+      label: "Open PRs",
+      count: contributionScore.openPrs,
+      points: contributionScore.openPrs * 2,
+      weight: "+2 each",
+    },
+    {
+      label: "Closed PRs",
+      count: contributionScore.closedPrs,
+      points: contributionScore.closedPrs,
+      weight: "+1 each",
+    },
+    {
+      label: "Issues Created",
+      count: contributionScore.issuesCreated,
+      points: contributionScore.issuesCreated,
+      weight: "+1 each",
+    },
+  ];
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
@@ -319,6 +347,68 @@ const Home: React.FC = () => {
           {dataError}
         </Alert>
       )}
+
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2.5,
+          mb: 3,
+          backgroundColor: theme.palette.background.paper,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 2,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          <Box>
+            <Typography variant="overline" color="text.secondary">
+              Contribution Score
+            </Typography>
+            <Typography variant="h3" component="p" sx={{ fontWeight: 700 }}>
+              {contributionScore.total}
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(2, minmax(0, 1fr))",
+                md: "repeat(4, minmax(120px, 1fr))",
+              },
+              gap: 2,
+              flex: 1,
+              minWidth: { xs: "100%", md: 0 },
+            }}
+          >
+            {scoreItems.map((item) => (
+              <Box
+                key={item.label}
+                sx={{
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: 1,
+                  p: 1.5,
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  {item.label}
+                </Typography>
+                <Typography variant="h6" component="p">
+                  {item.count}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {item.points} pts - {item.weight}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Paper>
 
       {loading ? (
         <Box display="flex" justifyContent="center" my={4}>

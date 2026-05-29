@@ -21,6 +21,169 @@ interface FetchFilters {
   state?: string;
 }
 
+interface ContributionScore {
+  mergedPrs: number;
+  openPrs: number;
+  closedPrs: number;
+  issuesCreated: number;
+  total: number;
+}
+
+interface FetchPaginatedResult {
+  items: GitHubItem[];
+  total: number;
+}
+
+const SCORE_WEIGHTS = {
+  mergedPr: 5,
+  openPr: 2,
+  closedPr: 1,
+  issueCreated: 1,
+};
+
+const emptyContributionScore: ContributionScore = {
+  mergedPrs: 0,
+  openPrs: 0,
+  closedPrs: 0,
+  issuesCreated: 0,
+  total: 0,
+};
+
+const fetchPaginated = async (
+  octokit: Octokit,
+  username: string,
+  type: 'issue' | 'pr',
+  page = 1,
+  perPage = 10,
+  filters: FetchFilters = {}
+): Promise<FetchPaginatedResult> => {
+  let q = `author:${username} is:${type}`;
+
+  if (filters.search) {
+    q += ` ${filters.search} in:title`;
+  }
+
+  if (filters.repo) {
+    q += ` repo:${filters.repo}`;
+  }
+
+  if (filters.startDate) {
+    q += ` created:>=${filters.startDate}`;
+  }
+
+  if (filters.endDate) {
+    q += ` created:<=${filters.endDate}`;
+  }
+
+  if (filters.state === 'open' || filters.state === 'closed') {
+    q += ` is:${filters.state}`;
+  }
+
+  if (filters.state === 'merged' && type === 'pr') {
+    q += ` is:merged`;
+  }
+
+  const response = await octokit.request(
+    'GET /search/issues',
+    {
+      q,
+      sort: 'created',
+      order: 'desc',
+      per_page: perPage,
+      page,
+    }
+  );
+
+  return {
+    items: response.data.items as GitHubItem[],
+    total: response.data.total_count,
+  };
+};
+
+const buildScoreQuery = (
+  username: string,
+  type: 'issue' | 'pr',
+  qualifiers: string[],
+  filters: FetchFilters = {}
+) => {
+  let q = `author:${username} is:${type} ${qualifiers.join(' ')}`;
+
+  if (filters.search) {
+    q += ` ${filters.search} in:title`;
+  }
+
+  if (filters.repo) {
+    q += ` repo:${filters.repo}`;
+  }
+
+  if (filters.startDate) {
+    q += ` created:>=${filters.startDate}`;
+  }
+
+  if (filters.endDate) {
+    q += ` created:<=${filters.endDate}`;
+  }
+
+  return q.trim();
+};
+
+const fetchCount = async (octokit: Octokit, q: string) => {
+  const response = await octokit.request('GET /search/issues', {
+    q,
+    per_page: 1,
+    page: 1,
+  });
+
+  return response.data.total_count;
+};
+
+const fetchContributionScore = async (
+  octokit: Octokit,
+  username: string,
+  filters: FetchFilters = {}
+): Promise<ContributionScore> => {
+  const [
+    mergedPrs,
+    openPrs,
+    closedPrs,
+    issuesCreated,
+  ] = await Promise.all([
+    fetchCount(
+      octokit,
+      buildScoreQuery(username, 'pr', ['is:merged'], filters)
+    ),
+    fetchCount(
+      octokit,
+      buildScoreQuery(username, 'pr', ['is:open'], filters)
+    ),
+    fetchCount(
+      octokit,
+      buildScoreQuery(
+        username,
+        'pr',
+        ['is:closed', '-is:merged'],
+        filters
+      )
+    ),
+    fetchCount(
+      octokit,
+      buildScoreQuery(username, 'issue', [], filters)
+    ),
+  ]);
+
+  return {
+    mergedPrs,
+    openPrs,
+    closedPrs,
+    issuesCreated,
+    total:
+      mergedPrs * SCORE_WEIGHTS.mergedPr +
+      openPrs * SCORE_WEIGHTS.openPr +
+      closedPrs * SCORE_WEIGHTS.closedPr +
+      issuesCreated * SCORE_WEIGHTS.issueCreated,
+  };
+};
+
 export const useGitHubData = (
   getOctokit: () => Octokit | null
 ) => {
@@ -30,66 +193,13 @@ export const useGitHubData = (
   const [error, setError] = useState('');
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
+  const [contributionScore, setContributionScore] =
+    useState<ContributionScore>(emptyContributionScore);
   const [rateLimited, setRateLimited] = useState(false);
 
   // Prevent stale responses overwriting latest data
   const lastRequestId = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  const fetchPaginated = async (
-    octokit: Octokit,
-    username: string,
-    type: 'issue' | 'pr',
-    page = 1,
-    perPage = 10,
-    filters: FetchFilters = {},
-    signal?: AbortSignal
-  ) => {
-    let q = `author:${username} is:${type}`;
-
-    if (filters.search) {
-      q += ` ${filters.search} in:title`;
-    }
-
-    if (filters.repo) {
-      q += ` repo:${filters.repo}`;
-    }
-
-    if (filters.startDate) {
-      q += ` created:>=${filters.startDate}`;
-    }
-
-    if (filters.endDate) {
-      q += ` created:<=${filters.endDate}`;
-    }
-
-    if (filters.state === 'open' || filters.state === 'closed') {
-      q += ` is:${filters.state}`;
-    }
-
-    if (filters.state === 'merged' && type === 'pr') {
-      q += ` is:merged`;
-    }
-
-    const response = await octokit.request(
-      'GET /search/issues',
-      {
-        q,
-        sort: 'created',
-        order: 'desc',
-        per_page: perPage,
-        page,
-        request: {
-          signal,
-        },
-      }
-    );
-
-    return {
-      items: response.data.items as GitHubItem[],
-      total: response.data.total_count,
-    };
-  };
 
   const fetchData = useCallback(
     async (
@@ -125,7 +235,7 @@ export const useGitHubData = (
         const shouldFetchPrs =
           activeTab === 'pr' || activeTab === 'both';
 
-        const requests: Promise<unknown>[] = [];
+        const requests: Promise<FetchPaginatedResult>[] = [];
 
         if (shouldFetchIssues) {
           requests.push(
@@ -214,6 +324,25 @@ export const useGitHubData = (
           );
         }
 
+        try {
+          const score = await fetchContributionScore(
+            octokit,
+            username,
+            filters
+          );
+
+          if (requestId === lastRequestId.current) {
+            setContributionScore(score);
+          }
+        } catch {
+          if (requestId === lastRequestId.current) {
+            setContributionScore(emptyContributionScore);
+            setError(
+              'Some GitHub data could not be fetched completely.'
+            );
+          }
+        }
+
         setRateLimited(false);
       } catch (err: unknown) {
         if (requestId !== lastRequestId.current || abortControllerRef.current !== controller) {
@@ -287,6 +416,7 @@ export const useGitHubData = (
     prs,
     totalIssues,
     totalPrs,
+    contributionScore,
     loading,
     error,
     rateLimited,

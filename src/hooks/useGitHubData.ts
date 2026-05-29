@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Octokit } from '@octokit/core';
 
 interface GitHubItem {
@@ -92,63 +92,15 @@ export const useGitHubData = (
   const [error, setError] = useState('');
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
+  const [contributionScore, setContributionScore] =
+    useState<ContributionScore>(emptyContributionScore);
   const [rateLimited, setRateLimited] = useState(false);
   const [dailyActivity, setDailyActivity] = useState<DailyActivity>(initialDailyActivity);
   const [dailyActivityLoaded, setDailyActivityLoaded] = useState(false);
 
   // Prevent stale responses overwriting latest data
   const lastRequestId = useRef(0);
-
-  const fetchPaginated = async (
-    octokit: Octokit,
-    username: string,
-    type: 'issue' | 'pr',
-    page = 1,
-    perPage = 10,
-    filters: FetchFilters = {}
-  ) => {
-    let q = `author:${username} is:${type}`;
-
-    if (filters.search) {
-      q += ` ${filters.search} in:title`;
-    }
-
-    if (filters.repo) {
-      q += ` repo:${filters.repo}`;
-    }
-
-    if (filters.startDate) {
-      q += ` created:>=${filters.startDate}`;
-    }
-
-    if (filters.endDate) {
-      q += ` created:<=${filters.endDate}`;
-    }
-
-    if (filters.state === 'open' || filters.state === 'closed') {
-      q += ` is:${filters.state}`;
-    }
-
-    if (filters.state === 'merged' && type === 'pr') {
-      q += ` is:merged`;
-    }
-
-    const response = await octokit.request(
-      'GET /search/issues',
-      {
-        q,
-        sort: 'created',
-        order: 'desc',
-        per_page: perPage,
-        page,
-      }
-    );
-
-    return {
-      items: response.data.items as GitHubItem[],
-      total: response.data.total_count,
-    };
-  };
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const getSearchCount = async (
     octokit: Octokit,
@@ -293,6 +245,14 @@ export const useGitHubData = (
         return;
       }
 
+      // Cancel any active in-flight request before triggering a new one
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const requestId = ++lastRequestId.current;
 
       setLoading(true);
@@ -305,7 +265,7 @@ export const useGitHubData = (
         const shouldFetchPrs =
           activeTab === 'pr' || activeTab === 'both';
 
-        const requests: Promise<any>[] = [];
+        const requests: Promise<FetchPaginatedResult>[] = [];
 
         if (shouldFetchIssues) {
           requests.push(
@@ -315,7 +275,8 @@ export const useGitHubData = (
               'issue',
               page,
               perPage,
-              filters
+              filters,
+              controller.signal
             )
           );
         }
@@ -328,7 +289,8 @@ export const useGitHubData = (
               'pr',
               page,
               perPage,
-              filters
+              filters,
+              controller.signal
             )
           );
         }
@@ -337,8 +299,8 @@ export const useGitHubData = (
 
         const results = await Promise.allSettled(requests);
 
-        // Ignore stale requests
-        if (requestId !== lastRequestId.current) {
+        // Ignore stale or aborted requests
+        if (requestId !== lastRequestId.current || abortControllerRef.current !== controller) {
           return;
         }
 
@@ -351,6 +313,10 @@ export const useGitHubData = (
             setIssues(issueResult.value.items);
             setTotalIssues(issueResult.value.total);
           } else {
+            const reason = issueResult.reason;
+            if (reason && reason.name === 'AbortError') {
+              return;
+            }
             setIssues([]);
             setTotalIssues(0);
           }
@@ -365,6 +331,10 @@ export const useGitHubData = (
             setPrs(prResult.value.items);
             setTotalPrs(prResult.value.total);
           } else {
+            const reason = prResult.reason;
+            if (reason && reason.name === 'AbortError') {
+              return;
+            }
             setPrs([]);
             setTotalPrs(0);
           }
@@ -375,21 +345,51 @@ export const useGitHubData = (
         );
 
         if (hasRejected) {
+          const wasAborted = results.some(
+            (result) => result.status === 'rejected' && result.reason?.name === 'AbortError'
+          );
+          if (wasAborted) {
+            return;
+          }
           setError(
             'Some GitHub data could not be fetched completely.'
           );
         }
 
+        try {
+          const score = await fetchContributionScore(
+            octokit,
+            username,
+            filters
+          );
+
+          if (requestId === lastRequestId.current) {
+            setContributionScore(score);
+          }
+        } catch {
+          if (requestId === lastRequestId.current) {
+            setContributionScore(emptyContributionScore);
+            setError(
+              'Some GitHub data could not be fetched completely.'
+            );
+          }
+        }
+
         setRateLimited(false);
       } catch (err: unknown) {
-        if (requestId !== lastRequestId.current) {
+        if (requestId !== lastRequestId.current || abortControllerRef.current !== controller) {
           return;
         }
 
         const error = err as {
           status?: number;
           message?: string;
+          name?: string;
         };
+
+        if (error.name === 'AbortError') {
+          return;
+        }
 
         const errorMessage =
           error.message?.toLowerCase() || '';
@@ -426,7 +426,7 @@ export const useGitHubData = (
           );
         }
       } finally {
-        if (requestId === lastRequestId.current) {
+        if (requestId === lastRequestId.current && abortControllerRef.current === controller) {
           setLoading(false);
         }
       }
@@ -434,11 +434,21 @@ export const useGitHubData = (
     [getOctokit, rateLimited]
   );
 
+  // Cleanup abort controller on component unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   return {
     issues,
     prs,
     totalIssues,
     totalPrs,
+    contributionScore,
     loading,
     error,
     rateLimited,

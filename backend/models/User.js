@@ -16,18 +16,19 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  token: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
 });
 
 // ✅ FIXED: no next()
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  try {
-      const salt = await bcrypt.genSalt(10);
-      this.password = await bcrypt.hash(this.password, salt);
-      next(); // Tells Mongoose hashing is done, save the document now
-  } catch (err) {
-    next(err); // Safely passes any encryption errors to the database handler
-  }
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // ✅ password comparison
@@ -36,3 +37,4 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
 };
 
 module.exports = mongoose.model("User", UserSchema);
+

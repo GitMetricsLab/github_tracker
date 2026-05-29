@@ -5,7 +5,7 @@ import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
 
-const FULLSCREEN_ROUTES = ["/signup", "/login"];
+const FULLSCREEN_ROUTES = ["/signup", "/login", "/enterToken"];
 
 function App() {
   const location = useLocation();

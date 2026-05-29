@@ -287,10 +287,10 @@ const SignUp: React.FC = () => {
 
           <div className="text-center mt-8">
             <p className={mode === "dark" ? "text-gray-300" : "text-gray-600"}>
-              Already have an account?{" "}
+              Already have an account?
               <Link
                 to="/login"
-                className={`font-medium hover:underline transition-colors duration-300 ${mode === "dark" ? "text-white" : "text-black"}`}
+                className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"
               >
                 Sign in here
               </Link>
@@ -302,7 +302,7 @@ const SignUp: React.FC = () => {
       <div
         className={`${
           mode === "dark" ? "from-slate-900" : "from-slate-100"
-        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
+        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent pointer-events-none`}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 import { useUser } from "../../context/UserContext";
@@ -87,7 +88,12 @@ const Login: React.FC = () => {
 
       <div className="relative w-full max-w-md px-4 sm:px-6">
         {/* Branding */}
-        <div className="text-center mb-10">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
             <img
               src="/crl-icon.png"
@@ -110,15 +116,16 @@ const Login: React.FC = () => {
           >
             Track your GitHub journey
           </p>
-        </div>
+        </motion.div>
 
         {/* Form Card */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${mode === "dark" ? "bg-white/10 backdrop-blur-xl border-white/20 text-white" : "bg-white border-gray-200 text-black"}`}
         >
-          <h2
-            className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"}`}
-          >
+          <h2 className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"}`}>
             Welcome Back
           </h2>
 
@@ -197,12 +204,10 @@ const Login: React.FC = () => {
               </Link>
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
-      <div
-        className={`${mode === "dark" ? "from-slate-900" : "from-slate-100"} absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
-      />
+      <div className={`${mode === "dark" ? "from-slate-900" : "from-slate-100"} absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent pointer-events-none`} />
     </div>
   );
 };

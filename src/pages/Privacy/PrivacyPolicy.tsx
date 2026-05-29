@@ -1,20 +1,16 @@
-import React, { useEffect } from 'react';
-import {
-  FaShieldAlt, FaKey, FaDatabase, FaUserCheck, FaCheckCircle,
-  FaLock, FaClock, FaShareAlt, FaCookieBite, FaChild
+import React from 'react';
+import { 
+  FaShieldAlt, FaKey, FaDatabase, FaUserCheck, FaCheckCircle, 
+  FaLock, FaClock, FaShareAlt, FaCookieBite, FaChild 
 } from 'react-icons/fa';
 
 const PrivacyPolicy: React.FC = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <div className="w-full flex-1 flex flex-col items-stretch bg-gray-50 dark:bg-[#0f172a] min-h-full transition-colors duration-200 self-stretch">
-
+      
       {/* Centered Document Core Container */}
       <div className="w-full max-w-4xl mx-auto px-6 md:px-12 py-16 text-zinc-600 dark:text-zinc-400 font-sans antialiased selection:bg-blue-500/20">
-
+        
         {/* Header Area */}
         <div className="mb-14 pb-8 border-b border-zinc-200/80 dark:border-zinc-800/80 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
@@ -34,7 +30,7 @@ const PrivacyPolicy: React.FC = () => {
 
         {/* Document Sections */}
         <div className="space-y-12">
-
+          
           {/* Section 1 */}
           <section className="group relative">
             <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -48,7 +44,7 @@ const PrivacyPolicy: React.FC = () => {
                 <p className="text-sm md:text-base leading-7 text-zinc-600 dark:text-zinc-400">
                   Our GitHub Tracker system interfaces dynamically via encrypted requests using official GitHub REST and GraphQL v4 API structures. When authorizing our application, the platform requests specific parameters categorized into distinct transactional boundaries:
                 </p>
-
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                   <div className="p-4 rounded-xl border border-zinc-200/60 dark:border-zinc-800/80 bg-white/40 dark:bg-zinc-900/30 flex items-start gap-3 shadow-sm">
                     <FaCheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-blue-500" />

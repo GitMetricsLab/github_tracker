@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Lightbulb, Users, Settings, Search } from "lucide-react";
-import { useEffect } from "react";
 
 const features = [
   {
@@ -21,15 +20,12 @@ const features = [
 ];
 
 const About = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
   return (
     <div className="bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 text-black dark:text-white min-h-screen">
-
+      
       {/* Hero Section */}
       <section className="py-24 text-center relative overflow-hidden">
-        <motion.h1
+        <motion.h1 
           className="text-5xl font-extrabold mb-4 drop-shadow-sm"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -37,7 +33,7 @@ const About = () => {
         >
           About Us
         </motion.h1>
-        <motion.p
+        <motion.p 
           className="text-xl max-w-xl mx-auto text-gray-600 dark:text-gray-300"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -49,7 +45,7 @@ const About = () => {
 
       {/* Mission Section */}
       <section className="py-20 px-6 bg-white dark:bg-gray-900 text-center">
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}

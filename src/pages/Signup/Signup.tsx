@@ -194,6 +194,7 @@ const SignUp: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <div className="relative">
+                <label htmlFor="username" className="sr-only">Username</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
@@ -214,6 +215,7 @@ const SignUp: React.FC = () => {
 
             <div>
               <div className="relative">
+                <label htmlFor="email" className="sr-only">Email</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
@@ -234,6 +236,7 @@ const SignUp: React.FC = () => {
 
             <div>
               <div className="relative">
+                <label htmlFor="password" className="sr-only">Password</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>

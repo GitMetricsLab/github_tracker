@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
 import ScrollToTop from "./components/ScrollToTop";
 
-const FULLSCREEN_ROUTES = ["/signup", "/login"];
+const FULLSCREEN_ROUTES = ["/signup", "/login", "/enterToken"];
 
 function App() {
   const location = useLocation();
@@ -20,7 +20,7 @@ function App() {
 
         {!isFullscreen && <Navbar />}
 
-        <main className={`flex justify-center items-center ${isFullscreen ? "flex-1" : "flex-grow bg-gray-50 dark:bg-gray-800"}`}>
+        <main className={`${isFullscreen ? "flex flex-1 justify-center items-center" : "flex-grow bg-gray-50 dark:bg-gray-800"}`}>
           <Router />
         </main>
 

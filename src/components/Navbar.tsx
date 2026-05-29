@@ -7,10 +7,12 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const themeContext = useContext(ThemeContext);
+  const userContext = useContext(UserContext);
 
   if (!themeContext) return null;
 
   const { toggleTheme, mode } = themeContext;
+  const user = userContext?.user ?? null;
 
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
@@ -53,9 +55,15 @@ const Navbar: React.FC = () => {
             Contributors
           </NavLink>
 
-          <NavLink to="/login" className={navLinkStyles}>
-            Login
-          </NavLink>
+          {user ? (
+            <NavLink to="/profile" className={navLinkStyles}>
+              {user.username}
+            </NavLink>
+          ) : (
+            <NavLink to="/login" className={navLinkStyles}>
+              Login
+            </NavLink>
+          )}
 
           {/* Theme Toggle */}
           <button
@@ -131,13 +139,15 @@ const Navbar: React.FC = () => {
               Contributors
             </NavLink>
 
-            <NavLink
-              to="/login"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Login
-            </NavLink>
+            {user ? (
+              <NavLink to="/profile" className={navLinkStyles} onClick={closeMenu}>
+                {user.username}
+              </NavLink>
+            ) : (
+              <NavLink to="/login" className={navLinkStyles} onClick={closeMenu}>
+                Login
+              </NavLink>
+            )}
           </div>
         </div>
       )}

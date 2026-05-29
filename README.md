@@ -50,12 +50,19 @@ $ git clone https://github.com/yourusername/github-tracker.git
 ```bash
 $ cd github-tracker
 ```
-
 3. Run the frontend
 ```bash
 $ npm i
 $ npm run dev
 ```
+
+This project utilizes [Vitest](https://vitest.dev/) and React Testing Library to ensure UI reliability. 
+
+To run the frontend test suite, use the following command:
+```bash
+npm run test:client
+```
+
 
 4. Run the backend
 ```bash

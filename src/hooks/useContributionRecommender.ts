@@ -47,6 +47,11 @@ interface GitHubSearchIssue {
   state: string;
 }
 
+interface ScoutedIssue extends GitHubSearchIssue {
+  _matchedLanguage: string;
+  _langRank: number;
+}
+
 // ─── Agent Step 1: Skill Profiler ─────────────────────────────────────────────
 
 const DOMAIN_KEYWORDS: Record<string, string[]> = {
@@ -119,24 +124,23 @@ const buildSkillProfile = (repos: GitHubRepo[]): SkillProfile => {
 const SEARCH_LABELS = ['good first issue', 'help wanted'];
 
 const buildSearchQuery = (language: string, label: string): string => {
-  const encodedLabel = label.replace(/ /g, '+');
-  return `label:"${encodedLabel}"+language:${language}+is:open+is:public+state:open`;
+  return `label:"${label}" language:${language} is:open is:public is:issue state:open`;
 };
 
 const scoutIssues = async (
   octokit: Octokit,
   skillProfile: SkillProfile
-): Promise<GitHubSearchIssue[]> => {
-  const queries: Array<{ language: string; label: string; query: string }> = [];
+): Promise<ScoutedIssue[]> => {
+  const queries: Array<{ language: string; langRank: number; label: string; query: string }> = [];
 
-  // Build search combinations: top 2 languages × both labels
-  skillProfile.topLanguages.slice(0, 3).forEach((lang) => {
+  // Build search combinations: top 3 languages × both labels
+  skillProfile.topLanguages.slice(0, 3).forEach((lang, langRank) => {
     SEARCH_LABELS.forEach((label) => {
-      queries.push({ language: lang, label, query: buildSearchQuery(lang, label) });
+      queries.push({ language: lang, langRank, label, query: buildSearchQuery(lang, label) });
     });
   });
 
-  const searchRequests = queries.map(({ query }) =>
+  const searchRequests = queries.map(({ query, language, langRank }) =>
     octokit
       .request('GET /search/issues', {
         q: query,
@@ -144,26 +148,37 @@ const scoutIssues = async (
         sort: 'updated',
         order: 'desc',
       })
-      .then((res) => res.data.items as GitHubSearchIssue[])
-      .catch(() => [] as GitHubSearchIssue[])
+      .then((res) => res.data.items.map(issue => ({
+        ...issue,
+        _matchedLanguage: language,
+        _langRank: langRank
+      })) as ScoutedIssue[])
   );
 
   const results = await Promise.allSettled(searchRequests);
-  const allIssues: GitHubSearchIssue[] = [];
-  const seenIds = new Set<number>();
+  
+  // If all search queries failed (e.g. rate limit, auth error), bubble up the error
+  const allRejected = results.length > 0 && results.every(r => r.status === 'rejected');
+  if (allRejected) {
+    const firstError = (results[0] as PromiseRejectedResult).reason;
+    throw firstError;
+  }
+
+  const seenIds = new Map<number, ScoutedIssue>();
 
   results.forEach((result) => {
     if (result.status === 'fulfilled') {
       result.value.forEach((issue) => {
-        if (!seenIds.has(issue.id)) {
-          seenIds.add(issue.id);
-          allIssues.push(issue);
+        const existing = seenIds.get(issue.id);
+        // If an issue appears in multiple queries, keep the one with the better (lower) language rank
+        if (!existing || issue._langRank < existing._langRank) {
+          seenIds.set(issue.id, issue);
         }
       });
     }
   });
 
-  return allIssues;
+  return Array.from(seenIds.values());
 };
 
 // ─── Agent Step 3: Relevance Ranker ──────────────────────────────────────────
@@ -249,7 +264,7 @@ const scoreIssue = (
 
 const rankIssues = async (
   octokit: Octokit,
-  rawIssues: GitHubSearchIssue[],
+  rawIssues: ScoutedIssue[],
   skillProfile: SkillProfile
 ): Promise<Recommendation[]> => {
   // Fetch repo info for top 15 candidates (to avoid too many requests)
@@ -262,20 +277,10 @@ const rankIssues = async (
         issue.repository_url
       );
 
-      // Determine which language matched this issue
+      // Use the language and rank preserved from the scout query
+      const matchedLanguage = issue._matchedLanguage;
+      const langRank = issue._langRank;
       const labelNames = issue.labels.map((l) => l.name.toLowerCase());
-      let matchedLanguage = skillProfile.topLanguages[0] || 'Unknown';
-      let langRank = 0;
-
-      // Try to detect language from label names first
-      for (let i = 0; i < skillProfile.topLanguages.length; i++) {
-        const lang = skillProfile.topLanguages[i].toLowerCase();
-        if (labelNames.some((l) => l.includes(lang))) {
-          matchedLanguage = skillProfile.topLanguages[i];
-          langRank = i;
-          break;
-        }
-      }
 
       const score = scoreIssue(issue, langRank, stars);
       const matchReason = computeMatchReason(issue, matchedLanguage, skillProfile, langRank);
@@ -325,6 +330,9 @@ export const useContributionRecommender = (getOctokit: () => Octokit | null) => 
     recommendations: Recommendation[];
     skillProfile: SkillProfile;
   } | null>(null);
+  
+  // Guard against race conditions from multiple runs
+  const runRequestIdRef = useRef(0);
 
   const runRecommender = useCallback(
     async (username: string, force = false) => {
@@ -337,6 +345,8 @@ export const useContributionRecommender = (getOctokit: () => Octokit | null) => 
         setSkillProfile(cacheRef.current.skillProfile);
         return;
       }
+
+      const currentRequestId = ++runRequestIdRef.current;
 
       setRecommenderLoading(true);
       setRecommenderError('');
@@ -360,6 +370,7 @@ export const useContributionRecommender = (getOctokit: () => Octokit | null) => 
         }
 
         const profile = buildSkillProfile(repos);
+        if (currentRequestId !== runRequestIdRef.current) return;
         setSkillProfile(profile);
 
         if (profile.topLanguages.length === 0) {
@@ -370,6 +381,7 @@ export const useContributionRecommender = (getOctokit: () => Octokit | null) => 
         }
 
         // ── Step 2: Issue Scout ──
+        if (currentRequestId !== runRequestIdRef.current) return;
         setAgentStep(2);
         const rawIssues = await scoutIssues(octokit, profile);
 
@@ -381,14 +393,18 @@ export const useContributionRecommender = (getOctokit: () => Octokit | null) => 
         }
 
         // ── Step 3: Relevance Ranker ──
+        if (currentRequestId !== runRequestIdRef.current) return;
         setAgentStep(3);
         const ranked = await rankIssues(octokit, rawIssues, profile);
 
+        if (currentRequestId !== runRequestIdRef.current) return;
         setRecommendations(ranked);
 
         // Cache the result
         cacheRef.current = { username, recommendations: ranked, skillProfile: profile };
       } catch (err: unknown) {
+        if (currentRequestId !== runRequestIdRef.current) return;
+
         const error = err as { status?: number; message?: string };
         if (error.status === 403) {
           setRecommenderError(
@@ -402,8 +418,10 @@ export const useContributionRecommender = (getOctokit: () => Octokit | null) => 
           );
         }
       } finally {
-        setRecommenderLoading(false);
-        setAgentStep(0);
+        if (currentRequestId === runRequestIdRef.current) {
+          setRecommenderLoading(false);
+          setAgentStep(0);
+        }
       }
     },
     [getOctokit]

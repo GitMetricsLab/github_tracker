@@ -8,6 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { GITHUB_REPO_CONTRIBUTORS_URL } from "../../utils/constants";
+import BackToTopButton from "../../components/Backtotop";
 
 interface Contributor {
   id: number;
@@ -38,7 +39,11 @@ const stats = [
 const ContributorsPage = () => {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FetchError | null>(null);
+
+const handleCopy = async (contributor: Contributor) => {
+  await navigator.clipboard.writeText(contributor.html_url);
+  setCopiedId(contributor.id);
 
   useEffect(() => {
     const fetchContributors = async () => {

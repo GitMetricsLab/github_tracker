@@ -89,7 +89,7 @@ const SignUp: React.FC = () => {
       setMessage(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
+      if (response.status === 201) {
         navigate("/login");
       }
     } catch (error: any) {

@@ -4,6 +4,7 @@ import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
+import ScrollToTop from "./components/ScrollToTop";
 
 const FULLSCREEN_ROUTES = ["/signup", "/login", "/enterToken"];
 
@@ -13,6 +14,8 @@ function App() {
 
   return (
       <div className="relative flex flex-col min-h-screen">
+        <ScrollToTop />
+
         {!isFullscreen && <ScrollProgressBar />}
 
         {!isFullscreen && <Navbar />}

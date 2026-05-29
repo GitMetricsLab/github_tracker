@@ -125,7 +125,7 @@ export const useGitHubData = (
         const shouldFetchPrs =
           activeTab === 'pr' || activeTab === 'both';
 
-        const requests: Promise<any>[] = [];
+        const requests: Promise<unknown>[] = [];
 
         if (shouldFetchIssues) {
           requests.push(

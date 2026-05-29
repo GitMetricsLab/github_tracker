@@ -10,6 +10,7 @@ interface ThemeContextType {
 export const ThemeContext = createContext<ThemeContextType | null>(null);
 
 const THEME_STORAGE_KEY = 'theme';
+const TRANSITION_DURATION = 300; // milliseconds
 
 const ThemeWrapper = ({ children }: { children: ReactNode }) => {
   const [mode, setMode] = useState<'light' | 'dark'>(() => {
@@ -19,12 +20,23 @@ const ThemeWrapper = ({ children }: { children: ReactNode }) => {
 
   // Sync mode with <html> class and localStorage
   useEffect(() => {
+    // Add transition class
+    document.documentElement.classList.add('theme-transitioning');
+
+    // Apply theme change
     if (mode === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
     localStorage.setItem(THEME_STORAGE_KEY, mode);
+
+    // Remove transition class after animation completes
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    }, TRANSITION_DURATION);
+
+    return () => clearTimeout(timer);
   }, [mode]);
 
  const toggleTheme = () => {

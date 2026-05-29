@@ -53,8 +53,11 @@ const SignUp: React.FC = () => {
     if (name === "password") {
       if (!value.trim()) {
         errorMessage = "Password is required";
-      } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)) {
-        errorMessage = "Password must be 8+ characters with letters and numbers";
+      } else if (
+        !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)
+      ) {
+        errorMessage =
+          "Password must be 8+ characters with letters and numbers";
       }
     }
     setErrors((prev) => ({ ...prev, [name]: errorMessage }));
@@ -65,35 +68,49 @@ const SignUp: React.FC = () => {
     const usernameError = !formData.username.trim()
       ? "Username is required"
       : !/^[A-Za-z\s]+$/.test(formData.username)
-      ? "Only letters are allowed"
-      : "";
+        ? "Only letters are allowed"
+        : "";
     const emailError = !formData.email.trim()
       ? "Email is required"
       : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
-      ? "Enter a valid email"
-      : "";
+        ? "Enter a valid email"
+        : "";
     const passwordError = !formData.password.trim()
       ? "Password is required"
-      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(formData.password)
-      ? "Password must be 8+ characters with letters and numbers"
-      : "";
+      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(
+            formData.password,
+          )
+        ? "Password must be 8+ characters with letters and numbers"
+        : "";
     if (usernameError || emailError || passwordError) {
-      setErrors({ username: usernameError, email: emailError, password: passwordError });
+      setErrors({
+        username: usernameError,
+        email: emailError,
+        password: passwordError,
+      });
       return;
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
+      const response = await axios.post(
+        `${backendUrl}/api/auth/signup`,
+        formData, // Include cookies for session
       );
       setMessage(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
+      if (response.data.message === "User created successfully") {
         navigate("/login");
       }
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setMessage(
+          error.response?.data?.message ||
+            "Something went wrong. Please try again.",
+        );
+      } else {
+        setMessage("Something went wrong. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -138,10 +155,22 @@ const SignUp: React.FC = () => {
           className="text-center mb-10"
         >
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
-            <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
+            <img
+              src="/crl-icon.png"
+              alt="Logo"
+              className="w-14 h-14 object-contain"
+            />
           </div>
-          <h1 className={`text-4xl font-bold mb-2 ${mode === "dark" ? "text-white" : "text-black"}`}>GitHubTracker</h1>
-          <p className={`text-lg font-medium ${mode === "dark" ? "text-slate-300" : "text-gray-700"}`}>Join your GitHub journey</p>
+          <h1
+            className={`text-4xl font-bold mb-2 ${mode === "dark" ? "text-white" : "text-black"}`}
+          >
+            GitHubTracker
+          </h1>
+          <p
+            className={`text-lg font-medium ${mode === "dark" ? "text-slate-300" : "text-gray-700"}`}
+          >
+            Join your GitHub journey
+          </p>
         </motion.div>
 
         <motion.div
@@ -154,7 +183,6 @@ const SignUp: React.FC = () => {
               : "bg-white border-gray-200 text-black"
           }`}
         >
-          
           <h2
             className={`text-2xl font-bold text-center mb-8 ${
               mode === "dark" ? "text-white" : "text-gray-800"
@@ -166,42 +194,78 @@ const SignUp: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <div className="relative">
+                <label htmlFor="username" className="sr-only">Username</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type="text" name="username" placeholder="Enter your username" value={formData.username} onChange={handleChange} required
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
                   className={`w-full pl-12 pr-4 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
               </div>
-              {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-2">{errors.username}</p>
+              )}
             </div>
 
             <div>
               <div className="relative">
+                <label htmlFor="email" className="sr-only">Email</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type="email" name="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} required
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   className={`w-full pl-12 pr-4 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
               </div>
-              {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+              )}
             </div>
 
             <div>
               <div className="relative">
+                <label htmlFor="password" className="sr-only">Password</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type={showPassword ? "text" : "password"} name="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} required
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
                   className={`w-full pl-12 pr-12 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}
-                  className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 ${mode === "dark" ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}>
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 ${mode === "dark" ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
-              {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-2">{errors.password}</p>
+              )}
             </div>
 
             <button
@@ -214,15 +278,20 @@ const SignUp: React.FC = () => {
           </form>
 
           {message && (
-            <div className={`text-center mt-6 p-3 rounded-xl ${message.includes("successfully") ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+            <div
+              className={`text-center mt-6 p-3 rounded-xl ${message.includes("successfully") ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}
+            >
               {message}
             </div>
           )}
 
           <div className="text-center mt-8">
             <p className={mode === "dark" ? "text-gray-300" : "text-gray-600"}>
-              Already have an account?{" "}
-              <Link to="/login" className={`font-medium hover:underline transition-colors duration-300 ${mode === "dark" ? "text-white" : "text-black"}`}>
+              Already have an account?
+              <Link
+                to="/login"
+                className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"
+              >
                 Sign in here
               </Link>
             </p>
@@ -233,7 +302,7 @@ const SignUp: React.FC = () => {
       <div
         className={`${
           mode === "dark" ? "from-slate-900" : "from-slate-100"
-        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
+        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent pointer-events-none`}
       />
     </div>
   );

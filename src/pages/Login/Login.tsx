@@ -90,7 +90,9 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
+              <label htmlFor="email" className="sr-only">Email address</label>
               <input
+                id="email"
                 type="email"
                 name="email"
                 placeholder="Enter your email"
@@ -107,7 +109,9 @@ const Login: React.FC = () => {
             </div>
 
             <div className="relative">
+              <label htmlFor="password" className="sr-only">Password</label>
               <input
+                id="password"
                 type="password"
                 name="password"
                 autoComplete="current-password"

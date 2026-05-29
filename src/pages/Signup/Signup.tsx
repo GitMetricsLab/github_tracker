@@ -166,10 +166,18 @@ const SignUp: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <div className="relative">
+                <label htmlFor="username" className="sr-only">Username</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type="text" name="username" placeholder="Enter your username" value={formData.username} onChange={handleChange} required
+                <input 
+                  id="username"
+                  type="text" 
+                  name="username" 
+                  placeholder="Enter your username" 
+                  value={formData.username} 
+                  onChange={handleChange} 
+                  required
                   className={`w-full pl-12 pr-4 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
               </div>
@@ -178,10 +186,18 @@ const SignUp: React.FC = () => {
 
             <div>
               <div className="relative">
+                <label htmlFor="email" className="sr-only">Email</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type="email" name="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} required
+                <input 
+                  id="email"
+                  type="email" 
+                  name="email" 
+                  placeholder="Enter your email" 
+                  value={formData.email} 
+                  onChange={handleChange} 
+                  required
                   className={`w-full pl-12 pr-4 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
               </div>
@@ -190,13 +206,25 @@ const SignUp: React.FC = () => {
 
             <div>
               <div className="relative">
+                <label htmlFor="password" className="sr-only">Password</label>
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type={showPassword ? "text" : "password"} name="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} required
+                <input 
+                  id="password"
+                  type={showPassword ? "text" : "password"} 
+                  name="password" 
+                  placeholder="Enter your password" 
+                  value={formData.password} 
+                  onChange={handleChange} 
+                  required
                   className={`w-full pl-12 pr-12 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  aria-label={showPassword ? "Hide password" : "Show password"} 
+                  aria-pressed={showPassword}
                   className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 ${mode === "dark" ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}>
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>

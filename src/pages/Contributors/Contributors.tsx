@@ -11,10 +11,11 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaCopy, FaCheck } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { GITHUB_REPO_CONTRIBUTORS_URL } from "../../utils/constants";
+import BackToTopButton from "../../components/Backtotop";
 
 interface Contributor {
   id: number;
@@ -28,7 +29,16 @@ const ContributorsPage = () => {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+const [copiedId, setCopiedId] = useState<number | null>(null);
 
+const handleCopy = async (contributor: Contributor) => {
+  await navigator.clipboard.writeText(contributor.html_url);
+  setCopiedId(contributor.id);
+
+  setTimeout(() => {
+    setCopiedId(null);
+  }, 2000);
+};
   // Fetch contributors from GitHub API
   useEffect(() => {
     const fetchContributors = async () => {
@@ -114,28 +124,44 @@ const ContributorsPage = () => {
                     </CardContent>
                     </Link>
 
-                    <Box sx={{ mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            startIcon={<FaGithub />}
-                            href={contributor.html_url}
-                            target="_blank"
-                            sx={{
-                                backgroundColor: "#333333",
-                                textTransform: "none",
-                                color: "#FFFFFF",
-                                "&:hover": {
-                                backgroundColor: "#555555",
-                                },
-                            }}
-                            >
-                            GitHub
-                        </Button>
-                    </Box>
+                  <Box sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 1 }}>
+  <Button
+    variant="contained"
+    startIcon={<FaGithub />}
+    href={contributor.html_url}
+    target="_blank"
+    sx={{
+      backgroundColor: "#333333",
+      textTransform: "none",
+      color: "#FFFFFF",
+      "&:hover": {
+        backgroundColor: "#555555",
+      },
+    }}
+  >
+    GitHub
+  </Button>
+
+  <Button
+    variant="outlined"
+    startIcon={copiedId === contributor.id ? <FaCheck /> : <FaCopy />}
+    onClick={() => handleCopy(contributor)}
+    sx={{
+      textTransform: "none",
+      transition: "all 0.3s ease",
+      "&:hover": {
+        transform: "scale(1.05)",
+      },
+    }}
+  >
+    {copiedId === contributor.id ? "Copied!" : "Copy"}
+  </Button>
+</Box>
                 </Card>
             </Grid>
           ))}
         </Grid>
+        <BackToTopButton/>
       </Container>
     </div>
   );

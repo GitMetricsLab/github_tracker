@@ -34,6 +34,7 @@ import { useGitHubData } from "../../hooks/useGitHubData";
 import { useDebounce } from "../../hooks/useDebounce";
 import { UserContext } from "../../context/UserContext";
 import { KeyIcon } from "lucide-react";
+import BackToTopButton from "../../components/Backtotop";
 
 const ROWS_PER_PAGE = 10;
 
@@ -279,6 +280,9 @@ const Home: React.FC = () => {
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
           <Select
+            id="state-select"
+            name="state-select"
+            autoComplete="off"
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
               tab === 0
@@ -300,7 +304,7 @@ const Home: React.FC = () => {
             <MenuItem value="open">Open</MenuItem>
             <MenuItem value="closed">Closed</MenuItem>
             {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
-          </Select>
+          </Select> 
         </FormControl>
       </Box>
 
@@ -376,6 +380,7 @@ const Home: React.FC = () => {
           </TableContainer>
         </Box>
       )}
+      <BackToTopButton/>
     </Container>
   );
 };

@@ -7,7 +7,8 @@ import {
   FaArrowRight,
   FaEnvelope,
   FaInfoCircle,
-  FaShieldAlt, // ✅ Added Privacy Icon
+  FaShieldAlt,
+  FaFileContract,
 } from 'react-icons/fa';
 
 function Footer() {
@@ -82,14 +83,21 @@ function Footer() {
                 About
               </Link>
 
-              {/* ✅ New Privacy Policy link integration */}
               <Link
-                to="/privacy"
-                className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              >
-                <FaShieldAlt className="h-3.5 w-3.5" />
-                Privacy Policy
-              </Link>
+  to="/privacy-policy"
+  className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+>
+  <FaShieldAlt className="h-3.5 w-3.5" />
+  Privacy Policy
+</Link>
+
+<Link
+  to="/terms-and-conditions"
+  className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+>
+  <FaFileContract className="h-3.5 w-3.5" />
+  Terms &amp; Conditions
+</Link>
             </div>
           </div>
 
@@ -103,24 +111,29 @@ function Footer() {
               onSubmit={handleSubscribe}
               className="flex flex-col sm:flex-row items-stretch gap-2"
             >
-              <input
-                type="email"
-                required
-                placeholder="Enter email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="
-                  flex-grow text-sm px-4 py-3
-                  bg-zinc-50 dark:bg-zinc-800/40
-                  border border-zinc-200 dark:border-zinc-700/50
-                  rounded-xl
-                  focus:outline-none focus:ring-2
-                  focus:ring-blue-500/20 focus:border-blue-500
-                  text-zinc-900 dark:text-white
-                  placeholder-zinc-400 dark:placeholder-zinc-500
-                  transition-all
-                "
-              />
+              <div className="relative flex-grow">
+                <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="Enter email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="
+                    w-full text-sm px-4 py-3
+                    bg-zinc-50 dark:bg-zinc-800/40
+                    border border-zinc-200 dark:border-zinc-700/50
+                    rounded-xl
+                    focus:outline-none focus:ring-2
+                    focus:ring-blue-500/20 focus:border-blue-500
+                    text-zinc-900 dark:text-white
+                    placeholder-zinc-400 dark:placeholder-zinc-500
+                    transition-all
+                  "
+                />
+              </div>
 
               <button
                 type="submit"

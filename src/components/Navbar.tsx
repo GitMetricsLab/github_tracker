@@ -41,10 +41,16 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-3">
-          <NavLink to="/" className={navLinkStyles}>
-            Home
-          </NavLink>
+          <a href="#home" className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500">
+  Home
+</a>
+<a href="/#features" className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500">
+  Features
+</a>
 
+<a href="/#how-it-works" className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500">
+  How It Works
+</a>
           <NavLink to="/track" className={navLinkStyles}>
             Tracker
           </NavLink>
@@ -107,13 +113,29 @@ const Navbar: React.FC = () => {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="px-6 py-5 flex flex-col gap-3">
 
-            <NavLink
-              to="/"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Home
-            </NavLink>
+            <a
+  href="#home"
+  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500"
+  onClick={closeMenu}
+>
+  Home
+</a>
+
+<a
+  href="/#features"
+  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500"
+  onClick={closeMenu}
+>
+  Features
+</a>
+
+<a
+  href="/#how-it-works"
+  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500"
+  onClick={closeMenu}
+>
+  How It Works
+</a>
 
             <NavLink
               to="/track"

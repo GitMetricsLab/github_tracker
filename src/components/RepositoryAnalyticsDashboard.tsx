@@ -57,7 +57,15 @@ interface DashboardProps {
   theme: Theme;
 }
 
-const COLORS = ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+// Use CSS variables so the tracker section follows the website theme
+const COLORS = [
+  'var(--color-primary)',
+  'var(--color-accent)',
+  'var(--color-success)',
+  'var(--color-danger)',
+  'var(--color-accent)',
+  'var(--color-primary)'
+];
 
 const formatMonthLabel = (date: Date) =>
   date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
@@ -182,36 +190,30 @@ const RepositoryAnalyticsDashboard = ({
       label: 'Total repositories',
       value: analytics.repoCount,
       icon: Database,
-      accentStart: '#2563eb',
-      accentEnd: '#06b6d4',
+      accentStart: 'var(--color-primary)',
+      accentEnd: 'var(--color-accent)',
     },
     {
       label: 'Total stars',
       value: analytics.totalStars,
       icon: Star,
-      accentStart: '#f59e0b',
-      accentEnd: '#f97316',
+      accentStart: 'var(--color-danger)',
+      accentEnd: 'var(--color-danger)',
     },
-    {
-      label: 'Total forks',
-      value: analytics.totalForks,
-      icon: GitFork,
-      accentStart: '#10b981',
-      accentEnd: '#14b8a6',
-    },
+    // forks card intentionally removed to keep the summary concise and horizontal
     {
       label: 'Most used language',
       value: analytics.mostUsedLanguage,
       icon: Languages,
-      accentStart: '#8b5cf6',
-      accentEnd: '#d946ef',
+      accentStart: 'var(--color-accent)',
+      accentEnd: 'var(--color-accent)',
     },
     {
       label: 'Total contributions',
       value: totalContributions,
       icon: Activity,
-      accentStart: '#0ea5e9',
-      accentEnd: '#6366f1',
+      accentStart: 'var(--color-primary)',
+      accentEnd: 'var(--color-accent)',
     },
   ];
 
@@ -264,7 +266,7 @@ const RepositoryAnalyticsDashboard = ({
           p: { xs: 3, md: 4 },
           borderRadius: 6,
           color: 'white',
-          background: 'linear-gradient(135deg, rgba(15,23,42,0.98), rgba(29,78,216,0.92) 45%, rgba(8,145,178,0.9))',
+          background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
           boxShadow: '0 24px 80px rgba(15,23,42,0.24)',
           border: '1px solid rgba(255,255,255,0.12)',
           position: 'relative',
@@ -293,7 +295,15 @@ const RepositoryAnalyticsDashboard = ({
 
           <Box sx={{ display: 'grid', gap: 2.5, gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.4fr) minmax(0, 0.9fr)' }, alignItems: 'end' }}>
             <Box>
-              <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1.05, maxWidth: 720 }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 900,
+                  lineHeight: 1.05,
+                  maxWidth: 720,
+                  fontSize: { xs: '1.4rem', md: '1.8rem' }, // slightly reduced on small and medium screens
+                }}
+              >
                 Track stars, forks, languages, and contribution momentum in one place.
               </Typography>
               <Typography sx={{ mt: 1.5, maxWidth: 760, color: 'rgba(255,255,255,0.8)' }}>
@@ -350,13 +360,11 @@ const RepositoryAnalyticsDashboard = ({
 
       <Box
         sx={{
-          display: 'grid',
+          display: 'flex',
           gap: 2,
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, minmax(0, 1fr))',
-            xl: 'repeat(5, minmax(0, 1fr))',
-          },
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'stretch',
+          justifyContent: 'space-between',
           mb: 3,
         }}
       >
@@ -370,7 +378,8 @@ const RepositoryAnalyticsDashboard = ({
               sx={{
                 p: 2.5,
                 borderRadius: 4,
-                height: '100%',
+                minWidth: { md: '18%' },
+                flex: { xs: '1 1 auto', md: '1 1 0' },
                 position: 'relative',
                 overflow: 'hidden',
                 background: theme.palette.background.paper,
@@ -387,14 +396,36 @@ const RepositoryAnalyticsDashboard = ({
                 },
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, pl: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, pl: 1 }}>
                 <Box>
-                  <Typography variant="caption" sx={{ letterSpacing: '0.18em', textTransform: 'uppercase', color: 'text.secondary' }}>
+                  <Typography sx={{ letterSpacing: '0.18em', textTransform: 'uppercase', color: 'text.secondary', fontSize: { xs: '0.65rem', md: '0.75rem' } }}>
                     {card.label}
                   </Typography>
-                  <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, lineHeight: 1 }}>
-                    {card.value}
-                  </Typography>
+                  {
+                    (() => {
+                      const isLanguage = card.label && card.label.toLowerCase().includes('language');
+                        const valueFont = isLanguage
+                          ? { xs: '1rem', md: 'clamp(1.1rem, 2.2vw, 1.6rem)' }
+                          : { xs: '1.6rem', md: '2.25rem' };
+                        return (
+                          <Typography
+                            title={isLanguage ? String(card.value) : undefined}
+                            sx={{
+                              mt: 1,
+                              fontWeight: 900,
+                              lineHeight: 1,
+                              fontSize: valueFont,
+                              whiteSpace: 'nowrap',
+                              overflow: 'visible',
+                              textOverflow: 'clip',
+                              maxWidth: '100%',
+                            }}
+                          >
+                            {card.value}
+                          </Typography>
+                        );
+                    })()
+                  }
                 </Box>
                 <Box
                   sx={{
@@ -427,19 +458,19 @@ const RepositoryAnalyticsDashboard = ({
               background:
                 theme.palette.mode === 'dark'
                   ? 'linear-gradient(180deg, rgba(15,23,42,0.78), rgba(15,23,42,0.96))'
-                  : 'linear-gradient(180deg, #ffffff, #f8fbff)',
+                  : 'linear-gradient(180deg, var(--color-surface), rgba(248,250,252,1))',
               border: `1px solid ${theme.palette.divider}`,
               boxShadow: '0 18px 40px rgba(15,23,42,0.06)',
               position: 'relative',
               overflow: 'hidden',
-              '&::after': {
+                '&::after': {
                 content: '""',
                 position: 'absolute',
                 left: 0,
                 top: 0,
                 right: 0,
                 height: 5,
-                background: 'linear-gradient(90deg, #2563eb, #06b6d4, #10b981)',
+                background: 'linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-success))',
               },
             }}
           >
@@ -465,9 +496,9 @@ const RepositoryAnalyticsDashboard = ({
                   <YAxis stroke={theme.palette.text.secondary} width={30} />
                   <Tooltip contentStyle={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 16, border: `1px solid ${theme.palette.divider}` }} />
                   <Legend />
-                  <Area type="monotone" dataKey="repositories" stroke="#2563eb" fill="#2563eb" fillOpacity={0.18} />
-                  <Line type="monotone" dataKey="stars" stroke="#f59e0b" strokeWidth={3} dot={false} />
-                  <Line type="monotone" dataKey="forks" stroke="#10b981" strokeWidth={3} dot={false} />
+                  <Area type="monotone" dataKey="repositories" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.18} />
+                  <Line type="monotone" dataKey="stars" stroke="var(--color-danger)" strokeWidth={3} dot={false} />
+                  <Line type="monotone" dataKey="forks" stroke="var(--color-success)" strokeWidth={3} dot={false} />
                 </ComposedChart>
               </ResponsiveContainer>
             ) : (
@@ -500,28 +531,67 @@ const RepositoryAnalyticsDashboard = ({
             </Box>
 
             {analytics.languageDistribution.length > 0 ? (
-              <ResponsiveContainer width="100%" height="82%">
+              <>
+                <ResponsiveContainer width="100%" height={"70%"}>
                 <PieChart>
+                  {/* compute language total for legend percentages */}
+                  {/* Pie: remove in-chart labels; use bottom legend instead */}
                   <Pie
                     data={analytics.languageDistribution}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
-                    cy="50%"
-                    outerRadius={120}
-                    innerRadius={68}
-                    paddingAngle={5}
+                    cy="42%"
+                    outerRadius={110}
+                    innerRadius={64}
+                    paddingAngle={6}
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${percent && percent > 0.1 ? `${Math.round(percent * 100)}%` : ''}`}
+                    label={false}
                   >
                     {analytics.languageDistribution.map((entry, index) => (
                       <Cell key={`${entry.name}-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip contentStyle={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 16, border: `1px solid ${theme.palette.divider}` }} />
-                  <Legend verticalAlign="bottom" />
+                  {/* Legend rendered below the chart (custom) */}
                 </PieChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+
+                {/* Custom legend placed inside the card so it always stays within bounds */}
+                <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 12, mt: 2 }}>
+                  {(() => {
+                    const languageTotal = analytics.languageDistribution.reduce((s, e) => s + (e.value ?? 0), 0);
+                    const topThree = analytics.languageDistribution.slice(0, 3);
+                    const othersCount = analytics.languageDistribution.length - topThree.length;
+
+                    return (
+                      <>
+                        {topThree.map((entry, index) => {
+                          const pct = languageTotal > 0 ? Math.round(((entry.value ?? 0) / languageTotal) * 100) : 0;
+                          const color = COLORS[index % COLORS.length];
+                          return (
+                            <Box key={entry.name} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Box sx={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
+                              <Typography variant="caption" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
+                                {entry.name} {pct}%
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+
+                        {othersCount > 0 && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(0,0,0,0.08)' }} />
+                            <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                              +{othersCount} others
+                            </Typography>
+                          </Box>
+                        )}
+                      </>
+                    );
+                  })()}
+                </Box>
+              </>
             ) : (
               <Box sx={{ display: 'grid', placeItems: 'center', height: '82%', borderRadius: 3, border: `1px dashed ${theme.palette.divider}` }}>
                 <Typography color="text.secondary">No language data available.</Typography>
@@ -540,7 +610,7 @@ const RepositoryAnalyticsDashboard = ({
               background:
                 theme.palette.mode === 'dark'
                   ? 'linear-gradient(180deg, rgba(15,23,42,0.72), rgba(15,23,42,0.94))'
-                  : 'linear-gradient(180deg, #ffffff, #f9fbff)',
+                  : 'linear-gradient(180deg, var(--color-surface), rgba(249,251,255,1))',
               border: `1px solid ${theme.palette.divider}`,
               boxShadow: '0 18px 40px rgba(15,23,42,0.06)',
             }}
@@ -559,15 +629,15 @@ const RepositoryAnalyticsDashboard = ({
                 <AreaChart data={weeklyCommitActivity.map((entry) => ({ label: formatWeekLabel(entry.week), commits: entry.commits }))}>
                   <defs>
                     <linearGradient id="commitFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.45} />
-                      <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.03} />
+                      <stop offset="5%" stopColor="var(--color-accent)" stopOpacity={0.45} />
+                      <stop offset="95%" stopColor="var(--color-accent)" stopOpacity={0.03} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.8} />
                   <XAxis dataKey="label" stroke={theme.palette.text.secondary} tickMargin={10} />
                   <YAxis stroke={theme.palette.text.secondary} width={30} />
                   <Tooltip contentStyle={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 16, border: `1px solid ${theme.palette.divider}` }} />
-                  <Area type="monotone" dataKey="commits" stroke="#06b6d4" strokeWidth={3} fill="url(#commitFill)" dot={{ r: 3 }} activeDot={{ r: 6 }} />
+                  <Area type="monotone" dataKey="commits" stroke="var(--color-accent)" strokeWidth={3} fill="url(#commitFill)" dot={{ r: 3 }} activeDot={{ r: 6 }} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
@@ -601,14 +671,19 @@ const RepositoryAnalyticsDashboard = ({
 
             {analytics.topRepositories.length > 0 ? (
               <ResponsiveContainer width="100%" height="84%">
-                <BarChart data={analytics.topRepositories}>
+                <BarChart data={analytics.topRepositories} margin={{ bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.8} />
-                  <XAxis dataKey="name" stroke={theme.palette.text.secondary} interval={0} angle={-15} textAnchor="end" height={70} tickMargin={10} />
+                  {/* hide x-axis ticks to avoid overlap; show name on hover via Tooltip */}
+                  <XAxis dataKey="name" stroke={theme.palette.text.secondary} interval={0} tick={false} />
                   <YAxis stroke={theme.palette.text.secondary} width={30} />
-                  <Tooltip contentStyle={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 16, border: `1px solid ${theme.palette.divider}` }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 16, border: `1px solid ${theme.palette.divider}` }}
+                    labelFormatter={(label) => `Repository: ${label}`}
+                    formatter={(value, name) => [value, name]}
+                  />
                   <Legend />
-                  <Bar dataKey="stars" fill="#f59e0b" radius={[10, 10, 0, 0]} />
-                  <Bar dataKey="forks" fill="#10b981" radius={[10, 10, 0, 0]} />
+                  <Bar dataKey="stars" fill="var(--color-danger)" radius={[10, 10, 0, 0]} />
+                  <Bar dataKey="forks" fill="var(--color-success)" radius={[10, 10, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (

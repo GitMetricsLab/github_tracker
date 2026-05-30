@@ -349,7 +349,8 @@ const Home: React.FC = () => {
       )}
 
       {isRepoTrackerTab ? (
-        <RepositoryAnalyticsDashboard
+        <div className="repo-tracker-theme">
+          <RepositoryAnalyticsDashboard
           totalIssues={totalIssues}
           totalPrs={totalPrs}
           repositories={repositories}
@@ -357,7 +358,8 @@ const Home: React.FC = () => {
           analyticsLoading={analyticsLoading}
           analyticsError={analyticsError}
           theme={theme}
-        />
+          />
+        </div>
       ) : loading ? (
         <Box display="flex" justifyContent="center" my={4}>
           <CircularProgress />

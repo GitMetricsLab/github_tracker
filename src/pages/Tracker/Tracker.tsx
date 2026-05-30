@@ -33,6 +33,7 @@ import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { KeyIcon } from "lucide-react";
+import RepositoryAnalyticsDashboard from "../../components/RepositoryAnalyticsDashboard";
 
 const ROWS_PER_PAGE = 10;
 
@@ -65,8 +66,13 @@ const Home: React.FC = () => {
     totalIssues,
     totalPrs,
     loading,
+    repositories,
+    weeklyCommitActivity,
+    analyticsLoading,
+    analyticsError,
     error: dataError,
     fetchData,
+    fetchRepositoryAnalytics,
   } = useGitHubData(getOctokit);
 
   const [tab, setTab] = useState(0);
@@ -78,6 +84,7 @@ const Home: React.FC = () => {
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const isRepoTrackerTab = tab === 2;
 
   // Fetch data when username, tab, or page changes
   useEffect(() => {
@@ -89,7 +96,17 @@ const Home: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+
+    const trimmedUsername = username.trim();
+
+    if (!trimmedUsername) {
+      return;
+    }
+
+    void Promise.all([
+      fetchData(trimmedUsername, 1, ROWS_PER_PAGE),
+      fetchRepositoryAnalytics(trimmedUsername),
+    ]);
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -295,6 +312,7 @@ const Home: React.FC = () => {
         >
           <Tab label={`Issues (${totalIssues})`} />
           <Tab label={`Pull Requests (${totalPrs})`} />
+          <Tab label="Repo Tracker" />
         </Tabs>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
@@ -330,7 +348,17 @@ const Home: React.FC = () => {
         </Alert>
       )}
 
-      {loading ? (
+      {isRepoTrackerTab ? (
+        <RepositoryAnalyticsDashboard
+          totalIssues={totalIssues}
+          totalPrs={totalPrs}
+          repositories={repositories}
+          weeklyCommitActivity={weeklyCommitActivity}
+          analyticsLoading={analyticsLoading}
+          analyticsError={analyticsError}
+          theme={theme}
+        />
+      ) : loading ? (
         <Box display="flex" justifyContent="center" my={4}>
           <CircularProgress />
         </Box>

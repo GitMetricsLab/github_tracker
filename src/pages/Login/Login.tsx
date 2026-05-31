@@ -5,6 +5,7 @@ import { ArrowRight, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import AuthShell from "../../components/AuthShell";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
@@ -20,6 +21,7 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
+  const authContext = useContext(AuthContext);
   const { mode } = themeContext;
 
   const highlights = [
@@ -47,6 +49,7 @@ const Login: React.FC = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
+        authContext?.handleLoginSuccess(response.data.user);
         navigate("/");
       }
     } catch (error: unknown) {

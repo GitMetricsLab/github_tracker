@@ -52,10 +52,20 @@ const Navbar: React.FC = () => {
           <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
           </NavLink>
-
+        {localStorage.getItem("token") ? (
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.reload();
+            }}
+            className={navLinkStyles({ isActive: false })}>
+            Logout
+          </button>
+        ) : (
           <NavLink to="/login" className={navLinkStyles}>
             Login
           </NavLink>
+        )}
 
           {/* Theme Toggle */}
           <button
@@ -130,7 +140,26 @@ const Navbar: React.FC = () => {
             >
               Contributors
             </NavLink>
-
+            {localStorage.getItem("token") ? (
+              <button
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  closeMenu();
+                  window.location.reload(); 
+                }}
+                className={navLinkStyles({ isActive: false })}
+              >
+                Logout
+              </button>
+            ) : (
+              <NavLink
+                to="/login"
+                className={navLinkStyles}
+                onClick={closeMenu}
+              >
+                Login
+              </NavLink>
+            )}
             <NavLink
               to="/login"
               className={navLinkStyles}

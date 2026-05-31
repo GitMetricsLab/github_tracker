@@ -35,8 +35,7 @@ import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import ContributionRecommender from "../../components/ContributionRecommender";
 import { KeyIcon } from "lucide-react";
-import Dashboard from "../../components/Dashboard";
-
+import RepositoryAnalyticsDashboard from "../../components/RepositoryAnalyticsDashboard";
 
 const ROWS_PER_PAGE = 10;
 
@@ -100,10 +99,15 @@ const Home: React.FC = () => {
     totalPrs,
     contributionScore,
     loading,
+    repositories,
+    weeklyCommitActivity,
+    analyticsLoading,
+    analyticsError,
     error: dataError,
     dailyActivity,
     dailyActivityLoaded,
     fetchData,
+    fetchRepositoryAnalytics,
   } = useGitHubData(getOctokit);
 
   const [tab, setTab] = useState(0);
@@ -116,6 +120,7 @@ const Home: React.FC = () => {
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const isRepoTrackerTab = tab === 2;
 
   // Fetch data after submit, then refresh when tab or page changes.
   useEffect(() => {
@@ -126,24 +131,18 @@ const Home: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
+    setPage(0);
+
     const trimmedUsername = username.trim();
 
     if (!trimmedUsername) {
       return;
     }
 
-    if (page !== 0) {
-      setPage(0);
-    }
-
-    if (submittedUsername !== trimmedUsername) {
-      setSubmittedUsername(trimmedUsername);
-      return;
-    }
-
-    if (page === 0) {
-      fetchData(trimmedUsername, 1, ROWS_PER_PAGE);
-    }
+    void Promise.all([
+      fetchData(trimmedUsername, 1, ROWS_PER_PAGE),
+      fetchRepositoryAnalytics(trimmedUsername),
+    ]);
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -430,6 +429,7 @@ const Home: React.FC = () => {
         >
           <Tab label={`Issues (${totalIssues})`} />
           <Tab label={`Pull Requests (${totalPrs})`} />
+          <Tab label="Repo Tracker" />
         </Tabs>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
@@ -468,89 +468,21 @@ const Home: React.FC = () => {
         </Alert>
       )}
 
-      <Paper
-        elevation={1}
-        sx={{
-          p: 2.5,
-          mb: 3,
-          backgroundColor: theme.palette.background.paper,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <Box>
-            <Typography variant="overline" color="text.secondary">
-              Contribution Score
-            </Typography>
-            <Typography variant="h3" component="p" sx={{ fontWeight: 700 }}>
-              {contributionScore.total}
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "repeat(2, minmax(0, 1fr))",
-                md: "repeat(4, minmax(120px, 1fr))",
-              },
-              gap: 2,
-              flex: 1,
-              minWidth: { xs: "100%", md: 0 },
-            }}
-          >
-            {scoreItems.map((item) => (
-              <Box
-                key={item.label}
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: 1,
-                  p: 1.5,
-                }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  {item.label}
-                </Typography>
-                <Typography variant="h6" component="p">
-                  {item.count}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {item.points} pts - {item.weight}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      </Paper>
-
-      {loading ? (
-        <Box sx={{padding:2}}>
-          {[1,2,3,4,5].map((row)=>(
-            <Box 
-            key={row}
-            sx={{
-              display:"flex",
-              marginBottom:2,
-              gap:2,
-            }}
-            >
-            <Skeleton variant="text" width={250}
-       height={35}/>
-            <Skeleton variant="rectangular" width={120}
-       height={35}/>
-            <Skeleton variant="rectangular" width={100}
-       height={35}/>
-            <Skeleton variant="rectangular" width={120}
-       height={35}/>
-            </Box>
-          ))}
+      {isRepoTrackerTab ? (
+        <div className="repo-tracker-theme">
+          <RepositoryAnalyticsDashboard
+          totalIssues={totalIssues}
+          totalPrs={totalPrs}
+          repositories={repositories}
+          weeklyCommitActivity={weeklyCommitActivity}
+          analyticsLoading={analyticsLoading}
+          analyticsError={analyticsError}
+          theme={theme}
+          />
+        </div>
+      ) : loading ? (
+        <Box display="flex" justifyContent="center" my={4}>
+          <CircularProgress />
         </Box>
       ) : (
         <>

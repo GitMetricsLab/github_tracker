@@ -1,8 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
-import AuthShell from "../../components/AuthShell";
+import { Eye, EyeOff } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 import { AuthContext } from "../../context/AuthContext";
@@ -18,6 +17,7 @@ const Login: React.FC = () => {
   const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
@@ -120,31 +120,41 @@ const Login: React.FC = () => {
             <div className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition focus-within:ring-2 ${mode === "dark" ? "border-white/10 bg-white/5 focus-within:ring-cyan-400/50" : "border-slate-200 bg-slate-50 focus-within:ring-cyan-500/30"}`}>
               <Lock className={`h-5 w-5 shrink-0 ${mode === "dark" ? "text-slate-400" : "text-slate-500"}`} />
               <input
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className={`w-full bg-transparent text-sm outline-none ${mode === "dark" ? "placeholder-slate-500 text-white" : "placeholder-slate-400 text-slate-900"}`}
-              />
-            </div>
-          </label>
+               type={showPassword ? "text" : "password"}
+               name="password"
+               autoComplete="current-password"
+               placeholder="Enter your password"
+               value={formData.password}
+               onChange={handleChange}
+               required
+               className={`w-full pl-4 pr-12 py-4 rounded-2xl focus:outline-none transition-all ${
+                 mode === "dark"
+                   ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                   : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+               }`}
+            />
+              <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+             </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isLoading ? "Signing in..." : "Sign in"}
-            {!isLoading && <ArrowRight className="h-4 w-4" />}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
 
-        {message && (
-          <div
-            className={`rounded-2xl border px-4 py-3 text-sm ${
+          {/* Message */}
+          {message && (
+            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
               message === "Login successful"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
                 : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"

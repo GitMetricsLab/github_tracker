@@ -66,20 +66,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <AuthShell
-      mode={mode}
-      badge="Welcome back"
-      title="Sign in to GitHubTracker"
-      subtitle="Pick up where you left off and keep tracking the people, repositories, and discussions that matter to you."
-      highlights={highlights}
-      footer={
-        <p className={`text-center text-sm ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>
-          Don't have an account?
-          <Link to="/signup" className="ml-1 font-semibold text-cyan-300 transition-colors hover:text-cyan-200">
-            Create one now
-          </Link>
-        </p>
-      }
+    <div
+      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${mode === "dark"
+        ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+        : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+        }`}
     >
       <div className="space-y-8">
         <div className="space-y-3 text-center sm:text-left">
@@ -95,6 +86,16 @@ const Login: React.FC = () => {
               Enter your credentials to continue to your dashboard.
             </p>
           </div>
+
+          <h1 className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${mode === "dark"
+            ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
+            : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
+            }`}>
+            GitHubTracker
+          </h1>
+          <p className={`${mode === "dark" ? "text-slate-300" : "text-gray-700"} text-lg font-medium`}>
+            Track your GitHub journey
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -110,7 +111,10 @@ const Login: React.FC = () => {
                 onChange={handleChange}
                 autoComplete="username"
                 required
-                className={`w-full bg-transparent text-sm outline-none ${mode === "dark" ? "placeholder-slate-500 text-white" : "placeholder-slate-400 text-slate-900"}`}
+                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                  }`}
               />
             </div>
           </label>
@@ -120,33 +124,27 @@ const Login: React.FC = () => {
             <div className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition focus-within:ring-2 ${mode === "dark" ? "border-white/10 bg-white/5 focus-within:ring-cyan-400/50" : "border-slate-200 bg-slate-50 focus-within:ring-cyan-500/30"}`}>
               <Lock className={`h-5 w-5 shrink-0 ${mode === "dark" ? "text-slate-400" : "text-slate-500"}`} />
               <input
-               type={showPassword ? "text" : "password"}
-               name="password"
-               autoComplete="current-password"
-               placeholder="Enter your password"
-               value={formData.password}
-               onChange={handleChange}
-               required
-               className={`w-full pl-4 pr-12 py-4 rounded-2xl focus:outline-none transition-all ${
-                 mode === "dark"
-                   ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                   : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-               }`}
-            />
-              <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-             </div>
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${mode === "dark"
+                  ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
+                  : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                  }`}
+              />
+            </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full border-2 py-4 px-6 rounded-2xl font-semibold shadow-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${mode === "dark"
+                  ? "bg-slate-900 text-white border-pink-400 focus:ring-4 focus:ring-pink-500/20 hover:bg-slate-800 hover:shadow-md"
+                  : "bg-slate-100 text-slate-900 border-pink-300 focus:ring-4 focus:ring-pink-200 hover:bg-slate-200 hover:shadow-md"
+                }`}
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
@@ -154,15 +152,11 @@ const Login: React.FC = () => {
 
           {/* Message */}
           {message && (
-            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
-              message === "Login successful"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
-                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
-            }`}
-          >
-            <div className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>{message}</p>
+            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${message === "Login successful"
+              ? "bg-green-500/20 text-green-300 border border-green-500/30"
+              : "bg-red-500/20 text-red-300 border border-red-500/30"
+              }`}>
+              {message}
             </div>
           </div>
         )}

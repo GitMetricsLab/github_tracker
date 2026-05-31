@@ -27,6 +27,7 @@ export default function ContributorProfile() {
       try {
         const userRes = await fetch(`https://api.github.com/users/${username}`);
         const userData = await userRes.json();
+        if (userData.message) throw new Error(userData.message);
         setProfile(userData);
 
         const prsRes = await fetch(

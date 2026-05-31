@@ -46,7 +46,7 @@ interface GitHubItem {
   html_url: string;
 }
 
-const Home: React.FC = () => {
+const Tracker: React.FC = () => {
 
   const theme = useTheme();
 
@@ -400,4 +400,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Tracker;

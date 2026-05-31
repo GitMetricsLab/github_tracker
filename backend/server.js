@@ -32,15 +32,18 @@ app.use(cors({
 
 // Middleware
 app.use(bodyParser.json());
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // Only send cookies over HTTPS in production
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', //Cross-domain cookies = 'none'
-        maxAge: 24 * 60 * 60 * 1000
-    }
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+    },
 }));
 app.use(passport.initialize());
 app.use(passport.session());

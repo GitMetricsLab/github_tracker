@@ -1,5 +1,4 @@
-import { CodingPersonaWidget } from '../../components/CodingPersonaWidget';
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -11,7 +10,6 @@ import {
   Container,
   Box,
   TextField,
-  Button,
   Paper,
   Table,
   TableBody,
@@ -30,14 +28,12 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Tooltip,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
-import { useGitHubProfile } from "../../hooks/useProfileData";
-import { useGitHubRepositories } from "../../hooks/useGithubRepos";
-import { useGitHubActivity } from "../../hooks/useGithubActivity";
-
+import ContributionRecommender from "../../components/ContributionRecommender";
 import { KeyIcon } from "lucide-react";
 import RepositoryAnalyticsDashboard from "../../components/RepositoryAnalyticsDashboard";
 
@@ -53,16 +49,46 @@ interface GitHubItem {
   html_url: string;
 }
 
+const LANGUAGE_COLORS: Record<string, string> = {
+  JavaScript: "#f1e05a",
+  TypeScript: "#3178c6",
+  Python: "#3572A5",
+  Java: "#b07219",
+  HTML: "#e34c26",
+  CSS: "#563d7c",
+  C: "#555555",
+  "C++": "#f34b7d",
+  "C#": "#178600",
+  PHP: "#4F5D95",
+  Ruby: "#701516",
+  Go: "#00ADD8",
+  Rust: "#dea584",
+  Kotlin: "#A97BFF",
+  Swift: "#F05138",
+};
+
+const getLanguageFromRepo = (repoName: string): string => {
+  const lowerRepo = repoName.toLowerCase();
+
+  if (lowerRepo.includes("react") || lowerRepo.includes("js")) return "JavaScript";
+  if (lowerRepo.includes("ts") || lowerRepo.includes("typescript")) return "TypeScript";
+  if (lowerRepo.includes("python") || lowerRepo.includes("py")) return "Python";
+  if (lowerRepo.includes("java")) return "Java";
+  if (lowerRepo.includes("html")) return "HTML";
+  if (lowerRepo.includes("css")) return "CSS";
+
+  return "Unknown";
+};
 const Home: React.FC = () => {
 
   const theme = useTheme();
+  const userContext = useContext(UserContext);
 
   const {
     username,
     setUsername,
     token,
     setToken,
-    error: authError,
     getOctokit,
   } = useGitHubAuth();
 
@@ -71,19 +97,23 @@ const Home: React.FC = () => {
     prs,
     totalIssues,
     totalPrs,
+    contributionScore,
     loading,
     repositories,
     weeklyCommitActivity,
     analyticsLoading,
     analyticsError,
     error: dataError,
+    dailyActivity,
+    dailyActivityLoaded,
     fetchData,
     fetchRepositoryAnalytics,
   } = useGitHubData(getOctokit);
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
-  const [hasFetched, setHasFetched] = useState(false);
+  const [submittedUsername, setSubmittedUsername] = useState("");
+
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
   const [searchTitle, setSearchTitle] = useState("");
@@ -92,12 +122,12 @@ const Home: React.FC = () => {
   const [endDate, setEndDate] = useState("");
   const isRepoTrackerTab = tab === 2;
 
-  // Fetch data when tab or page changes
+  // Fetch data after submit, then refresh when tab or page changes.
   useEffect(() => {
-    if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+    if (submittedUsername) {
+      fetchData(submittedUsername, page + 1, ROWS_PER_PAGE);
     }
-  }, [tab, page]);
+  }, [fetchData, page, submittedUsername, tab]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -116,6 +146,7 @@ const Home: React.FC = () => {
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
+
     setPage(newPage);
   };
 
@@ -185,6 +216,32 @@ const Home: React.FC = () => {
   const currentRawData = tab === 0 ? issues : prs;
   const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
   const totalCount = tab === 0 ? totalIssues : totalPrs;
+  const scoreItems = [
+    {
+      label: "Merged PRs",
+      count: contributionScore.mergedPrs,
+      points: contributionScore.mergedPrs * 5,
+      weight: "+5 each",
+    },
+    {
+      label: "Open PRs",
+      count: contributionScore.openPrs,
+      points: contributionScore.openPrs * 2,
+      weight: "+2 each",
+    },
+    {
+      label: "Closed PRs",
+      count: contributionScore.closedPrs,
+      points: contributionScore.closedPrs,
+      weight: "+1 each",
+    },
+    {
+      label: "Issues Created",
+      count: contributionScore.issuesCreated,
+      points: contributionScore.issuesCreated,
+      weight: "+1 each",
+    },
+  ];
 
   // const profileStats = useProfileData(
   //   issues,
@@ -265,7 +322,6 @@ const Home: React.FC = () => {
             label="GitHub Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required
             sx={{ flex: 1, minWidth: 150 }}
           />
           <TextField
@@ -273,54 +329,44 @@ const Home: React.FC = () => {
             value={token}
             onChange={(e) => setToken(e.target.value)}
             type="password"
-            required
             sx={{ flex: 1, minWidth: 150 }}
             helperText={
               <Box
-                  component="span"
-                  sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  fontSize: "0.75rem",
-                  }}
+                component="span"
+                sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: "0.75rem" }}
               >
-                  <Link
+                <Link
                   href="https://github.com/settings/tokens/new"
                   target="_blank"
                   rel="noopener noreferrer"
-                  sx={{
-                      fontSize: "0.75rem",
-                      textDecoration: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                  }}
-                  >
+                  sx={{ fontSize: "0.75rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 0.5 }}
+                >
                   <KeyIcon size={12} />
                   Generate new token
-                  </Link>
-
-                  <Box component="span" sx={{ opacity: 0.6 }}>
-                  •
-                  </Box>
-
-                  <Link
+                </Link>
+                <Box component="span" sx={{ opacity: 0.6 }}>•</Box>
+                <Link
                   href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
                   target="_blank"
                   rel="noopener noreferrer"
-                  sx={{
-                      fontSize: "0.75rem",
-                      textDecoration: "none",
-                  }}
-                  >
+                  sx={{ fontSize: "0.75rem", textDecoration: "none" }}
+                >
                   Learn more
-                  </Link>
+                </Link>
               </Box>
             }
           />
         </Box>
       </Paper>
+
+      {dailyActivityLoaded && <DailyActivityStatus {...dailyActivity} />}
+
+      {submittedUsername && (
+        <ContributionRecommender
+          username={submittedUsername}
+          getOctokit={getOctokit}
+        />
+      )}
 
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -388,6 +434,9 @@ const Home: React.FC = () => {
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
           <Select
+            id="state-select"
+            name="state-select"
+            autoComplete="off"
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
               tab === 0
@@ -409,13 +458,13 @@ const Home: React.FC = () => {
             <MenuItem value="open">Open</MenuItem>
             <MenuItem value="closed">Closed</MenuItem>
             {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
-          </Select>
+          </Select> 
         </FormControl>
       </Box>
 
-      {(authError || dataError) && (
+      {dataError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {authError || dataError}
+          {dataError}
         </Alert>
       )}
 
@@ -482,8 +531,38 @@ const Home: React.FC = () => {
 
 
                     <TableCell align="center">
-                      {item.repository_url.split("/").slice(-1)[0]}
-                    </TableCell>
+  {(() => {
+    const repoName = item.repository_url.split("/").slice(-1)[0];
+    const language = getLanguageFromRepo(repoName);
+    const color = LANGUAGE_COLORS[language] || "#9ca3af";
+
+    return (
+      <Tooltip title={`Language: ${language}`} arrow>
+        <Box
+          component="span"
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1,
+          }}
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              backgroundColor: color,
+              display: "inline-block",
+            }}
+          />
+          {repoName}
+        </Box>
+      </Tooltip>
+    );
+  })()}
+</TableCell>
 
                     <TableCell align="center">
                       {item.pull_request?.merged_at ? "merged" : item.state}
@@ -510,6 +589,7 @@ const Home: React.FC = () => {
         </Box>
         </>
       )}
+      <BackToTopButton/>
     </Container>
   );
 };

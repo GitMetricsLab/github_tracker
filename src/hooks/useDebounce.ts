@@ -1,19 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from 'react';
 
-// Inside your custom useDebounce hook function:
-const isMounted = useRef(true); 
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
-useEffect(() => {
-  isMounted.current = true; 
-
-  const handler = setTimeout(() => {
-    if (isMounted.current) {
+  useEffect(() => {
+    const handler = setTimeout(() => {
       setDebouncedValue(value);
-    }
-  }, delay);
+    }, delay);
 
-  return () => {
-    clearTimeout(handler);   
-    isMounted.current = false; 
-  };
-}, [value, delay]);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}

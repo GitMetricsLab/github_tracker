@@ -6,7 +6,7 @@ const MATRIX_CELLS = Array.from({ length: 21 }, (_, i) => i);
 
 const Hero = () => {
   return (
-    <section id="home" className="relative overflow-hidden bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white px-6 py-20 lg:py-32 min-h-[90vh] flex items-center transition-colors duration-500">
+    <section className="relative overflow-hidden bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white px-6 py-20 lg:py-32 min-h-[90vh] flex items-center transition-colors duration-500">
       
       {/* 1. Cyber Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />

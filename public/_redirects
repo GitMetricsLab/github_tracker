@@ -1,10 +1,2 @@
-# Don't redirect robots.txt and other static files
-/robots.txt /robots.txt 200
-/favicon.ico /favicon.ico 200
-/crl.png /crl.png 200
-/crl-icon.png /crl-icon.png 200
-/vite.svg /vite.svg 200
-
-# Catch-all SPA route handler
 /*    /index.html   200
 

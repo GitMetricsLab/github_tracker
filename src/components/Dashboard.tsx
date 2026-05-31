@@ -1,4 +1,3 @@
-import { CodingPersonaWidget } from './CodingPersonaWidget';
 import React from 'react';
 import {
   PieChart,
@@ -26,37 +25,22 @@ interface GitHubItem {
 }
 
 interface DashboardProps {
+  totalIssues: number;
+  totalPrs: number;
   data: GitHubItem[];
   theme: Theme;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ data, theme }) => {
+const Dashboard: React.FC<DashboardProps> = ({ totalIssues, totalPrs, data, theme }) => {
   
-  // Count states for state distribution chart
-  const openCount = data.filter(
-    item => item.state === 'open'
-  ).length;
-
-  const mergedCount = data.filter(
-    item => !!item.pull_request?.merged_at
-  ).length;
-
-  const closedCount = data.filter(
-    item => item.state === 'closed' && !item.pull_request?.merged_at
-  ).length;
-
   // Data for Pie Chart
   const pieData = [
-    { name: 'Open', value: openCount, color: theme.palette.success.main },
-    { name: 'Closed', value: closedCount, color: theme.palette.error.main },
+    { name: 'Issues', value: totalIssues },
+    { name: 'Pull Requests', value: totalPrs },
   ];
 
-  if (mergedCount > 0) {
-    pieData.push({ name: 'Merged', value: mergedCount, color: theme.palette.secondary.main });
-  }
-
-  // Filter out states with zero counts to avoid empty chart slices/labels
-  const activePieData = pieData.filter(d => d.value > 0);
+  // Use theme-aware colors
+  const COLORS = [theme.palette.primary.main, theme.palette.secondary.main];
 
   // Data for Bar Chart (Top 5 Repositories) - Improved safety
   const repoCounts: { [key: string]: number } = {};
@@ -78,7 +62,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, theme }) => {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  const hasData = data.length > 0;
+  const hasData = totalIssues > 0 || totalPrs > 0;
 
   if (!hasData) {
     return (
@@ -90,29 +74,19 @@ const Dashboard: React.FC<DashboardProps> = ({ data, theme }) => {
     );
   }
 
-  // 🌟 Filter data items dynamically into separate buckets for our calculator widget
-  const passingIssues = data.filter(item => !item.pull_request);
-  const passingPrs = data.filter(item => !!item.pull_request);
-
   return (
     <Box sx={{ mb: 4 }}>
-      
-      {/* 🌟 BRING IN OUR NEW CALCULATOR ROW (Placed cleanly right above the graphs grid container) */}
-      <Box sx={{ mb: 3 }}>
-        <CodingPersonaWidget issues={passingIssues} pullRequests={passingPrs} />
-      </Box>
-
       <Grid container spacing={3}>
         {/* Pie Chart: Issues vs PRs */}
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 2, height: 350, backgroundColor: theme.palette.background.paper }}>
             <Typography variant="h6" gutterBottom align="center" color="textPrimary">
-              State Distribution (Filtered Results)
+              Contribution Mix (Total)
             </Typography>
             <ResponsiveContainer width="100%" height="90%">
               <PieChart>
                 <Pie
-                  data={activePieData}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -122,8 +96,8 @@ const Dashboard: React.FC<DashboardProps> = ({ data, theme }) => {
                   dataKey="value"
                   label
                 >
-                  {activePieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  {pieData.map((_entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -139,7 +113,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, theme }) => {
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 2, height: 350, backgroundColor: theme.palette.background.paper }}>
             <Typography variant="h6" gutterBottom align="center" color="textPrimary">
-              Top Repositories (Filtered Results)
+              Top Repositories (Current View)
             </Typography>
             {barData.length > 0 ? (
               <ResponsiveContainer width="100%" height="90%">

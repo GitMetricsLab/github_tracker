@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
     const { username,  email, password } = req.body;
-
+                                   
     try {
         const existingUser = await User.findOne({
             $or: [{ email }, { username }],
@@ -30,6 +30,17 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
     }
 });
 
+// Session status route
+router.get("/me", (req, res) => {
+    const isAuthenticated = typeof req.isAuthenticated === "function" && req.isAuthenticated();
+
+    if (!isAuthenticated) {
+        return res.status(200).json({ authenticated: false, user: null });
+    }
+
+    return res.status(200).json({ authenticated: true, user: req.user });
+});
+
 // Login route
 router.post("/login", validateRequest(loginSchema), passport.authenticate('local'), (req, res) => {
     res.status(200).json( { message: 'Login successful', user: req.user } );
@@ -40,10 +51,18 @@ router.get("/logout", (req, res) => {
 
     req.logout((err) => {
 
-        if (err)
+        if (err) {
             return res.status(500).json({ message: 'Logout failed', error: err.message });
-        else
-            res.status(200).json({ message: 'Logged out successfully' });
+        }
+
+        req.session.destroy((sessionErr) => {
+            if (sessionErr) {
+                return res.status(500).json({ message: 'Logout failed', error: sessionErr.message });
+            }
+
+            res.clearCookie('connect.sid');
+            return res.status(200).json({ message: 'Logged out successfully' });
+        });
     });
 });
 

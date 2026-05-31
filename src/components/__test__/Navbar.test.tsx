@@ -35,6 +35,10 @@ const renderNavbar = (
 }
 
 describe('Navbar', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+  })
+
   // --- Rendering ---
   it('renders the GitHub Tracker logo link', () => {
     renderNavbar()
@@ -55,6 +59,15 @@ describe('Navbar', () => {
     expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /login/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /signup/i })).not.toBeInTheDocument()
+  })
+
+  it('shows profile dropdown trigger when a user is stored', () => {
+    window.localStorage.setItem('github_tracker_auth_user', JSON.stringify({ username: 'testuser', email: 'test@example.com' }))
+
+    renderNavbar()
+
+    expect(screen.queryByRole('link', { name: /login/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /testuser/i })).toBeInTheDocument()
   })
 
   // --- Theme toggle ---
@@ -82,8 +95,8 @@ describe('Navbar', () => {
     renderNavbar()
     const hamburger = screen.getByLabelText(/toggle menu/i)
     fireEvent.click(hamburger)
-    expect(screen.getAllByRole('link', { name: /login/i })).toHaveLength(2)
-    expect(screen.getAllByRole('link', { name: /signup/i })).toHaveLength(2)
+    expect(screen.getByRole('link', { name: /login/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /contributors/i })).toBeInTheDocument()
   })
 
   it('closes mobile menu when a nav link is clicked', () => {
@@ -97,9 +110,8 @@ describe('Navbar', () => {
 
   it('calls toggleTheme from the mobile menu button', () => {
     const { toggleTheme } = renderNavbar('dark')
-    const hamburger = screen.getByLabelText(/toggle menu/i)
-    fireEvent.click(hamburger)
-    fireEvent.click(screen.getAllByLabelText(/toggle theme/i)[1])
+    const themeBtn = screen.getAllByRole('button')[0]
+    fireEvent.click(themeBtn)
     expect(toggleTheme).toHaveBeenCalledTimes(1)
   })
 

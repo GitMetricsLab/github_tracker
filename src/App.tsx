@@ -5,6 +5,8 @@ import ScrollProgressBar from "./components/ScrollProgressBar";
 import ScrollNavigator from "./components/ScrollNavigator";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
+import ThemeWrapper from "./context/ThemeContext";
+import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 
 const FULLSCREEN_ROUTES = ["/signup", "/login"];
 
@@ -24,6 +26,8 @@ function App() {
         </main>
 
         {!isFullscreen && <Footer />}
+
+        <ChatbotWidget />
 
         <Toaster
           position="top-center"

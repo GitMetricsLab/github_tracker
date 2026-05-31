@@ -2,7 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-@keyframes how-it-works-dash-flow {
+/* =========================================================
+   ROOT DESIGN TOKENS
+========================================================= */
+
+:root {
+  --flow-primary: rgba(96, 165, 250, 0.78);
+  --flow-secondary: rgba(96, 165, 250, 0.08);
+
+  --flow-primary-light: rgba(59, 130, 246, 0.6);
+  --flow-secondary-light: rgba(59, 130, 246, 0.12);
+
+  --flow-shadow: 0 0 18px rgba(59, 130, 246, 0.24);
+  --flow-shadow-light: 0 0 14px rgba(59, 130, 246, 0.14);
+
+  --flow-radius: 9999px;
+
+  --flow-horizontal-size: 28px 2px;
+  --flow-vertical-size: 2px 28px;
+
+  --flow-animation-speed: 10s;
+
+  --success: #2ea44f;
+  --danger: #cf222e;
+  --primary: #0969da;
+}
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes flow-horizontal {
   from {
     background-position: 0 0;
   }
@@ -12,7 +42,7 @@
   }
 }
 
-@keyframes how-it-works-dash-flow-vertical {
+@keyframes flow-vertical {
   from {
     background-position: 0 0;
   }
@@ -22,70 +52,175 @@
   }
 }
 
-.how-it-works-flow-line {
+/* =========================================================
+   FLOW LINE BASE
+========================================================= */
+
+.flow-line {
+  position: relative;
+
   display: block;
+
+  border-radius: var(--flow-radius);
+
+  will-change: background-position;
+
+  transform: translateZ(0);
+
+  backface-visibility: hidden;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* =========================================================
+   HORIZONTAL FLOW LINE
+========================================================= */
+
+.flow-line--horizontal {
+  width: 100%;
   height: 2px;
-  border-radius: 9999px;
+
   background-image: repeating-linear-gradient(
     90deg,
-    rgba(96, 165, 250, 0.78) 0,
-    rgba(96, 165, 250, 0.78) 14px,
-    rgba(96, 165, 250, 0.08) 14px,
-    rgba(96, 165, 250, 0.08) 26px
+    var(--flow-primary) 0,
+    var(--flow-primary) 14px,
+    var(--flow-secondary) 14px,
+    var(--flow-secondary) 26px
   );
-  background-size: 28px 2px;
-  animation: how-it-works-dash-flow 10s linear infinite;
-  box-shadow: 0 0 18px rgba(59, 130, 246, 0.24);
+
+  background-size: var(--flow-horizontal-size);
+
+  animation:
+    flow-horizontal
+    var(--flow-animation-speed)
+    linear
+    infinite;
+
+  box-shadow: var(--flow-shadow);
 }
 
-.how-it-works-flow-line.light {
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(59, 130, 246, 0.6) 0,
-    rgba(59, 130, 246, 0.6) 12px,
-    rgba(59, 130, 246, 0.12) 12px,
-    rgba(59, 130, 246, 0.12) 24px
-  );
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.14);
-}
+/* =========================================================
+   VERTICAL FLOW LINE
+========================================================= */
 
-.how-it-works-flow-line.vertical {
+.flow-line--vertical {
   width: 2px;
   height: 100%;
+
   background-image: repeating-linear-gradient(
     180deg,
-    rgba(96, 165, 250, 0.78) 0,
-    rgba(96, 165, 250, 0.78) 14px,
-    rgba(96, 165, 250, 0.08) 14px,
-    rgba(96, 165, 250, 0.08) 26px
+    var(--flow-primary) 0,
+    var(--flow-primary) 14px,
+    var(--flow-secondary) 14px,
+    var(--flow-secondary) 26px
   );
-  background-size: 2px 28px;
-  animation: how-it-works-dash-flow-vertical 10s linear infinite;
+
+  background-size: var(--flow-vertical-size);
+
+  animation:
+    flow-vertical
+    var(--flow-animation-speed)
+    linear
+    infinite;
+
+  box-shadow: var(--flow-shadow);
 }
 
-.how-it-works-flow-line.vertical.light {
+/* =========================================================
+   LIGHT VARIANT
+========================================================= */
+
+.flow-line--light.flow-line--horizontal {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--flow-primary-light) 0,
+    var(--flow-primary-light) 12px,
+    var(--flow-secondary-light) 12px,
+    var(--flow-secondary-light) 24px
+  );
+
+  box-shadow: var(--flow-shadow-light);
+}
+
+.flow-line--light.flow-line--vertical {
   background-image: repeating-linear-gradient(
     180deg,
-    rgba(59, 130, 246, 0.6) 0,
-    rgba(59, 130, 246, 0.6) 12px,
-    rgba(59, 130, 246, 0.12) 12px,
-    rgba(59, 130, 246, 0.12) 24px
+    var(--flow-primary-light) 0,
+    var(--flow-primary-light) 12px,
+    var(--flow-secondary-light) 12px,
+    var(--flow-secondary-light) 24px
   );
+
+  box-shadow: var(--flow-shadow-light);
 }
 
+/* =========================================================
+   INTERACTIVE STATES
+========================================================= */
 
-.icon-merged {
-  color: #2ea44f; /* Or use your theme color */
+.flow-line:hover {
+  opacity: 0.9;
+  transform: scale(1.01);
 }
-.icon-pr-open {
-  color: #0969da;
+
+/* =========================================================
+   REDUCED MOTION ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-line--horizontal,
+  .flow-line--vertical {
+    animation: none;
+  }
 }
-.icon-pr-closed {
-  color: #cf222e;
+
+/* =========================================================
+   ICON STATES
+========================================================= */
+
+.icon {
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
 }
-.icon-issue-open {
-  color: #2ea44f;
+
+.icon:hover {
+  transform: scale(1.08);
 }
-.icon-issue-closed {
-  color: #cf222e;
+
+.icon--merged {
+  color: var(--success);
+}
+
+.icon--pr-open {
+  color: var(--primary);
+}
+
+.icon--pr-closed {
+  color: var(--danger);
+}
+
+.icon--issue-open {
+  color: var(--success);
+}
+
+.icon--issue-closed {
+  color: var(--danger);
+}
+
+/* =========================================================
+   DARK MODE SUPPORT
+========================================================= */
+
+.dark {
+  --flow-primary: rgba(147, 197, 253, 0.8);
+  --flow-secondary: rgba(147, 197, 253, 0.08);
+
+  --flow-primary-light: rgba(96, 165, 250, 0.6);
+  --flow-secondary-light: rgba(96, 165, 250, 0.1);
+
+  --flow-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
 }

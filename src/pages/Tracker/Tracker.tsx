@@ -49,37 +49,7 @@ interface GitHubItem {
   html_url: string;
 }
 
-const LANGUAGE_COLORS: Record<string, string> = {
-  JavaScript: "#f1e05a",
-  TypeScript: "#3178c6",
-  Python: "#3572A5",
-  Java: "#b07219",
-  HTML: "#e34c26",
-  CSS: "#563d7c",
-  C: "#555555",
-  "C++": "#f34b7d",
-  "C#": "#178600",
-  PHP: "#4F5D95",
-  Ruby: "#701516",
-  Go: "#00ADD8",
-  Rust: "#dea584",
-  Kotlin: "#A97BFF",
-  Swift: "#F05138",
-};
-
-const getLanguageFromRepo = (repoName: string): string => {
-  const lowerRepo = repoName.toLowerCase();
-
-  if (lowerRepo.includes("react") || lowerRepo.includes("js")) return "JavaScript";
-  if (lowerRepo.includes("ts") || lowerRepo.includes("typescript")) return "TypeScript";
-  if (lowerRepo.includes("python") || lowerRepo.includes("py")) return "Python";
-  if (lowerRepo.includes("java")) return "Java";
-  if (lowerRepo.includes("html")) return "HTML";
-  if (lowerRepo.includes("css")) return "CSS";
-
-  return "Unknown";
-};
-const Home: React.FC = () => {
+const Tracker: React.FC = () => {
 
   const theme = useTheme();
   const userContext = useContext(UserContext);
@@ -594,4 +564,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Tracker;

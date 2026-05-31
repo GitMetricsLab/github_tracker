@@ -104,7 +104,8 @@ const SignUp: React.FC = () => {
       const response = await axios.post(`${backendUrl}/api/auth/signup`, formData, { withCredentials: true });
       setMessage(response.data.message);
 
-      if (response.data.message === "User created successfully") {
+      // Navigate to login page after successful signup
+      if (response.status === 201) {
         navigate("/login");
       }
     } catch (error: unknown) {

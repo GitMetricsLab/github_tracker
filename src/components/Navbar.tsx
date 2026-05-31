@@ -86,27 +86,24 @@ const Navbar: React.FC = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <div
-          ref={navRef}
-          className="hidden md:flex items-center gap-1 relative"
-          onMouseLeave={handleMouseLeave}
-        >
-          {/* Sliding pill */}
-          <span
-            className="absolute top-0 h-full rounded-xl bg-gray-100 dark:bg-gray-800 pointer-events-none"
-            style={{
-              left: pillStyle.left,
-              width: pillStyle.width,
-              opacity: pillStyle.opacity,
-              transition: "left 0.2s ease, width 0.2s ease, opacity 0.15s ease",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              background:
-                mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.35)",
-              boxShadow:
-                mode === "dark" ? "0 4px 20px rgba(0,0,0,0.25)" : "0 4px 20px rgba(0,0,0,0.08)",
-            }}
-          />
+        <div className="hidden md:flex items-center gap-3">
+          <a href="#home" className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500">
+  Home
+</a>
+<a href="/#features" className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500">
+  Features
+</a>
+
+<a href="/#how-it-works" className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500">
+  How It Works
+</a>
+          <NavLink to="/track" className={navLinkStyles}>
+            Tracker
+          </NavLink>
+
+          <NavLink to="/contributors" className={navLinkStyles}>
+            Contributors
+          </NavLink>
 
           {navItems.map((item) => (
             <NavLink
@@ -162,22 +159,54 @@ const Navbar: React.FC = () => {
       {isOpen && (
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 ani-fade-in">
           <div className="px-6 py-5 flex flex-col gap-3">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                    isActive
-                      ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
-                      : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+
+            <a
+  href="#home"
+  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500"
+  onClick={closeMenu}
+>
+  Home
+</a>
+
+<a
+  href="/#features"
+  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500"
+  onClick={closeMenu}
+>
+  Features
+</a>
+
+<a
+  href="/#how-it-works"
+  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-slate-700 dark:text-gray-300 hover:text-blue-500"
+  onClick={closeMenu}
+>
+  How It Works
+</a>
+
+            <NavLink
+              to="/track"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Tracker
+            </NavLink>
+
+            <NavLink
+              to="/contributors"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Contributors
+            </NavLink>
+
+            <NavLink
+              to="/login"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Login
+            </NavLink>
           </div>
         </div>
       )}

@@ -55,7 +55,6 @@ const Home: React.FC = () => {
     setUsername,
     token,
     setToken,
-    error: authError,
     getOctokit,
   } = useGitHubAuth();
 
@@ -324,9 +323,9 @@ const Home: React.FC = () => {
         </FormControl>
       </Box>
 
-      {(authError || dataError) && (
+      {dataError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {authError || dataError}
+          {dataError}
         </Alert>
       )}
 

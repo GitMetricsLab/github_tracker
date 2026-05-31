@@ -23,6 +23,7 @@
     "@primer/octicons-react": "^19.25.0",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.7",
+    "connect-mongo": "^5.1.0",
     "express": "^5.2.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.525.0",

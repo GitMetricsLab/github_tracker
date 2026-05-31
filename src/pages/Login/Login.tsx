@@ -5,7 +5,7 @@ import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 import { AuthContext } from "../../context/AuthContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || ""; // Fallback to an empty string if VITE_BACKEND_URL is undefined to ensure relative routing
 
 interface LoginFormData {
   email: string;
@@ -33,7 +33,7 @@ const Login: React.FC = () => {
 
     try {
       const response = await axios.post(`${backendUrl}/api/auth/login`, formData, {
-        withCredentials: true,
+        withCredentials: true
       });
       setMessage(response.data.message);
 

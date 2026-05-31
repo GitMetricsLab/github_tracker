@@ -14,8 +14,11 @@ const logger = require('./logger');
 
 const app = express();
 
+// Enable trust proxy
+app.set('trust proxy', 1); 
+
 // CORS configuration
-const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
+const allowedOrigins = ['http://localhost:5173', 'https://github-spy.netlify.app']; // there was a typo error in the url, it is fixed now.
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -29,10 +32,16 @@ app.use(cors({
 
 // Middleware
 app.use(bodyParser.json());
-if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1);
-}
-app.use(session(createSessionConfig()));
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Only send cookies over HTTPS in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', //Cross-domain cookies = 'none'
+        maxAge: 24 * 60 * 60 * 1000
+    }
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 

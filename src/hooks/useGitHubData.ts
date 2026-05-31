@@ -21,6 +21,11 @@ interface FetchFilters {
   state?: string;
 }
 
+type PaginatedSearchResult = {
+  items: GitHubItem[];
+  total: number;
+};
+
 export const useGitHubData = (
   getOctokit: () => Octokit | null
 ) => {
@@ -43,36 +48,44 @@ export const useGitHubData = (
     perPage = 10,
     filters: FetchFilters = {}
   ) => {
-    let q = `author:${username} is:${type}`;
+    const queryParts: string[] = [
+      `author:${username}`,
+      `is:${type}`,
+    ];
 
     if (filters.search) {
-      q += ` ${filters.search} in:title`;
+      const escapedSearch =
+        filters.search.trim().replace(/"/g, '\\"');
+      queryParts.push(`in:title:"${escapedSearch}"`);
     }
 
     if (filters.repo) {
-      q += ` repo:${filters.repo}`;
+      queryParts.push(`repo:${filters.repo}`);
     }
 
     if (filters.startDate) {
-      q += ` created:>=${filters.startDate}`;
+      queryParts.push(`created:>=${filters.startDate}`);
     }
 
     if (filters.endDate) {
-      q += ` created:<=${filters.endDate}`;
+      queryParts.push(`created:<=${filters.endDate}`);
     }
 
     if (filters.state === 'open' || filters.state === 'closed') {
-      q += ` is:${filters.state}`;
+      queryParts.push(`is:${filters.state}`);
     }
 
     if (filters.state === 'merged' && type === 'pr') {
-      q += ` is:merged`;
+      queryParts.push('is:merged');
     }
+
+    const q = queryParts.join(' AND ');
 
     const response = await octokit.request(
       'GET /search/issues',
       {
         q,
+        advanced_search: true,
         sort: 'created',
         order: 'desc',
         per_page: perPage,
@@ -112,7 +125,7 @@ export const useGitHubData = (
         const shouldFetchPrs =
           activeTab === 'pr' || activeTab === 'both';
 
-        const requests: Promise<any>[] = [];
+        const requests: Promise<PaginatedSearchResult>[] = [];
 
         if (shouldFetchIssues) {
           requests.push(

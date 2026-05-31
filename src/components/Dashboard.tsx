@@ -1,3 +1,4 @@
+import { CodingPersonaWidget } from './CodingPersonaWidget';
 import React from 'react';
 import {
   PieChart,
@@ -74,8 +75,18 @@ const Dashboard: React.FC<DashboardProps> = ({ totalIssues, totalPrs, data, them
     );
   }
 
+  // 🌟 Filter data items dynamically into separate buckets for our calculator widget
+  const passingIssues = data.filter(item => !item.pull_request);
+  const passingPrs = data.filter(item => !!item.pull_request);
+
   return (
     <Box sx={{ mb: 4 }}>
+      
+      {/* 🌟 BRING IN OUR NEW CALCULATOR ROW (Placed cleanly right above the graphs grid container) */}
+      <Box sx={{ mb: 3 }}>
+        <CodingPersonaWidget issues={passingIssues} pullRequests={passingPrs} />
+      </Box>
+
       <Grid container spacing={3}>
         {/* Pie Chart: Issues vs PRs */}
         <Grid item xs={12} md={6}>

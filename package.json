@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "vitest",
+    "test:client": "vitest",
     "test:backend": "jasmine spec/**/*.spec.cjs",
     "preview": "vite preview",
     "docker:dev": "docker compose --profile dev up --build",

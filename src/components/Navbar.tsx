@@ -1,25 +1,21 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
+import { AuthContext } from "../context/AuthContext";
 import { Moon, Sun, Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const themeContext = useContext(ThemeContext);
-  if (!themeContext) return null;
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  if (!themeContext || !authContext) return null;
 
   const { toggleTheme, mode } = themeContext;
-  const storedUser = localStorage.getItem("user");
-  let user = null;
-
-  try {
-    user = storedUser ? JSON.parse(storedUser) : null;
-  } catch (error) {
-    console.error("Invalid user data in local Storage");
-    localStorage.removeItem("user");
-    user = null;
-  }
+  const { isAuthenticated, isLoading, logout } = authContext;
 
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${isActive
@@ -28,6 +24,17 @@ const Navbar: React.FC = () => {
     }`;
 
   const closeMenu = () => setIsOpen(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login", { replace: true });
+    } catch {
+      // optionally surface a toast/message
+    } finally {
+      closeMenu();
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300 backdrop-blur">
@@ -64,12 +71,27 @@ const Navbar: React.FC = () => {
           <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
           </NavLink>
-          {!user && (<NavLink
-            to="/login"
-            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
-          >
-            Login
-          </NavLink>)}
+
+          {!isLoading && !isAuthenticated && (
+            <>
+              <NavLink to="/login" className={navLinkStyles}>
+                Login
+              </NavLink>
+
+              <NavLink to="/signup" className={navLinkStyles}>
+                Signup
+              </NavLink>
+            </>
+          )}
+
+          {!isLoading && isAuthenticated && (
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-white bg-rose-500 hover:bg-rose-600 shadow-sm"
+            >
+              Logout
+            </button>
+          )}
 
           {user && <ProfileDropDown user={user} />}
           {/* Theme Toggle */}
@@ -175,10 +197,34 @@ const Navbar: React.FC = () => {
               </>
             )}
 
-            <NavLink to="/login" className={navLinkStyles} onClick={closeMenu}>
-              Login
-            </NavLink>
+            {!isLoading && !isAuthenticated && (
+              <>
+                <NavLink
+                  to="/login"
+                  className={navLinkStyles}
+                  onClick={closeMenu}
+                >
+                  Login
+                </NavLink>
 
+                <NavLink
+                  to="/signup"
+                  className={navLinkStyles}
+                  onClick={closeMenu}
+                >
+                  Signup
+                </NavLink>
+              </>
+            )}
+
+            {!isLoading && isAuthenticated && (
+              <button
+                onClick={handleLogout}
+                className="text-left px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-white bg-rose-500 hover:bg-rose-600 shadow-sm"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       )}

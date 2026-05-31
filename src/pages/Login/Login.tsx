@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -18,6 +19,7 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
+  const authContext = useContext(AuthContext);
   const { mode } = themeContext;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -36,16 +38,7 @@ const Login: React.FC = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
-        try {
-          localStorage.setItem(
-            "user",
-            JSON.stringify(response.data.user)
-          )
-        } catch (error) {
-          console.error("Failed to save user:", error)
-        }
-
-        navigate("/home")
+        authContext?.handleLoginSuccess(response.data.user);
         navigate("/");
       }
     } catch (error: unknown) {

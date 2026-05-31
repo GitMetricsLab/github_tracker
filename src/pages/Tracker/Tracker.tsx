@@ -39,6 +39,8 @@ import { useGitHubRepositories } from "../../hooks/useGithubRepos";
 import { useGitHubActivity } from "../../hooks/useGithubActivity";
 
 import { KeyIcon } from "lucide-react";
+import Dashboard from "../../components/Dashboard";
+
 
 const ROWS_PER_PAGE = 10;
 
@@ -428,7 +430,12 @@ const Home: React.FC = () => {
           ))}
         </Box>
       ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+        <>
+          <Dashboard
+            data={currentFilteredData}
+            theme={theme}
+          />
+          <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
 
@@ -495,6 +502,7 @@ const Home: React.FC = () => {
 
           </TableContainer>
         </Box>
+        </>
       )}
     </Container>
   );

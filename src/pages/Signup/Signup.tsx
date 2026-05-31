@@ -1,12 +1,12 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, User } from "lucide-react";
+import AuthShell from "../../components/AuthShell";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
 interface SignUpFormData {
   username: string;
@@ -32,9 +32,21 @@ const SignUp: React.FC = () => {
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
 
+  const highlights = [
+    {
+      title: "Quick setup",
+      description: "Create a profile in minutes and start organizing your GitHub activity right away.",
+    },
+    {
+      title: "Built-in validation",
+      description: "Clear feedback helps users enter a valid name, email, and stronger password from the start.",
+    },
+  ];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((previous) => ({ ...previous, [name]: value }));
+
     let errorMessage = "";
     if (name === "username") {
       if (!value.trim()) {
@@ -43,6 +55,7 @@ const SignUp: React.FC = () => {
         errorMessage = "Enter a valid GitHub username";
       }
     }
+
     if (name === "email") {
       if (!value.trim()) {
         errorMessage = "Email is required";
@@ -50,6 +63,7 @@ const SignUp: React.FC = () => {
         errorMessage = "Enter a valid email";
       }
     }
+
     if (name === "password") {
       if (!value.trim()) {
         errorMessage = "Password is required";
@@ -60,11 +74,13 @@ const SignUp: React.FC = () => {
           "Password must be 8+ characters with letters and numbers";
       }
     }
-    setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+
+    setErrors((previous) => ({ ...previous, [name]: errorMessage }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const usernameError = !formData.username.trim()
       ? "Username is required"
       : !/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(formData.username)
@@ -90,6 +106,7 @@ const SignUp: React.FC = () => {
       });
       return;
     }
+
     setIsLoading(true);
     try {
       const response = await axios.post(
@@ -113,12 +130,20 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
-        mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
-      }`}
+    <AuthShell
+      mode={mode}
+      badge="Start here"
+      title="Create your GitHubTracker account"
+      subtitle="Set up your profile once, then use the tracker, discussions, and contributor tools with a consistent sign-in."
+      highlights={highlights}
+      footer={
+        <p className={`text-center text-sm ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>
+          Already have an account?
+          <Link to="/login" className="ml-1 font-semibold text-cyan-300 transition-colors hover:text-cyan-200">
+            Sign in instead
+          </Link>
+        </p>
+      }
     >
       <div className="absolute inset-0">
         <div
@@ -260,6 +285,8 @@ const SignUp: React.FC = () => {
                 <p className="text-red-500 text-sm mt-2">{errors.password}</p>
               )}
             </div>
+            {errors.password && <p className="text-sm text-rose-600 dark:text-rose-300">{errors.password}</p>}
+          </label>
 
             <button
               type="submit"
@@ -289,15 +316,9 @@ const SignUp: React.FC = () => {
               </Link>
             </p>
           </div>
-        </motion.div>
+        )}
       </div>
-
-      <div
-        className={`${
-          mode === "dark" ? "from-slate-900" : "from-slate-100"
-        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
-      />
-    </div>
+    </AuthShell>
   );
 };
 

@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollProgressBar from "./components/ScrollProgressBar";
+import ScrollNavigator from "./components/ScrollNavigator";
 import { Toaster } from "react-hot-toast";
 import Router from "./Routes/Router";
 
@@ -16,8 +17,9 @@ function App() {
         {!isFullscreen && <ScrollProgressBar />}
 
         {!isFullscreen && <Navbar />}
+        <ScrollNavigator />
 
-        <main className={`flex justify-center items-center ${isFullscreen ? "flex-1" : "flex-grow bg-gray-50 dark:bg-gray-800"}`}>
+        <main className={`flex w-full flex-col ${isFullscreen ? "flex-1" : "flex-grow bg-gray-50 dark:bg-gray-800"}`}>
           <Router />
         </main>
 

@@ -89,3 +89,71 @@
 .icon-issue-closed {
   color: #cf222e;
 }
+
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity, transform;
+  transition-duration: 600ms;
+  transition-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transitioning,
+  html.theme-transitioning *,
+  html.theme-transitioning *::before,
+  html.theme-transitioning *::after {
+    transition-duration: 0ms;
+  }
+}
+
+@keyframes theme-icon-pop {
+  0% {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.75);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.theme-toggle-icon {
+  animation: theme-icon-pop 500ms ease-out;
+}
+
+/* ── Contribution Recommender Widget ─────────────────────────── */
+
+@keyframes recommender-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
+}
+
+@keyframes recommender-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.recommender-card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.recommender-card-hover:hover {
+  transform: translateY(-2px);
+}
+
+.agent-step-bar {
+  transition: background-color 0.4s ease;
+}

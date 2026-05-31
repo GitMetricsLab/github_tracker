@@ -23,6 +23,7 @@ import {
   Alert,
   Tabs,
   Tab,
+  Skeleton,
   Select,
   MenuItem,
   FormControl,
@@ -34,6 +35,8 @@ import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import ContributionRecommender from "../../components/ContributionRecommender";
 import { KeyIcon } from "lucide-react";
+import Dashboard from "../../components/Dashboard";
+
 
 const ROWS_PER_PAGE = 10;
 
@@ -194,17 +197,17 @@ const Home: React.FC = () => {
 
     if (item.pull_request) {
 
-        if (item.pull_request.merged_at)
-            return <GitMergeIcon size={16} className="icon-merged" />;
+      if (item.pull_request.merged_at)
+        return <GitMergeIcon size={16} className="icon-merged" />;
 
-        if (item.state === 'closed')
-            return <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />;
+      if (item.state === 'closed')
+        return <GitPullRequestClosedIcon size={16} className="icon-pr-closed" />;
 
-        return <GitPullRequestIcon size={16} className="icon-pr-open" />;
+      return <GitPullRequestIcon size={16} className="icon-pr-open" />;
     }
 
     if (item.state === 'closed')
-        return <IssueClosedIcon size={16} className="icon-issue-closed" />;
+      return <IssueClosedIcon size={16} className="icon-issue-closed" />;
 
     return <IssueOpenedIcon size={16} className="icon-issue-open" />;
   };
@@ -241,9 +244,79 @@ const Home: React.FC = () => {
     },
   ];
 
+  // const profileStats = useProfileData(
+  //   issues,
+  //   prs,
+  //   username
+  // )
+
+  const {
+    profile,
+    fetchProfile,
+  } = useGitHubProfile(getOctokit);
+
+  const {
+    repos,
+    totalStars,
+    totalForks,
+    topRepositories,
+    languages,
+    fetchRepositories,
+  } = useGitHubRepositories(getOctokit);
+
+  const {
+    activities,
+    fetchActivity
+  } = useGitHubActivity(getOctokit)
+  useEffect(() => {
+    if (
+      !profile ||
+      repos == null ||
+      activities == null
+    ) {
+      return;
+    }
+    try {
+      const gitHubDashBoard = {
+        profile,
+        repositories: {
+          repos,
+          totalStars,
+          totalForks,
+          topRepositories,
+          languages,
+        },
+        analytics: {
+          totalIssues,
+          totalPrs,
+        },
+        activities,
+      };
+      localStorage.setItem(
+        "githubDashboard",
+        JSON.stringify(gitHubDashBoard)
+      );
+    } catch (error) {
+      console.error(
+        "Something went wrong while saving profile or RepoStats.",
+        error
+      );
+    }
+  }, [
+    profile,
+    repos,
+    totalStars,
+    totalForks,
+    topRepositories,
+    languages,
+    totalIssues,
+    totalPrs,
+    activities,
+  ]);
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
-      {/* Auth Form */}
+      {/* Auth Input Controls */}
       <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
           <TextField
@@ -328,6 +401,14 @@ const Home: React.FC = () => {
         />
       </Box>
 
+      {/* 🌟 FIXED WIDGET ARRAY PROPS DATA PIPELINE 🌟 */}
+      {/* Feeds both dataset logs together seamlessly to prevent premature pagination caps */}
+      {!loading && (issues.length > 0 || prs.length > 0) && (
+        <Box sx={{ mb: 2 }}>
+          <CodingPersonaWidget issues={issues} pullRequests={prs} />
+        </Box>
+      )}
+
       {/* Tabs + State Filter */}
       <Box
         sx={{
@@ -367,7 +448,7 @@ const Home: React.FC = () => {
               backgroundColor: theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: "4px",
-              "& .MuiSelect-select": { padding: "10px" },
+              & .MuiSelect-select: { padding: "10px" },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                 borderColor: theme.palette.primary.main,
               },
@@ -450,11 +531,34 @@ const Home: React.FC = () => {
       </Paper>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
+        <Box sx={{padding:2}}>
+          {[1,2,3,4,5].map((row)=>(
+            <Box 
+            key={row}
+            sx={{
+              display:"flex",
+              marginBottom:2,
+              gap:2,
+            }}
+            >
+            <Skeleton variant="text" width={250}
+       height={35}/>
+            <Skeleton variant="rectangular" width={120}
+       height={35}/>
+            <Skeleton variant="rectangular" width={100}
+       height={35}/>
+            <Skeleton variant="rectangular" width={120}
+       height={35}/>
+            </Box>
+          ))}
         </Box>
       ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+        <>
+          <Dashboard
+            data={currentFilteredData}
+            theme={theme}
+          />
+          <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
 
           <TableContainer component={Paper}>
 
@@ -470,20 +574,27 @@ const Home: React.FC = () => {
               </TableHead>
 
               <TableBody>
-                {currentFilteredData.map((item) => (
+                {currentFilteredData.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      No GitHub activity found with current filters.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {hasFetched && currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
 
                     <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {getStatusIcon(item)}
-                        <Link
-                            href={item.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            underline="hover"
-                            sx={{ color: theme.palette.primary.main }}
-                        >
-                            {item.title}
-                        </Link>
+                      {getStatusIcon(item)}
+                      <Link
+                        href={item.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        sx={{ color: theme.palette.primary.main }}
+                      >
+                        {item.title}
+                      </Link>
                     </TableCell>
 
 
@@ -544,6 +655,7 @@ const Home: React.FC = () => {
 
           </TableContainer>
         </Box>
+        </>
       )}
       <BackToTopButton/>
     </Container>

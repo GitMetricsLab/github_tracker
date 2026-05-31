@@ -24,6 +24,7 @@ import {
   Alert,
   Tabs,
   Tab,
+  Skeleton,
   Select,
   MenuItem,
   FormControl,
@@ -75,7 +76,7 @@ const Home: React.FC = () => {
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
-
+  const [hasFetched, setHasFetched] = useState(false);
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
   const [searchTitle, setSearchTitle] = useState("");
@@ -97,6 +98,7 @@ const Home: React.FC = () => {
     fetchRepositories(username);
     fetchActivity(username);
     fetchData(username, 1, ROWS_PER_PAGE);
+    setHasFetched(true);
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -395,8 +397,26 @@ const Home: React.FC = () => {
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
+        <Box sx={{padding:2}}>
+          {[1,2,3,4,5].map((row)=>(
+            <Box 
+            key={row}
+            sx={{
+              display:"flex",
+              marginBottom:2,
+              gap:2,
+            }}
+            >
+            <Skeleton variant="text" width={250}
+       height={35}/>
+            <Skeleton variant="rectangular" width={120}
+       height={35}/>
+            <Skeleton variant="rectangular" width={100}
+       height={35}/>
+            <Skeleton variant="rectangular" width={120}
+       height={35}/>
+            </Box>
+          ))}
         </Box>
       ) : (
         <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
@@ -415,7 +435,14 @@ const Home: React.FC = () => {
               </TableHead>
 
               <TableBody>
-                {currentFilteredData.map((item) => (
+                {currentFilteredData.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      No GitHub activity found with current filters.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {hasFetched && currentFilteredData.map((item) => (
                   <TableRow key={item.id}>
 
                     <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

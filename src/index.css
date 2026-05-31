@@ -90,87 +90,70 @@
   color: #cf222e;
 }
 
-/* Navbar Container */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  flex-wrap: wrap;
-  width: 100%;
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity, transform;
+  transition-duration: 600ms;
+  transition-timing-function: ease-in-out;
 }
 
-/* Navigation Links */
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  list-style: none;
-  flex-wrap: wrap;
-}
-
-/* Nav Link Styling */
-.nav-links a {
-  text-decoration: none;
-  font-size: 1rem;
-  transition: 0.3s ease;
-}
-
-/* Better Hover Effect */
-.nav-links a:hover {
-  opacity: 0.8;
-}
-
-/* Tablet Responsiveness */
-@media screen and (max-width: 992px) {
-  .navbar {
-    padding: 1rem;
-  }
-
-  .nav-links {
-    gap: 1rem;
-  }
-
-  .nav-links a {
-    font-size: 0.95rem;
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transitioning,
+  html.theme-transitioning *,
+  html.theme-transitioning *::before,
+  html.theme-transitioning *::after {
+    transition-duration: 0ms;
   }
 }
 
-/* Mobile Responsiveness */
-@media screen and (max-width: 768px) {
-
-  .navbar {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+@keyframes theme-icon-pop {
+  0% {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.75);
   }
 
-  .nav-links {
-    justify-content: center;
-    margin-top: 1rem;
-    gap: 0.8rem;
-  }
-
-  .nav-links a {
-    font-size: 0.9rem;
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
   }
 }
 
-/* Small Mobile Devices */
-@media screen and (max-width: 480px) {
+.theme-toggle-icon {
+  animation: theme-icon-pop 500ms ease-out;
+}
 
-  .navbar {
-    padding: 0.8rem;
-  }
+/* ── Contribution Recommender Widget ─────────────────────────── */
 
-  .nav-links {
-    flex-direction: column;
-    width: 100%;
+@keyframes recommender-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
   }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
+}
 
-  .nav-links a {
-    width: 100%;
-    display: block;
-    padding: 0.5rem 0;
+@keyframes recommender-shimmer {
+  0% {
+    left: -100%;
   }
+  100% {
+    left: 200%;
+  }
+}
+
+.recommender-card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.recommender-card-hover:hover {
+  transform: translateY(-2px);
+}
+
+.agent-step-bar {
+  transition: background-color 0.4s ease;
 }

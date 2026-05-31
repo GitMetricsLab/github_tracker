@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 1
+
++Sitemap: https://github-spy.netlify.app/sitemap.xml

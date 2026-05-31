@@ -39,7 +39,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-zinc-200 dark:border-zinc-800/60">
 
           {/* Brand */}
-          <div className="lg:col-span-5 flex flex-col space-y-4">
+          <div className="lg:col-span-4 flex flex-col space-y-4">
             <Link
               to="/"
               className="flex items-center space-x-3 text-xl font-bold tracking-tight group w-fit"
@@ -94,51 +94,76 @@ function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div className="lg:col-span-4 space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-white">
-              Subscribe
-            </h3>
+          <div className="lg:col-span-5">
+            <div className="
+              p-6 md:p-8 rounded-2xl relative overflow-hidden
+              border border-zinc-200/80 dark:border-zinc-800/60
+              bg-zinc-50/50 dark:bg-zinc-900/30 backdrop-blur-sm
+              flex flex-col space-y-4
+            ">
+              {/* Subtle background gradient to match design language */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-transparent pointer-events-none" />
 
-            <form
-              onSubmit={handleSubscribe}
-              className="flex flex-col sm:flex-row items-stretch gap-2"
-            >
-              <input
-                type="email"
-                required
-                placeholder="Enter email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="
-                  flex-grow text-sm px-4 py-3
-                  bg-zinc-50 dark:bg-zinc-800/40
-                  border border-zinc-200 dark:border-zinc-700/50
-                  rounded-xl
-                  focus:outline-none focus:ring-2
-                  focus:ring-blue-500/20 focus:border-blue-500
-                  text-zinc-900 dark:text-white
-                  placeholder-zinc-400 dark:placeholder-zinc-500
-                  transition-all
-                "
-              />
+              <div className="relative z-10 flex flex-col space-y-3">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 rounded-full border border-blue-100 dark:border-blue-900/30 w-fit">
+                  <FaEnvelope className="h-3 w-3" />
+                  <span>Newsletter</span>
+                </span>
 
-              <button
-                type="submit"
-                className="
-                  px-5 py-3 text-sm font-bold
-                  bg-blue-600 hover:bg-blue-700
-                  text-white rounded-xl shadow-sm
-                  active:scale-[0.98]
-                  transition-all duration-300
-                  hover:shadow-lg hover:shadow-blue-500/20
-                  flex items-center justify-center gap-1.5
-                  whitespace-nowrap
-                "
+                <h3 className="text-lg md:text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                  Stay updated with GitHub Tracker
+                </h3>
+
+                <p className="text-xs md:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                  Get monthly insights, product updates, and repository analytics delivered directly to your inbox.
+                </p>
+              </div>
+
+              <form
+                onSubmit={handleSubscribe}
+                className="relative z-10 flex flex-col gap-3 w-full"
               >
-                <span>Subscribe</span>
-                <FaArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </form>
+                <div className="relative w-full">
+                  <input
+                    type="email"
+                    required
+                    placeholder="Enter email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="
+                      w-full text-sm px-4 py-3.5 pl-11
+                      bg-white dark:bg-zinc-900/60
+                      border border-zinc-200 dark:border-zinc-700/50
+                      rounded-xl
+                      focus:outline-none focus:ring-2
+                      focus:ring-blue-500/20 focus:border-blue-500
+                      text-zinc-900 dark:text-white
+                      placeholder-zinc-400 dark:placeholder-zinc-500
+                      transition-all
+                    "
+                    aria-label="Email address"
+                  />
+                  <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+                </div>
+
+                <button
+                  type="submit"
+                  className="
+                    w-full px-5 py-3.5 text-sm font-bold
+                    bg-blue-600 hover:bg-blue-700
+                    text-white rounded-xl shadow-md hover:shadow-lg
+                    active:scale-[0.98]
+                    transition-all duration-300
+                    hover:shadow-blue-500/20
+                    flex items-center justify-center gap-1.5
+                    whitespace-nowrap
+                  "
+                >
+                  <span>Subscribe Now</span>
+                  <FaArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </form>
+            </div>
           </div>
         </div>
 

@@ -53,8 +53,8 @@ const SignUp: React.FC = () => {
     if (name === "password") {
       if (!value.trim()) {
         errorMessage = "Password is required";
-      } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)) {
-        errorMessage = "Password must be 8+ characters with letters and numbers";
+      } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)) {
+        errorMessage = "Password must contain uppercase, lowercase, number, and special character";
       }
     }
     setErrors((prev) => ({ ...prev, [name]: errorMessage }));
@@ -64,9 +64,9 @@ const SignUp: React.FC = () => {
     e.preventDefault();
     const usernameError = !formData.username.trim()
       ? "Username is required"
-      : !/^[A-Za-z\s]+$/.test(formData.username)
-      ? "Only letters are allowed"
-      : "";
+      : !/^[a-zA-Z0-9_]+$/.test(formData.username)
+        ? "Username can only contain letters, numbers, and underscores"
+        : "";
     const emailError = !formData.email.trim()
       ? "Email is required"
       : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
@@ -74,9 +74,9 @@ const SignUp: React.FC = () => {
       : "";
     const passwordError = !formData.password.trim()
       ? "Password is required"
-      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(formData.password)
-      ? "Password must be 8+ characters with letters and numbers"
-      : "";
+      : !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(formData.password)
+        ? "Password must contain uppercase, lowercase, number, and special character"
+        : "";
     if (usernameError || emailError || passwordError) {
       setErrors({ username: usernameError, email: emailError, password: passwordError });
       return;
@@ -84,7 +84,8 @@ const SignUp: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
+        formData,
+        { withCredentials: true }
       );
       setMessage(response.data.message); // Show success message from backend
 

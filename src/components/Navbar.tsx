@@ -1,22 +1,30 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, Menu, X, Github } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const themeContext = useContext(ThemeContext);
-
   if (!themeContext) return null;
 
   const { toggleTheme, mode } = themeContext;
+  const storedUser = localStorage.getItem("user");
+  let user = null;
+
+  try {
+    user = storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    console.error("Invalid user data in local Storage");
+    localStorage.removeItem("user");
+    user = null;
+  }
 
   const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
-    `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
-      isActive
-        ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
-        : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
+    `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${isActive
+      ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
+      : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
     }`;
 
   const closeMenu = () => setIsOpen(false);
@@ -35,7 +43,6 @@ const Navbar: React.FC = () => {
             alt="CRL Icon"
             className="h-8 w-8 object-contain"
           />
-
           <span>GitHub Tracker</span>
         </Link>
 
@@ -49,14 +56,22 @@ const Navbar: React.FC = () => {
             Tracker
           </NavLink>
 
+          {/* ✅ NEW FEATURE */}
+          <NavLink to="/compare" className={navLinkStyles}>
+            Compare
+          </NavLink>
+
           <NavLink to="/contributors" className={navLinkStyles}>
             Contributors
           </NavLink>
-
-          <NavLink to="/login" className={navLinkStyles}>
+          {!user && (<NavLink
+            to="/login"
+            className="text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+          >
             Login
-          </NavLink>
+          </NavLink>)}
 
+          {user && <ProfileDropDown user={user} />}
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
@@ -107,37 +122,63 @@ const Navbar: React.FC = () => {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="px-6 py-5 flex flex-col gap-3">
 
-            <NavLink
-              to="/"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
+            <NavLink to="/" className={navLinkStyles} onClick={closeMenu}>
               Home
             </NavLink>
 
-            <NavLink
-              to="/track"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
+            <NavLink to="/track" className={navLinkStyles} onClick={closeMenu}>
               Tracker
             </NavLink>
 
-            <NavLink
-              to="/contributors"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Contributors
+            {/* ✅ NEW FEATURE */}
+            <NavLink to="/compare" className={navLinkStyles} onClick={closeMenu}>
+              Compare
             </NavLink>
 
-            <NavLink
-              to="/login"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
+            <NavLink to="/contributors" className={navLinkStyles} onClick={closeMenu}>
+              Contributors
+            </NavLink>
+            {!user && (
+              <NavLink
+                to="/login"
+                className="block text-lg font-medium hover:text-gray-300 transition-all px-2 py-1 border border-transparent hover:border-gray-400 rounded"
+                onClick={closeMenu}
+              >
+                Login
+              </NavLink>
+            )}
+            {user && (
+              <>
+                <NavLink
+                  to="/me"
+                  className={navLinkStyles}
+                  onClick={() => setIsOpen(false)}
+                >
+                  My Profile
+                </NavLink>
+
+                <NavLink
+                  to="/profile/edit"
+                  className={navLinkStyles}
+                  onClick={() => setIsOpen(false)}
+                >
+                  Edit Profile
+                </NavLink>
+                <button
+                  className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 shadow-sm text-start"
+                  onClick={
+                    logoutUser
+                  }
+                >
+                  Logout
+                </button>
+              </>
+            )}
+
+            <NavLink to="/login" className={navLinkStyles} onClick={closeMenu}>
               Login
             </NavLink>
+
           </div>
         </div>
       )}

@@ -6,17 +6,86 @@ import {
   Send,
   X,
   CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
+// Email validation regex - moved to module scope to avoid recreating on every render
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function Contact() {
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [errors, setErrors] = useState<{
+    fullName?: string;
+    email?: string;
+    subject?: string;
+    message?: string;
+  }>({});
+
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
 
-  const handleSubmit = async () => {
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email address is required";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.subject) {
+      newErrors.subject = "Subject is required";
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = "Message must be at least 10 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error for this field when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     // Simulate API call
@@ -24,6 +93,15 @@ function Contact() {
 
     setIsSubmitting(false);
     setShowPopup(true);
+
+    // Reset form and errors on successful submission
+    setFormData({
+      fullName: "",
+      email: "",
+      subject: "",
+      message: "",
+    });
+    setErrors({});
 
     // Auto-close popup after 5 seconds
     setTimeout(() => {
@@ -188,7 +266,9 @@ function Contact() {
           </div>
 
           {/* Contact Form */}
-          <div
+          <form
+            onSubmit={handleSubmit}
+            noValidate
             className={`p-4 sm:p-6 rounded-xl sm:rounded-3xl shadow-2xl h-full flex flex-col backdrop-blur-lg ${
               mode === "dark"
                 ? "bg-white/10 border border-white/20"
@@ -218,14 +298,27 @@ function Contact() {
                   </label>
                   <input
                     type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
                     placeholder="Enter your full name"
                     required
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 ${
+                      errors.fullName
+                        ? "focus:ring-red-500 border-red-500"
+                        : "focus:ring-purple-500"
+                    } ${
                       mode === "dark"
                         ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
                         : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
                     }`}
                   />
+                  {errors.fullName && (
+                    <div className="flex items-center gap-1 mt-1 text-red-500 text-xs">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.fullName}
+                    </div>
+                  )}
                 </div>
 
                 {/* Email */}
@@ -241,14 +334,27 @@ function Contact() {
                   </label>
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     placeholder="your.email@example.com"
                     required
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 ${
+                      errors.email
+                        ? "focus:ring-red-500 border-red-500"
+                        : "focus:ring-purple-500"
+                    } ${
                       mode === "dark"
                         ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
                         : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
                     }`}
                   />
+                  {errors.email && (
+                    <div className="flex items-center gap-1 mt-1 text-red-500 text-xs">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.email}
+                    </div>
+                  )}
                 </div>
 
                 {/* Subject */}
@@ -263,13 +369,19 @@ function Contact() {
                     Subject
                   </label>
                   <select
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 ${
+                      errors.subject
+                        ? "focus:ring-red-500 border-red-500"
+                        : "focus:ring-purple-500"
+                    } ${
                       mode === "dark"
                         ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
                         : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
                     }`}
                     required
-                    defaultValue=""
                   >
                     <option value="" disabled>
                       Select a subject
@@ -279,6 +391,12 @@ function Contact() {
                     <option>Feature Request</option>
                     <option>Other</option>
                   </select>
+                  {errors.subject && (
+                    <div className="flex items-center gap-1 mt-1 text-red-500 text-xs">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.subject}
+                    </div>
+                  )}
                 </div>
 
                 {/* Message */}
@@ -293,18 +411,31 @@ function Contact() {
                     Message
                   </label>
                   <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     placeholder="Type your message here..."
                     required
                     rows={4}
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base resize-none transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base resize-none transition-all duration-300 focus:outline-none focus:ring-2 ${
+                      errors.message
+                        ? "focus:ring-red-500 border-red-500"
+                        : "focus:ring-purple-500"
+                    } ${
                       mode === "dark"
                         ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
                         : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
                     }`}
                   ></textarea>
+                  {errors.message && (
+                    <div className="flex items-center gap-1 mt-1 text-red-500 text-xs">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.message}
+                    </div>
+                  )}
 
                   <button
-                    onClick={handleSubmit}
+                    type="submit"
                     disabled={isSubmitting}
                     className={`absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       isSubmitting
@@ -318,7 +449,7 @@ function Contact() {
                 </div>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 

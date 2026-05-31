@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import EmptyState from "./EmptyState";
 interface EventType {
   id: string;
   type: string;

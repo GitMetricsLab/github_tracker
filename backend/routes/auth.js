@@ -217,33 +217,15 @@ router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
 });
 
 // Logout route
-router.get("/logout", (req, res) => {
-
-    if (!getUseMongoAuth()) {
-        req.session.destroy((err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Logout failed', error: err.message });
-            }
-
-            return res.status(200).json({ message: 'Logged out successfully' });
-        });
-
-        return;
-    }
-
+router.post("/logout", (req, res) => {
     req.logout((err) => {
-
-        if (err) {
+        if (err)
             return res.status(500).json({ message: 'Logout failed', error: err.message });
-        }
-
-        req.session.destroy((sessionErr) => {
-            if (sessionErr) {
-                return res.status(500).json({ message: 'Logout failed', error: sessionErr.message });
-            }
-
+        req.session.destroy((destroyErr) => {
+            if (destroyErr)
+                return res.status(500).json({ message: 'Session cleanup failed', error: destroyErr.message });
             res.clearCookie('connect.sid');
-            return res.status(200).json({ message: 'Logged out successfully' });
+            res.status(200).json({ message: 'Logged out successfully' });
         });
     });
 });

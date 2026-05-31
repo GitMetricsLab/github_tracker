@@ -1,54 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Octokit } from '@octokit/core';
 
 export const useGitHubAuth = () => {
-  const [username, setUsername] = useState(() => sessionStorage.getItem('tracker_username') || '');
-  const [token, setToken] = useState(() => sessionStorage.getItem('tracker_token') || '');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState('');
+  const [token, setToken] = useState('');
 
-  useEffect(() => {
-    if (username) {
-      sessionStorage.setItem('tracker_username', username);
-    } else {
-      sessionStorage.removeItem('tracker_username');
+  const octokit = useMemo(() => {
+    if (!username) return null;
+    if(token){
+    return new Octokit({ auth: token });
     }
-    if (token) {
-      sessionStorage.setItem('tracker_token', token);
-    } else {
-      sessionStorage.removeItem('tracker_token');
-    }
+    return new Octokit();
   }, [username, token]);
 
-  const getOctokit = () => {
-    try {
-      setError('');
-      if (!username) return null;
-      if (token) {
-        return new Octokit({ auth: token });
-      }
-      return new Octokit();
-    } catch (err: any) {
-      setError(err instanceof Error ? err.message : String(err));
-      return null;
-    }
-  };
-
-  const logout = () => {
-    setUsername('');
-    setToken('');
-    setError('');
-    sessionStorage.removeItem('tracker_username');
-    sessionStorage.removeItem('tracker_token');
-  };
+  const getOctokit = () => octokit;
 
   return {
     username,
     setUsername,
     token,
     setToken,
-    error,
-    setError,
     getOctokit,
-    logout,
   };
 };

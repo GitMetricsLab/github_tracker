@@ -11,6 +11,7 @@ import ProfilePage from "../pages/Profile/ProfilePage.tsx";
 import EditProfilePage from "../pages/Profile/EditProfilePage.tsx";
 import Activity from "../pages/Activity.tsx";
 import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
+import RepoCompare from "../pages/RepoCompare/RepoCompare.tsx";
 
 const Router = () => {
   return (
@@ -26,6 +27,7 @@ const Router = () => {
       <Route path="/me" element={<ProfilePage />}></Route>
       <Route path="/profile/edit" element={<EditProfilePage />}></Route>
       <Route path="/activity" element={<Activity />} />
+      <Route path="/compare" element={<RepoCompare />} />
 
       {/* Privacy Policy page route */}
       <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -8,13 +8,14 @@ import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
 import Activity from "../pages/Activity.tsx"; 
-import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
+import PRAnalytics from "../pages/PRAnalytics/PRAnalytics.tsx";
 
 const Router = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/track" element={<Tracker />} />
+      <Route path="/pr-analytics" element={<PRAnalytics />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
       <Route path="/about" element={<About />} />

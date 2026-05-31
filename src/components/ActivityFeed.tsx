@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import EmptyState from "./EmptyState";
 interface EventType {
   id: string;
   type: string;
@@ -56,9 +56,14 @@ export default function ActivityFeed({ username }: { username: string }) {
       </h2>
 
       {loading ? (
-        <p className="text-center">Loading...</p>
+      <div className="text-center py-6 text-gray-500">
+        Fetching recent activity...
+        </div>
       ) : events.length === 0 ? (
-        <p className="text-center">No activity found</p>
+      <EmptyState
+        title="No activity found"
+        description="This user has no recent public GitHub activity."
+/>
       ) : (
         events.slice(0, 10).map((event) => (
           <div

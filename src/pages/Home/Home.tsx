@@ -4,10 +4,11 @@ import Features from "../../components/Features";
 
 function Home() {
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className="">
         <Hero />
         <Features />
         <HowItWorks />
+
     </div>
   )
 }

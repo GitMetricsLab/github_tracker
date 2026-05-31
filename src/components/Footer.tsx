@@ -1,91 +1,189 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaGithub, FaTwitter, FaDiscord, FaArrowRight, FaEnvelope } from 'react-icons/fa';
+import {
+  FaGithub,
+  FaTwitter,
+  FaDiscord,
+  FaArrowRight,
+  FaEnvelope,
+  FaInfoCircle,
+  FaShieldAlt, // ✅ Added Privacy Icon
+} from 'react-icons/fa';
 
 function Footer() {
   const [email, setEmail] = useState('');
 
   const handleSubscribe = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: wire up to backend
-    alert('Thanks — subscription received!');
+
+    // Replace with API call
+    alert('Thank you for subscribing!');
+
     setEmail('');
   };
 
   return (
-    <footer className="bg-slate-50 dark:bg-gray-900 text-slate-700 dark:text-slate-300 border-t border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-          <div className="md:col-span-4">
-            <Link to="/" className="flex items-center gap-3">
-              <img src="/crl-icon.png" alt="logo" className="h-10 w-10 object-contain" />
-              <span className="text-xl font-bold text-slate-900 dark:text-white">GitHub Tracker</span>
+    <footer
+      className="
+        w-full relative overflow-hidden transition-colors duration-300
+        border-t border-zinc-200 dark:border-zinc-800/80
+        bg-white dark:bg-[#0f172a]
+        font-sans select-none
+        before:absolute before:inset-0
+        before:bg-gradient-to-b before:from-blue-500/5
+        before:to-transparent before:pointer-events-none
+      "
+    >
+      <div className="max-w-7xl mx-auto px-8 pt-16 pb-10 relative z-10">
+        {/* Upper Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-zinc-200 dark:border-zinc-800/60">
+
+          {/* Brand */}
+          <div className="lg:col-span-5 flex flex-col space-y-4">
+            <Link
+              to="/"
+              className="flex items-center space-x-3 text-xl font-bold tracking-tight group w-fit"
+            >
+              <div className="p-2.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 rounded-xl shadow-sm group-hover:scale-105 transition-transform duration-200">
+                <FaGithub className="h-5 w-5" />
+              </div>
+
+              <span className="font-bold text-zinc-900 dark:text-zinc-50">
+                GitHub Tracker
+              </span>
             </Link>
 
-            <p className="mt-4 text-sm text-slate-600 dark:text-slate-400 max-w-xs">
-              Track repos, contributors and code activity with clear visualizations and quick insights.
+            <p className="text-sm leading-6 text-gray-600 dark:text-gray-400 max-w-sm">
+              Track repositories, analyze contributions, and explore GitHub
+              insights with a clean and intuitive interface.
             </p>
+          </div>
 
-            <div className="flex items-center gap-3 mt-4">
-              <a href="https://github.com/GitMetricsLab/github_tracker" target="_blank" rel="noreferrer" className="p-2 rounded-md text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                <FaGithub className="w-5 h-5" />
-              </a>
+          {/* Quick Links */}
+          <div className="lg:col-span-3 space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-white">
+              Quick Links
+            </h3>
 
-              <a href="#" className="p-2 rounded-md text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition">
-                <FaTwitter className="w-5 h-5" />
-              </a>
+            <div className="flex flex-col space-y-3">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <FaEnvelope className="h-3.5 w-3.5" />
+                Contact Us
+              </Link>
 
-              <a href="#" className="p-2 rounded-md text-slate-600 hover:text-indigo-500 dark:hover:text-indigo-400 transition">
-                <FaDiscord className="w-5 h-5" />
-              </a>
+              <Link
+                to="/about"
+                className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <FaInfoCircle className="h-3.5 w-3.5" />
+                About
+              </Link>
+
+              {/* ✅ New Privacy Policy link integration */}
+              <Link
+                to="/privacy"
+                className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <FaShieldAlt className="h-3.5 w-3.5" />
+                Privacy Policy
+              </Link>
             </div>
           </div>
 
-          <div className="md:col-span-5 grid grid-cols-2 gap-6">
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Product</h4>
-              <ul className="mt-3 space-y-2 text-sm">
-                <li><Link to="/track" className="hover:text-blue-600">Tracker</Link></li>
-                <li><Link to="/contributors" className="hover:text-blue-600">Contributors</Link></li>
-                <li><Link to="/community" className="hover:text-blue-600">Community</Link></li>
-              </ul>
-            </div>
+          {/* Newsletter */}
+          <div className="lg:col-span-4 space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-white">
+              Subscribe
+            </h3>
 
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Company</h4>
-              <ul className="mt-3 space-y-2 text-sm">
-                <li><Link to="/about" className="hover:text-blue-600">About</Link></li>
-                <li><Link to="/contact" className="hover:text-blue-600">Contact</Link></li>
-                <li><Link to="/privacy" className="hover:text-blue-600">Privacy</Link></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="md:col-span-3">
-            <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Get updates</h4>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Subscribe for release notes and highlights.</p>
-
-            <form onSubmit={handleSubscribe} className="mt-3 flex">
+            <form
+              onSubmit={handleSubscribe}
+              className="flex flex-col sm:flex-row items-stretch gap-2"
+            >
               <input
                 type="email"
+                required
+                placeholder="Enter email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                className="flex-1 px-3 py-2 rounded-l-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none"
+                className="
+                  flex-grow text-sm px-4 py-3
+                  bg-zinc-50 dark:bg-zinc-800/40
+                  border border-zinc-200 dark:border-zinc-700/50
+                  rounded-xl
+                  focus:outline-none focus:ring-2
+                  focus:ring-blue-500/20 focus:border-blue-500
+                  text-zinc-900 dark:text-white
+                  placeholder-zinc-400 dark:placeholder-zinc-500
+                  transition-all
+                "
               />
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-r-md flex items-center gap-2">
-                <span className="text-sm">Join</span>
-                <FaArrowRight className="w-4 h-4" />
+
+              <button
+                type="submit"
+                className="
+                  px-5 py-3 text-sm font-bold
+                  bg-blue-600 hover:bg-blue-700
+                  text-white rounded-xl shadow-sm
+                  active:scale-[0.98]
+                  transition-all duration-300
+                  hover:shadow-lg hover:shadow-blue-500/20
+                  flex items-center justify-center gap-1.5
+                  whitespace-nowrap
+                "
+              >
+                <span>Subscribe</span>
+                <FaArrowRight className="h-3.5 w-3.5" />
               </button>
             </form>
           </div>
         </div>
 
-        <div className="mt-10 border-t border-gray-200 dark:border-gray-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-slate-600 dark:text-slate-400">© {new Date().getFullYear()} GitHub Tracker. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <Link to="/terms" className="text-xs hover:text-blue-600">Terms</Link>
-            <Link to="/privacy" className="text-xs hover:text-blue-600">Privacy</Link>
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-6">
+
+          {/* Copyright */}
+          <div className="text-center md:text-left text-gray-600 dark:text-gray-400">
+            <p className="text-xs md:text-sm font-semibold">
+              &copy; {new Date().getFullYear()}{' '}
+              <span className="font-semibold">GitHub Tracker</span>. All rights reserved.
+            </p>
+          </div>
+
+          {/* Social Icons */}
+          <div className="flex items-center space-x-5">
+            <a
+              href="https://github.com/GitMetricsLab/github_tracker"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              aria-label="GitHub Repository"
+            >
+              <FaGithub className="h-6 w-6" />
+            </a>
+
+            <a
+              href="https://x.com/your_handle"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 dark:text-zinc-500 hover:text-sky-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              aria-label="Twitter"
+            >
+              <FaTwitter className="h-6 w-6" />
+            </a>
+
+            <a
+              href="https://discord.gg/your_invite"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-zinc-100 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+              aria-label="Discord"
+            >
+              <FaDiscord className="h-6 w-6" />
+            </a>
           </div>
         </div>
       </div>
@@ -94,4 +192,3 @@ function Footer() {
 }
 
 export default Footer;
-

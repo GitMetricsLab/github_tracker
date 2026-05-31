@@ -13,26 +13,6 @@ interface GitHubItem {
   html_url: string;
 }
 
-interface RepositorySummary {
-  id: number;
-  name: string;
-  full_name: string;
-  html_url: string;
-  created_at: string;
-  updated_at: string;
-  pushed_at: string;
-  stargazers_count: number;
-  forks_count: number;
-  language: string | null;
-  fork: boolean;
-  archived: boolean;
-}
-
-interface WeeklyCommitPoint {
-  week: number;
-  commits: number;
-}
-
 interface FetchFilters {
   search?: string;
   repo?: string;
@@ -41,77 +21,19 @@ interface FetchFilters {
   state?: string;
 }
 
-type PaginatedSearchResult = {
-  items: GitHubItem[];
-  total: number;
-};
-
 export const useGitHubData = (
   getOctokit: () => Octokit | null
 ) => {
   const [issues, setIssues] = useState<GitHubItem[]>([]);
   const [prs, setPrs] = useState<GitHubItem[]>([]);
-  const [repositories, setRepositories] = useState<RepositorySummary[]>([]);
-  const [weeklyCommitActivity, setWeeklyCommitActivity] = useState<WeeklyCommitPoint[]>([]);
   const [loading, setLoading] = useState(false);
-  const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [analyticsError, setAnalyticsError] = useState('');
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
 
   // Prevent stale responses overwriting latest data
   const lastRequestId = useRef(0);
-
-  const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
-
-  const fetchAllRepositories = async (octokit: Octokit, username: string) => {
-    const allRepositories: RepositorySummary[] = [];
-    let page = 1;
-
-    while (true) {
-      const response = await octokit.request('GET /users/{username}/repos', {
-        username,
-        per_page: 100,
-        page,
-        sort: 'updated',
-        direction: 'desc',
-      });
-
-      const pageRepositories = response.data as RepositorySummary[];
-      allRepositories.push(...pageRepositories);
-
-      if (pageRepositories.length < 100) {
-        break;
-      }
-
-      page += 1;
-    }
-
-    return allRepositories;
-  };
-
-  const fetchCommitParticipation = async (
-    octokit: Octokit,
-    owner: string,
-    repo: string
-  ) => {
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const response = await octokit.request('GET /repos/{owner}/{repo}/stats/participation', {
-        owner,
-        repo,
-      });
-
-      if (response.status !== 202 && Array.isArray(response.data?.weeks)) {
-        return response.data.weeks as Array<{ w: number; c: number }>;
-      }
-
-      await sleep(1000 * (attempt + 1));
-    }
-
-    return [] as Array<{ w: number; c: number }>;
-  };
 
   const fetchPaginated = async (
     octokit: Octokit,
@@ -121,44 +43,36 @@ export const useGitHubData = (
     perPage = 10,
     filters: FetchFilters = {}
   ) => {
-    const queryParts: string[] = [
-      `author:${username}`,
-      `is:${type}`,
-    ];
+    let q = `author:${username} is:${type}`;
 
     if (filters.search) {
-      const escapedSearch =
-        filters.search.trim().replace(/"/g, '\\"');
-      queryParts.push(`in:title:"${escapedSearch}"`);
+      q += ` ${filters.search} in:title`;
     }
 
     if (filters.repo) {
-      queryParts.push(`repo:${filters.repo}`);
+      q += ` repo:${filters.repo}`;
     }
 
     if (filters.startDate) {
-      queryParts.push(`created:>=${filters.startDate}`);
+      q += ` created:>=${filters.startDate}`;
     }
 
     if (filters.endDate) {
-      queryParts.push(`created:<=${filters.endDate}`);
+      q += ` created:<=${filters.endDate}`;
     }
 
     if (filters.state === 'open' || filters.state === 'closed') {
-      queryParts.push(`is:${filters.state}`);
+      q += ` is:${filters.state}`;
     }
 
     if (filters.state === 'merged' && type === 'pr') {
-      queryParts.push('is:merged');
+      q += ` is:merged`;
     }
-
-    const q = queryParts.join(' AND ');
 
     const response = await octokit.request(
       'GET /search/issues',
       {
         q,
-        advanced_search: true,
         sort: 'created',
         order: 'desc',
         per_page: perPage,
@@ -198,7 +112,7 @@ export const useGitHubData = (
         const shouldFetchPrs =
           activeTab === 'pr' || activeTab === 'both';
 
-        const requests: Promise<PaginatedSearchResult>[] = [];
+        const requests: Promise<any>[] = [];
 
         if (shouldFetchIssues) {
           requests.push(
@@ -325,90 +239,14 @@ export const useGitHubData = (
     [getOctokit, rateLimited]
   );
 
-  const fetchRepositoryAnalytics = useCallback(
-    async (username: string) => {
-      const octokit = getOctokit();
-
-      if (!octokit || !username.trim()) {
-        return;
-      }
-
-      setAnalyticsLoading(true);
-      setAnalyticsError('');
-
-      try {
-        const allRepositories = await fetchAllRepositories(octokit, username);
-        const nonForkRepositories = allRepositories.filter(
-          (repository) => !repository.archived && !repository.fork
-        );
-        const analyticsRepositories = nonForkRepositories.length > 0
-          ? nonForkRepositories
-          : allRepositories.filter((repository) => !repository.archived);
-
-        setRepositories(analyticsRepositories);
-
-        const topRepositories = [...analyticsRepositories]
-          .sort((left, right) => {
-            if (right.stargazers_count !== left.stargazers_count) {
-              return right.stargazers_count - left.stargazers_count;
-            }
-
-            return new Date(right.pushed_at).getTime() - new Date(left.pushed_at).getTime();
-          })
-          .slice(0, 5);
-
-        const weeklyTotals = new Map<number, number>();
-
-        await Promise.all(
-          topRepositories.map(async (repository) => {
-            try {
-              const participation = await fetchCommitParticipation(
-                octokit,
-                repository.full_name.split('/')[0],
-                repository.name
-              );
-
-              participation.forEach((entry) => {
-                weeklyTotals.set(
-                  entry.w,
-                  (weeklyTotals.get(entry.w) ?? 0) + entry.c
-                );
-              });
-            } catch {
-              return;
-            }
-          })
-        );
-
-        const sortedWeeklyActivity = Array.from(weeklyTotals.entries())
-          .sort((left, right) => left[0] - right[0])
-          .map(([week, commits]) => ({ week, commits }));
-
-        setWeeklyCommitActivity(sortedWeeklyActivity);
-      } catch {
-        setRepositories([]);
-        setWeeklyCommitActivity([]);
-        setAnalyticsError('Unable to load repository analytics.');
-      } finally {
-        setAnalyticsLoading(false);
-      }
-    },
-    [getOctokit]
-  );
-
   return {
     issues,
     prs,
-    repositories,
-    weeklyCommitActivity,
     totalIssues,
     totalPrs,
     loading,
-    analyticsLoading,
     error,
-    analyticsError,
     rateLimited,
     fetchData,
-    fetchRepositoryAnalytics,
   };
 };

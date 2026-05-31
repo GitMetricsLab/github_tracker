@@ -1,10 +1,13 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { ArrowRight, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import AuthShell from "../../components/AuthShell";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import { AuthContext } from "../../context/AuthContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
 interface LoginFormData {
   email: string;
@@ -18,7 +21,19 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
+  const authContext = useContext(AuthContext);
   const { mode } = themeContext;
+
+  const highlights = [
+    {
+      title: "Fast access",
+      description: "Jump back into your tracker, dashboards, and community activity in one step.",
+    },
+    {
+      title: "Secure session",
+      description: "Signed-in sessions use the same backend cookie flow your app already relies on.",
+    },
+  ];
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,10 +45,11 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, formData);
+      const response = await axios.post(`${backendUrl}/api/auth/login`, formData, { withCredentials: true });
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
+        authContext?.handleLoginSuccess(response.data.user);
         navigate("/");
       }
     } catch (error: unknown) {
@@ -48,118 +64,98 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
-        mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
-      }`}
+    <AuthShell
+      mode={mode}
+      badge="Welcome back"
+      title="Sign in to GitHubTracker"
+      subtitle="Pick up where you left off and keep tracking the people, repositories, and discussions that matter to you."
+      highlights={highlights}
+      footer={
+        <p className={`text-center text-sm ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>
+          Don't have an account?
+          <Link to="/signup" className="ml-1 font-semibold text-cyan-300 transition-colors hover:text-cyan-200">
+            Create one now
+          </Link>
+        </p>
+      }
     >
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className={`absolute -top-40 -right-40 w-96 h-96 ${mode === "dark" ? "bg-purple-500" : "bg-purple-300"} rounded-full blur-3xl opacity-30 animate-pulse`} />
-        <div className={`absolute -bottom-40 -left-40 w-96 h-96 ${mode === "dark" ? "bg-blue-500" : "bg-blue-300"} rounded-full blur-3xl opacity-30 animate-pulse`} />
-        <div className={`absolute top-40 left-40 w-96 h-96 ${mode === "dark" ? "bg-pink-500" : "bg-pink-300"} rounded-full blur-3xl opacity-30 animate-pulse`} />
-        <div className={`absolute top-1/2 right-1/4 w-64 h-64 ${mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"} rounded-full blur-2xl opacity-20 animate-pulse delay-1000`} />
-      </div>
-
-      <div className="relative w-full max-w-md px-4 sm:px-6">
-        {/* Branding */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
-            <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
+      <div className="space-y-8">
+        <div className="space-y-3 text-center sm:text-left">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300/90">
+            <Sparkles className="h-3.5 w-3.5" />
+            Secure login
           </div>
-
-          <h1 className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${
-            mode === "dark"
-              ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
-              : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
-          }`}>
-            GitHubTracker
-          </h1>
-          <p className={`${mode === "dark" ? "text-slate-300" : "text-gray-700"} text-lg font-medium`}>
-            Track your GitHub journey
-          </p>
+          <div>
+            <h2 className={`text-3xl font-semibold tracking-tight ${mode === "dark" ? "text-white" : "text-slate-950"}`}>
+              Welcome back
+            </h2>
+            <p className={`mt-2 text-sm leading-6 ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>
+              Enter your credentials to continue to your dashboard.
+            </p>
+          </div>
         </div>
 
-        {/* Form Card */}
-        <div className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${mode === "dark" ? "bg-white/10 backdrop-blur-xl border-white/20 text-white" : "bg-white border-gray-200 text-black"}`}>
-          <h2 className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"}`}>
-            Welcome Back
-          </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <label className="block space-y-2">
+            <span className={`text-sm font-medium ${mode === "dark" ? "text-slate-200" : "text-slate-700"}`}>Email address</span>
+            <div className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition focus-within:ring-2 ${mode === "dark" ? "border-white/10 bg-white/5 focus-within:ring-cyan-400/50" : "border-slate-200 bg-slate-50 focus-within:ring-cyan-500/30"}`}>
+              <Mail className={`h-5 w-5 shrink-0 ${mode === "dark" ? "text-slate-400" : "text-slate-500"}`} />
               <input
                 type="email"
                 name="email"
-                placeholder="Enter your email"
+                placeholder="name@example.com"
                 value={formData.email}
                 onChange={handleChange}
                 autoComplete="username"
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
-                  mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-                }`}
+                className={`w-full bg-transparent text-sm outline-none ${mode === "dark" ? "placeholder-slate-500 text-white" : "placeholder-slate-400 text-slate-900"}`}
               />
             </div>
+          </label>
 
-            <div className="relative">
+          <label className="block space-y-2">
+            <span className={`text-sm font-medium ${mode === "dark" ? "text-slate-200" : "text-slate-700"}`}>Password</span>
+            <div className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition focus-within:ring-2 ${mode === "dark" ? "border-white/10 bg-white/5 focus-within:ring-cyan-400/50" : "border-slate-200 bg-slate-50 focus-within:ring-cyan-500/30"}`}>
+              <Lock className={`h-5 w-5 shrink-0 ${mode === "dark" ? "text-slate-400" : "text-slate-500"}`} />
               <input
                 type="password"
                 name="password"
                 autoComplete="current-password"
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
-                  mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
-                }`}
+                className={`w-full bg-transparent text-sm outline-none ${mode === "dark" ? "placeholder-slate-500 text-white" : "placeholder-slate-400 text-slate-900"}`}
               />
             </div>
+          </label>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Signing in..." : "Sign In"}
-            </button>
-          </form>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading ? "Signing in..." : "Sign in"}
+            {!isLoading && <ArrowRight className="h-4 w-4" />}
+          </button>
+        </form>
 
-          {/* Message */}
-          {message && (
-            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
+        {message && (
+          <div
+            className={`rounded-2xl border px-4 py-3 text-sm ${
               message === "Login successful"
-                ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                : "bg-red-500/20 text-red-300 border border-red-500/30"
-            }`}>
-              {message}
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
+            }`}
+          >
+            <div className="flex items-start gap-2">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>{message}</p>
             </div>
-          )}
-
-          {/* Footer Text */}
-          <div className="text-center mt-8 pb-8">
-            <p className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}>
-              Don't have an account?
-              <Link
-                to="/signup"
-                className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"
-              >
-                Sign up here
-              </Link>
-            </p>
           </div>
-        </div>
+        )}
       </div>
-
-      <div className={`${mode === "dark" ? "from-slate-900" : "from-slate-100"} absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`} />
-    </div>
+    </AuthShell>
   );
 };
 

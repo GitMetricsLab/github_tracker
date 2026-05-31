@@ -72,26 +72,13 @@ const Navbar: React.FC = () => {
             Contributors
           </NavLink>
 
-          {!isLoading && !isAuthenticated && (
-            <>
-              <NavLink to="/login" className={navLinkStyles}>
-                Login
-              </NavLink>
+          <NavLink to="/community" className={navLinkStyles}>
+            Community
+          </NavLink>
 
-              <NavLink to="/signup" className={navLinkStyles}>
-                Signup
-              </NavLink>
-            </>
-          )}
-
-          {!isLoading && isAuthenticated && (
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 text-white bg-rose-500 hover:bg-rose-600 shadow-sm"
-            >
-              Logout
-            </button>
-          )}
+          <NavLink to="/login" className={navLinkStyles}>
+            Login
+          </NavLink>
 
           {user && <ProfileDropDown user={user} />}
           {/* Theme Toggle */}
@@ -157,8 +144,20 @@ const Navbar: React.FC = () => {
               Compare
             </NavLink>
 
-            <NavLink to="/contributors" className={navLinkStyles} onClick={closeMenu}>
-              Contributors
+            <NavLink
+              to="/community"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Community
+            </NavLink>
+
+            <NavLink
+              to="/login"
+              className={navLinkStyles}
+              onClick={closeMenu}
+            >
+              Login
             </NavLink>
             {!user && (
               <NavLink

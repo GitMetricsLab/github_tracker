@@ -9,12 +9,12 @@ passport.use(
             try {
                 const user = await User.findOne( {email} );
                 if (!user) {
-                    return done(null, false, { message: 'Email is invalid '});
+                    return done(null, false, { message: 'Invalid email or password' });
                 }
 
                 const isMatch = await user.comparePassword(password);
                 if (!isMatch) {
-                    return done(null, false, { message: 'Invalid password' });
+                    return done(null, false, { message: 'Invalid email or password' });
                 }
 
                 return done(null, {

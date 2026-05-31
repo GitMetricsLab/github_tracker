@@ -7,7 +7,8 @@ import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
-import Activity from "../pages/Activity.tsx"; 
+import Activity from "../pages/Activity.tsx";
+import Bookmarks from "../pages/Bookmarks";
 import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
 
 const Router = () => {
@@ -22,6 +23,7 @@ const Router = () => {
       <Route path="/contributors" element={<Contributors />} />
       <Route path="/contributor/:username" element={<ContributorProfile />} />
       <Route path="/activity" element={<Activity />} />
+      <Route path="/bookmarks" element={<Bookmarks />} />
 
       {/* Privacy Policy page route */}
       <Route path="/privacy" element={<PrivacyPolicy />} />

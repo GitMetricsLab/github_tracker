@@ -16,6 +16,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  bookmarks: [
+    {
+      githubUsername: { type: String, required: true },
+      avatarUrl: { type: String },
+      savedAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 // ✅ FIXED: no next()

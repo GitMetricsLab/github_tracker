@@ -1,10 +1,21 @@
-import { NavLink, Link } from "react-router-dom";
-import { useState, useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, Menu, X, Github } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
+
+const navItems = [
+  { label: "Home", to: "/", section: null },
+  { label: "Features", to: "/#features", section: "features" },
+  { label: "How It Works", to: "/#how-it-works", section: "how-it-works" },
+  { label: "Tracker", to: "/track", section: null },
+  { label: "Contributors", to: "/contributors", section: null },
+  { label: "Login", to: "/login", section: null },
+];
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
+  const location = useLocation();
 
   const themeContext = useContext(ThemeContext);
 
@@ -12,14 +23,59 @@ const Navbar: React.FC = () => {
 
   const { toggleTheme, mode } = themeContext;
 
-  const navLinkStyles = ({ isActive }: { isActive: boolean }) =>
-    `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${
-      isActive
-        ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
-        : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
+  const navLinkStyles = (isActive: boolean) =>
+    `px-4 py-2 rounded-xl text-sm lg:text-base font-semibold transition-all duration-300 ${isActive
+      ? "text-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-sm"
+      : "text-slate-700 dark:text-gray-300 hover:text-blue-500"
     }`;
 
   const closeMenu = () => setIsOpen(false);
+
+  useEffect(() => {
+    if (location.pathname !== "/") {
+      setActiveSection("");
+      return;
+    }
+
+    const sectionIds = ["features", "how-it-works"];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSection = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => (a.target as HTMLElement).offsetTop - (b.target as HTMLElement).offsetTop)[0];
+
+        if (visibleSection?.target?.id) {
+          setActiveSection(visibleSection.target.id);
+        }
+      },
+      {
+        threshold: 0.4,
+        rootMargin: "-30% 0px -55% 0px",
+      }
+    );
+
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [location.pathname]);
+
+  const getLinkActive = (item: { to: string; section: string | null }) => {
+    if (item.section) {
+      return (
+        location.pathname === "/" &&
+        (activeSection === item.section || location.hash === `#${item.section}`)
+      );
+    }
+
+    if (item.to === "/") {
+      return location.pathname === "/" && !location.hash;
+    }
+
+    return location.pathname === item.to;
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300 backdrop-blur">
@@ -41,21 +97,16 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-3">
-          <NavLink to="/" className={navLinkStyles}>
-            Home
-          </NavLink>
-
-          <NavLink to="/track" className={navLinkStyles}>
-            Tracker
-          </NavLink>
-
-          <NavLink to="/contributors" className={navLinkStyles}>
-            Contributors
-          </NavLink>
-
-          <NavLink to="/login" className={navLinkStyles}>
-            Login
-          </NavLink>
+          {navItems.map((item) => (
+            <Link
+              key={item.label}
+              to={item.to}
+              className={navLinkStyles(getLinkActive(item))}
+              onClick={closeMenu}
+            >
+              {item.label}
+            </Link>
+          ))}
 
           {/* Theme Toggle */}
           <button
@@ -107,37 +158,16 @@ const Navbar: React.FC = () => {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="px-6 py-5 flex flex-col gap-3">
 
-            <NavLink
-              to="/"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Home
-            </NavLink>
-
-            <NavLink
-              to="/track"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Tracker
-            </NavLink>
-
-            <NavLink
-              to="/contributors"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Contributors
-            </NavLink>
-
-            <NavLink
-              to="/login"
-              className={navLinkStyles}
-              onClick={closeMenu}
-            >
-              Login
-            </NavLink>
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
+                className={navLinkStyles(getLinkActive(item))}
+                onClick={closeMenu}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       )}

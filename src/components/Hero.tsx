@@ -7,17 +7,17 @@ const MATRIX_CELLS = Array.from({ length: 21 }, (_, i) => i);
 const Hero = () => {
   return (
     <section className="relative overflow-hidden bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white px-6 py-20 lg:py-32 min-h-[90vh] flex items-center transition-colors duration-500">
-      
+
       {/* 1. Cyber Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
-      
+
       {/* Ambient Radial Glow Elements */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-400/10 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-cyan-400/10 dark:bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto w-full z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
+
           {/* LEFT COLUMN: Typography & CTA */}
           <div className="lg:col-span-6 text-left space-y-6 max-w-2xl mx-auto lg:mx-0">
             <h1 className="text-4xl md:text-5xl xl:text-6xl font-extrabold tracking-tight leading-none text-slate-900 dark:text-slate-100">
@@ -26,9 +26,9 @@ const Hero = () => {
                 Like Never Before
               </span>
             </h1>
-            
+
             <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
-              Monitor and analyze GitHub user activity with powerful insights. Perfect for developers, 
+              Monitor and analyze GitHub user activity with powerful insights. Perfect for developers,
               project managers, and teams who want to understand contribution patterns and repository engagement.
             </p>
 
@@ -40,12 +40,19 @@ const Hero = () => {
                   <span className="text-slate-900 dark:text-white group-hover:text-white">Start Tracking</span>
                 </span>
               </Link>
+
+              <Link
+                to="/#features"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-3 text-sm font-semibold text-slate-700 dark:text-gray-200 hover:border-blue-300 hover:text-blue-600 dark:hover:text-blue-300 transition-colors duration-200"
+              >
+                Explore Features
+              </Link>
             </div>
           </div>
 
           {/* RIGHT COLUMN: Dashboard & Floating Git Elements */}
           <div className="lg:col-span-6 relative flex items-center justify-center h-[400px] md:h-[500px]">
-            
+
             {/* The Main Dashboard Mockup Card */}
             <div className="relative w-full max-w-md bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl dark:shadow-2xl dark:shadow-cyan-950/20 transform hover:scale-[1.02] transition-transform duration-500 z-10">
               <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800/60 mb-6">
@@ -78,14 +85,14 @@ const Hero = () => {
                       // Fully qualified class names to ensure they aren't removed by Tailwind's compilation process
                       const intensitiesLight = ['bg-slate-200', 'bg-emerald-200', 'bg-emerald-300', 'bg-emerald-500', 'bg-emerald-600'];
                       const intensitiesDark = ['dark:bg-slate-800', 'dark:bg-emerald-900/60', 'dark:bg-emerald-700', 'dark:bg-emerald-500', 'dark:bg-emerald-400'];
-                      
+
                       const lightClass = intensitiesLight[cellIndex % intensitiesLight.length];
                       const darkClass = intensitiesDark[cellIndex % intensitiesDark.length];
-                      
+
                       return (
-                        <div 
-                          key={cellIndex} 
-                          className={`w-3 h-3 rounded-[2px] transition-all duration-300 hover:scale-125 ${lightClass} ${darkClass}`} 
+                        <div
+                          key={cellIndex}
+                          className={`w-3 h-3 rounded-[2px] transition-all duration-300 hover:scale-125 ${lightClass} ${darkClass}`}
                         />
                       );
                     })}
@@ -95,21 +102,21 @@ const Hero = () => {
             </div>
 
             {/* Floating Git Icon Nodes using native inline styles for correct staggered delays */}
-            <div 
+            <div
               style={{ animationDelay: '0s' }}
               className="absolute -top-4 left-6 md:left-12 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce"
             >
               <GitBranch className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
 
-            <div 
+            <div
               style={{ animationDelay: '1s' }}
               className="absolute bottom-12 left-2 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce"
             >
               <GitCommit className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             </div>
 
-            <div 
+            <div
               style={{ animationDelay: '0.5s' }}
               className="absolute top-12 right-6 bg-white dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg z-20 animate-bounce"
             >

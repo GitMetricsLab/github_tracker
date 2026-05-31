@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 @keyframes how-it-works-dash-flow {
   from {
     background-position: 0 0;

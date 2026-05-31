@@ -51,31 +51,30 @@ describe('Navbar', () => {
   // --- Mobile menu ---
   it('mobile menu is hidden by default', () => {
     renderNavbar()
-    expect(screen.queryByText('About')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /^tracker$/i })).toHaveLength(1)
   })
 
   it('opens mobile menu when hamburger is clicked', () => {
     renderNavbar()
-    const hamburger = screen.getAllByRole('button')[1] // second button = hamburger
+    const hamburger = screen.getByRole('button', { name: /toggle menu/i })
     fireEvent.click(hamburger)
-    expect(screen.getByText('About')).toBeInTheDocument()
-    expect(screen.getByText('Contact')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /^tracker$/i })).toHaveLength(2)
   })
 
   it('closes mobile menu when a nav link is clicked', () => {
     renderNavbar()
-    const hamburger = screen.getAllByRole('button')[1]
+    const hamburger = screen.getByRole('button', { name: /toggle menu/i })
     fireEvent.click(hamburger)                          // open
-    const homeLinks = screen.getAllByRole('link', { name: /home/i })
-    fireEvent.click(homeLinks[homeLinks.length - 1]) // click the mobile one
-    expect(screen.queryByText('About')).not.toBeInTheDocument()  // closed
+    const trackerLinks = screen.getAllByRole('link', { name: /^tracker$/i })
+    fireEvent.click(trackerLinks[trackerLinks.length - 1]) // click the mobile one
+    expect(screen.getAllByRole('link', { name: /^tracker$/i })).toHaveLength(1)  // closed
   })
 
   it('calls toggleTheme from the mobile menu button', () => {
     const { toggleTheme } = renderNavbar('dark')
-    const hamburger = screen.getAllByRole('button')[1]
-    fireEvent.click(hamburger)
-    fireEvent.click(screen.getByText(/light/i))
+    // The mobile theme button is the first button inside md:hidden (which is button at index 1 of all buttons)
+    const mobileThemeBtn = screen.getAllByRole('button', { name: /toggle theme/i })[1]
+    fireEvent.click(mobileThemeBtn)
     expect(toggleTheme).toHaveBeenCalledTimes(1)
   })
 

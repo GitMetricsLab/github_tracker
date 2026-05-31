@@ -18,7 +18,7 @@ const signupSchema = z.object({
         .min(8, "Password must be at least 8 characters long")
         .max(100, "Password must be at most 100 characters long")
         .regex(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
             'Password must contain uppercase, lowercase, number, and special character'
         ),
 });

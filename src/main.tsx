@@ -4,6 +4,10 @@ import App from "./App.tsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import ThemeWrapper from "./context/ThemeContext.tsx";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
+
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

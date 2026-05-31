@@ -1,6 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
-import TermsAndConditions from "../pages/TermsAndConditions/TermsAndConditions";
 import Tracker from "../pages/Tracker/Tracker.tsx";
 import About from "../pages/About/About";
 import Contact from "../pages/Contact/Contact";
@@ -9,17 +7,15 @@ import Signup from "../pages/Signup/Signup.tsx";
 import Login from "../pages/Login/Login.tsx";
 import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.tsx";
 import Home from "../pages/Home/Home.tsx";
+import ProfilePage from "../pages/Profile/ProfilePage.tsx";
+import EditProfilePage from "../pages/Profile/EditProfilePage.tsx";
 import Activity from "../pages/Activity.tsx";
-import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx";
-import SetToken from "../components/SetToken.tsx";
-import Profile from "../pages/Profile/Profile.tsx";
+import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
 
 const Router = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/track" element={<Tracker />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
@@ -27,10 +23,12 @@ const Router = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/contributors" element={<Contributors />} />
       <Route path="/contributor/:username" element={<ContributorProfile />} />
+      <Route path="/me" element={<ProfilePage />}></Route>
+      <Route path="/profile/edit" element={<EditProfilePage />}></Route>
       <Route path="/activity" element={<Activity />} />
+
+      {/* Privacy Policy page route */}
       <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/enterToken" element={<SetToken />} />
-      <Route path="/profile" element={<Profile />} />
     </Routes>
   );
 };

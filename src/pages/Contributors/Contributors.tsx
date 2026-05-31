@@ -15,7 +15,6 @@ import { FaGithub } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { GITHUB_REPO_CONTRIBUTORS_URL } from "../../utils/constants";
-import BackToTopButton from "../../components/Backtotop";
 
 interface Contributor {
   id: number;
@@ -137,7 +136,6 @@ const ContributorsPage = () => {
             </Grid>
           ))}
         </Grid>
-        <BackToTopButton/>
       </Container>
     </div>
   );

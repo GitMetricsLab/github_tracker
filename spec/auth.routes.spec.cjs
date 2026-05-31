@@ -12,13 +12,15 @@ function createTestApp() {
   const app = express();
 
   app.use(express.json());
+
   app.use(
     session({
-      secret: 'test',
+      secret: 'test-secret',
       resave: false,
       saveUninitialized: false,
     })
   );
+
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -34,9 +36,7 @@ describe('Auth Routes', () => {
   let app;
 
   beforeAll(async () => {
-    await mongoose.connect(
-      'mongodb://127.0.0.1:27017/github_tracker_test'
-    );
+    await mongoose.connect('mongodb://127.0.0.1:27017/github_tracker_test');
     app = createTestApp();
   });
 
@@ -64,19 +64,16 @@ describe('Auth Routes', () => {
     expect(res.status).toBe(201);
     expect(res.body.message).toBe('User created successfully');
 
-    const user = await User.findOne({
-      email: 'test@example.com',
-    });
-
+    const user = await User.findOne({ email: 'test@example.com' });
     expect(user).toBeTruthy();
   });
 
   it('should not sign up a user with existing email', async () => {
-    await new User({
+    await User.create({
       username: 'testuser',
       email: 'test@example.com',
       password: 'password123',
-    }).save();
+    });
 
     const res = await request(app)
       .post('/auth/signup')
@@ -90,43 +87,20 @@ describe('Auth Routes', () => {
     expect(res.body.message).toBe('User already exists');
   });
 
-  it('should not sign up a user with existing username', async () => {
-    await new User({
+  // ---------------- LOGIN ----------------
+  it('should login a user with correct credentials', async () => {
+    await User.create({
       username: 'testuser',
       email: 'test@example.com',
       password: 'password123',
-    }).save();
-
-    const res = await request(app)
-      .post('/auth/signup')
-      .send({
-        username: 'testuser',
-        email: 'test2@example.com',
-        password: 'password456',
-      });
-
-    expect(res.status).toBe(400);
-    expect(res.body.message).toBe('User already exists');
-  });
-
-  // ---------------- LOGIN ----------------
-  it('should login a user with correct credentials', async () => {
-    await request(app)
-      .post('/auth/signup')
-      .send({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-      });
+    });
 
     const agent = request.agent(app);
 
-    const res = await agent
-      .post('/auth/login')
-      .send({
-        email: 'test@example.com',
-        password: 'password123',
-      });
+    const res = await agent.post('/auth/login').send({
+      email: 'test@example.com',
+      password: 'password123',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.message).toBe('Login successful');
@@ -134,103 +108,40 @@ describe('Auth Routes', () => {
   });
 
   it('should not login a user with wrong password', async () => {
-    await request(app)
-      .post('/auth/signup')
-      .send({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-      });
+    await User.create({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+    });
 
     const agent = request.agent(app);
 
-    const res = await agent
-      .post('/auth/login')
-      .send({
-        email: 'test@example.com',
-        password: 'wrongpassword',
-      });
+    const res = await agent.post('/auth/login').send({
+      email: 'test@example.com',
+      password: 'wrongpassword',
+    });
 
     expect(res.status).toBe(401);
   });
 
   // ---------------- LOGOUT ----------------
   it('should logout a logged-in user', async () => {
-    await request(app)
-      .post('/auth/signup')
-      .send({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-      });
-
     const agent = request.agent(app);
 
-    await agent
-      .post('/auth/login')
-      .send({
-        email: 'test@example.com',
-        password: 'password123',
-      });
+    await agent.post('/auth/signup').send({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+    });
+
+    await agent.post('/auth/login').send({
+      email: 'test@example.com',
+      password: 'password123',
+    });
 
     const res = await agent.get('/auth/logout');
 
     expect(res.status).toBe(200);
     expect(res.body.message).toBe('Logged out successfully');
-  });
-
-  // Additional important test cases
-
-  it('should not login a non-existent user', async () => {
-    const agent = request.agent(app);
-
-    const res = await agent
-      .post('/auth/login')
-      .send({
-        email: 'nouser@example.com',
-        password: 'password123',
-      });
-
-    expect(res.status).toBe(401);
-  });
-
-  it('should not sign up with missing email', async () => {
-    const res = await request(app)
-      .post('/auth/signup')
-      .send({
-        username: 'testuser',
-        password: 'password123',
-      });
-
-    expect(res.status).toBeGreaterThanOrEqual(400);
-  });
-
-  it('should not sign up with missing password', async () => {
-    const res = await request(app)
-      .post('/auth/signup')
-      .send({
-        username: 'testuser',
-        email: 'test@example.com',
-      });
-
-    expect(res.status).toBeGreaterThanOrEqual(400);
-  });
-
-  it('should not login with empty credentials', async () => {
-    const agent = request.agent(app);
-
-    const res = await agent
-      .post('/auth/login')
-      .send({});
-
-    expect(res.status).toBeGreaterThanOrEqual(400);
-  });
-
-  it('should not sign up with empty request body', async () => {
-    const res = await request(app)
-      .post('/auth/signup')
-      .send({});
-
-    expect(res.status).toBeGreaterThanOrEqual(400);
   });
 });

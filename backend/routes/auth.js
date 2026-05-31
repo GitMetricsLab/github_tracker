@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
     const { username,  email, password } = req.body;
-
+                                   
     try {
         const existingUser = await User.findOne({
             $or: [{ email }, { username }],
@@ -33,24 +33,6 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 // Login route
 router.post("/login", validateRequest(loginSchema), passport.authenticate('local'), (req, res) => {
     res.status(200).json( { message: 'Login successful', user: req.user } );
-});
-
-// Save GitHub token route
-router.post("/token", async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Not authenticated' });
-    }
-    const { token } = req.body;
-    if (!token) {
-        return res.status(400).json({ message: 'Token is required' });
-    }
-    try {
-        await User.findByIdAndUpdate(req.user._id, { token });
-        req.user.token = token;
-        res.status(200).json({ success: true, message: 'Token saved successfully' });
-    } catch (err) {
-        res.status(500).json({ message: 'Error saving token', error: err.message });
-    }
 });
 
 // Logout route

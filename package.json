@@ -25,6 +25,7 @@
     "axios": "^1.7.7",
     "connect-mongo": "^5.1.0",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.5.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.525.0",
     "mongoose": "^9.6.2",

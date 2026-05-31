@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const User = require("../models/User");
 const { signupSchema, loginSchema } = require("../validators/authValidator");
 const { validateRequest } = require("../validators/validationRequest");
+const { loginLimiter, signupLimiter } = require("../config/authRateLimit");
 const router = express.Router();
 
 const getUseMongoAuth = () => typeof global.mongooseConnected !== "undefined" ? global.mongooseConnected : Boolean(process.env.MONGO_URI);
@@ -104,7 +105,7 @@ const createSessionUser = (req, user) => {
 };
 
 // Signup route
-router.post("/signup", validateRequest(signupSchema), async (req, res) => {
+router.post("/signup", signupLimiter, validateRequest(signupSchema), async (req, res) => {
 
     const { username,  email, password } = req.body;
 
@@ -164,7 +165,7 @@ router.get("/me", (req, res) => {
 });
 
 // Login route
-router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
+router.post("/login", loginLimiter, validateRequest(loginSchema), async (req, res, next) => {
     if (!getUseMongoAuth()) {
         try {
             const { email, password } = req.body;

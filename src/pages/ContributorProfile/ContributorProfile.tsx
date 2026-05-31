@@ -27,6 +27,7 @@ export default function ContributorProfile() {
       try {
         const userRes = await fetch(`https://api.github.com/users/${username}`);
         const userData = await userRes.json();
+        if (!userRes.ok) throw new Error(userData.message || `HTTP error: ${userRes.status}`);
         setProfile(userData);
 
         const searchParams = new URLSearchParams({

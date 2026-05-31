@@ -9,6 +9,7 @@ import ContributorProfile from "../pages/ContributorProfile/ContributorProfile.t
 import Home from "../pages/Home/Home.tsx";
 import Activity from "../pages/Activity.tsx"; 
 import PrivacyPolicy from "../pages/Privacy/PrivacyPolicy.tsx"; // ✅ Updated import path to match your new folder structure
+import NotFound from "../pages/NotFound/NotFound.tsx";
 
 const Router = () => {
   return (
@@ -25,6 +26,9 @@ const Router = () => {
 
       {/* Privacy Policy page route */}
       <Route path="/privacy" element={<PrivacyPolicy />} />
+
+      {/* 404 Not Found Catch-All Route */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

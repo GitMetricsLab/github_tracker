@@ -1,12 +1,12 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, User } from "lucide-react";
+import AuthShell from "../../components/AuthShell";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
 
 interface SignUpFormData {
   username: string;
@@ -32,17 +32,30 @@ const SignUp: React.FC = () => {
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
 
+  const highlights = [
+    {
+      title: "Quick setup",
+      description: "Create a profile in minutes and start organizing your GitHub activity right away.",
+    },
+    {
+      title: "Built-in validation",
+      description: "Clear feedback helps users enter a valid name, email, and stronger password from the start.",
+    },
+  ];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((previous) => ({ ...previous, [name]: value }));
+
     let errorMessage = "";
     if (name === "username") {
       if (!value.trim()) {
         errorMessage = "Username is required";
-      } else if (!/^[A-Za-z\s]+$/.test(value)) {
-        errorMessage = "Only letters are allowed";
+      } else if (!/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(value)) {
+        errorMessage = "Enter a valid GitHub username";
       }
     }
+
     if (name === "email") {
       if (!value.trim()) {
         errorMessage = "Email is required";
@@ -50,62 +63,87 @@ const SignUp: React.FC = () => {
         errorMessage = "Enter a valid email";
       }
     }
+
     if (name === "password") {
       if (!value.trim()) {
         errorMessage = "Password is required";
-      } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)) {
-        errorMessage = "Password must be 8+ characters with letters and numbers";
+      } else if (
+        !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(value)
+      ) {
+        errorMessage =
+          "Password must be 8+ characters with letters and numbers";
       }
     }
-    setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+
+    setErrors((previous) => ({ ...previous, [name]: errorMessage }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const usernameError = !formData.username.trim()
       ? "Username is required"
-      : !/^[A-Za-z\s]+$/.test(formData.username)
-      ? "Only letters are allowed"
-      : "";
+      : !/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(formData.username)
+        ? "Enter a valid GitHub username"
+        : "";
     const emailError = !formData.email.trim()
       ? "Email is required"
       : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
-      ? "Enter a valid email"
-      : "";
+        ? "Enter a valid email"
+        : "";
     const passwordError = !formData.password.trim()
       ? "Password is required"
-      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(formData.password)
-      ? "Password must be 8+ characters with letters and numbers"
-      : "";
+      : !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/.test(
+            formData.password,
+          )
+        ? "Password must be 8+ characters with letters and numbers"
+        : "";
     if (usernameError || emailError || passwordError) {
-      setErrors({ username: usernameError, email: emailError, password: passwordError });
+      setErrors({
+        username: usernameError,
+        email: emailError,
+        password: passwordError,
+      });
       return;
     }
+
     setIsLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
+      const response = await axios.post(
+        `${backendUrl}/api/auth/signup`,
+        formData, // Include cookies for session
       );
       setMessage(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup
-      if (response.data.message === 'User created successfully') {
+      if (response.data.message === "User created successfully") {
         navigate("/login");
       }
     } catch (error: any) {
-      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+      setMessage(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
-        mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
-      }`}
+    <AuthShell
+      mode={mode}
+      badge="Start here"
+      title="Create your GitHubTracker account"
+      subtitle="Set up your profile once, then use the tracker, discussions, and contributor tools with a consistent sign-in."
+      highlights={highlights}
+      footer={
+        <p className={`text-center text-sm ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}>
+          Already have an account?
+          <Link to="/login" className="ml-1 font-semibold text-cyan-300 transition-colors hover:text-cyan-200">
+            Sign in instead
+          </Link>
+        </p>
+      }
     >
       <div className="absolute inset-0">
         <div
@@ -138,10 +176,22 @@ const SignUp: React.FC = () => {
           className="text-center mb-10"
         >
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
-            <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
+            <img
+              src="/crl-icon.png"
+              alt="Logo"
+              className="w-14 h-14 object-contain"
+            />
           </div>
-          <h1 className={`text-4xl font-bold mb-2 ${mode === "dark" ? "text-white" : "text-black"}`}>GitHubTracker</h1>
-          <p className={`text-lg font-medium ${mode === "dark" ? "text-slate-300" : "text-gray-700"}`}>Join your GitHub journey</p>
+          <h1
+            className={`text-4xl font-bold mb-2 ${mode === "dark" ? "text-white" : "text-black"}`}
+          >
+            GitHubTracker
+          </h1>
+          <p
+            className={`text-lg font-medium ${mode === "dark" ? "text-slate-300" : "text-gray-700"}`}
+          >
+            Join your GitHub journey
+          </p>
         </motion.div>
 
         <motion.div
@@ -154,7 +204,6 @@ const SignUp: React.FC = () => {
               : "bg-white border-gray-200 text-black"
           }`}
         >
-          
           <h2
             className={`text-2xl font-bold text-center mb-8 ${
               mode === "dark" ? "text-white" : "text-gray-800"
@@ -169,11 +218,19 @@ const SignUp: React.FC = () => {
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type="text" name="username" placeholder="Enter your username" value={formData.username} onChange={handleChange} required
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
                   className={`w-full pl-12 pr-4 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
               </div>
-              {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-2">{errors.username}</p>
+              )}
             </div>
 
             <div>
@@ -181,11 +238,19 @@ const SignUp: React.FC = () => {
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type="email" name="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} required
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   className={`w-full pl-12 pr-4 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
               </div>
-              {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -193,16 +258,35 @@ const SignUp: React.FC = () => {
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
-                <input type={showPassword ? "text" : "password"} name="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} required
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
                   className={`w-full pl-12 pr-12 py-4 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all duration-300 ${mode === "dark" ? "bg-white/10 border-white/20 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-black placeholder-gray-400"}`}
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}
-                  className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 ${mode === "dark" ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}>
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 ${mode === "dark" ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
-              {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-2">{errors.password}</p>
+              )}
             </div>
+            {errors.password && <p className="text-sm text-rose-600 dark:text-rose-300">{errors.password}</p>}
+          </label>
 
             <button
               type="submit"
@@ -214,7 +298,9 @@ const SignUp: React.FC = () => {
           </form>
 
           {message && (
-            <div className={`text-center mt-6 p-3 rounded-xl ${message.includes("successfully") ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+            <div
+              className={`text-center mt-6 p-3 rounded-xl ${message.includes("successfully") ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}
+            >
               {message}
             </div>
           )}
@@ -222,20 +308,17 @@ const SignUp: React.FC = () => {
           <div className="text-center mt-8">
             <p className={mode === "dark" ? "text-gray-300" : "text-gray-600"}>
               Already have an account?{" "}
-              <Link to="/login" className={`font-medium hover:underline transition-colors duration-300 ${mode === "dark" ? "text-white" : "text-black"}`}>
+              <Link
+                to="/login"
+                className={`font-medium hover:underline transition-colors duration-300 ${mode === "dark" ? "text-white" : "text-black"}`}
+              >
                 Sign in here
               </Link>
             </p>
           </div>
-        </motion.div>
+        )}
       </div>
-
-      <div
-        className={`${
-          mode === "dark" ? "from-slate-900" : "from-slate-100"
-        } absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`}
-      />
-    </div>
+    </AuthShell>
   );
 };
 

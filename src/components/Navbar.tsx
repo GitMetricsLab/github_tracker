@@ -31,10 +31,13 @@ const Navbar: React.FC = () => {
 
   const navRef = useRef<HTMLDivElement>(null);
   const themeContext = useContext(ThemeContext);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  if (!themeContext) return null;
+  if (!themeContext || !authContext) return null;
 
   const { toggleTheme, mode } = themeContext;
+  const { isAuthenticated, isLoading, logout } = authContext;
 
   const closeMenu = () => setIsOpen(false);
 
@@ -70,8 +73,6 @@ const Navbar: React.FC = () => {
         }`}
       >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
-        {/* Logo */}
         <Link
           to="/"
           className="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white"
@@ -118,7 +119,6 @@ const Navbar: React.FC = () => {
             </NavLink>
           ))}
 
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="ml-2 p-2 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -132,7 +132,6 @@ const Navbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile Controls */}
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={toggleTheme}
@@ -160,7 +159,6 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 ani-fade-in">
           <div className="px-6 py-5 flex flex-col gap-3">

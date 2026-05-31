@@ -27,13 +27,25 @@ export default function ContributorProfile() {
       try {
         const userRes = await fetch(`https://api.github.com/users/${username}`);
         const userData = await userRes.json();
+        if (!userRes.ok) throw new Error(userData.message || `HTTP error: ${userRes.status}`);
         setProfile(userData);
 
+        const searchParams = new URLSearchParams({
+          q: `author:${username} AND is:pr`,
+          advanced_search: "true",
+        });
+
         const prsRes = await fetch(
-          `https://api.github.com/search/issues?q=author:${username}+type:pr`
+          `https://api.github.com/search/issues?${searchParams.toString()}`
         );
+
+        if (!prsRes.ok) {
+          setPRs([]);
+          return;
+        }
+
         const prsData = await prsRes.json();
-        setPRs(prsData.items);
+        setPRs(prsData.items || []);
       } catch {
         toast.error("Failed to fetch user data.");
       } finally {

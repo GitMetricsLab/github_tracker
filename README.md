@@ -43,25 +43,42 @@ Welcome to **GitHub Tracker**, a web app designed to help you monitor and analyz
 ## 🚀 Setup Guide
 1. Clone the repository to your local machine:
 ```bash
-$ git clone https://github.com/yourusername/github-tracker.git
+$ git clone https://github.com/GitMetricsLab/github_tracker.git
 ```
 
 2. Navigate to the project directory:
 ```bash
 $ cd github-tracker
 ```
-
 3. Run the frontend
 ```bash
 $ npm i
 $ npm run dev
 ```
 
+This project utilizes [Vitest](https://vitest.dev/) and React Testing Library to ensure UI reliability. 
+
+To run the frontend test suite, use the following command:
+```bash
+npm run test:client
+```
+
+
 4. Run the backend
 ```bash
 $ npm i
 $ npm start
 ```
+
+### Backend Environment Variables
+
+Create `backend/.env` for local backend runs:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `MONGO_URI` | Yes | MongoDB connection string used by Mongoose and the persistent session store |
+| `SESSION_SECRET` | Yes | Secret used to sign Express session cookies |
+| `NODE_ENV` | No | Set to `production` to send session cookies only over HTTPS |
 
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 

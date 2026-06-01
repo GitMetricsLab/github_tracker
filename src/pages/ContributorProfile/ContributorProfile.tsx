@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+// --- FIX: Import the repo constant ---
+import { GITHUB_REPO } from "@/utils/constants";
 
 type PR = {
   title: string;
@@ -14,27 +16,54 @@ type Profile = {
   bio: string;
 };
 
+type ErrorType = "not_found" | "api_error" | null;
+
 export default function ContributorProfile() {
   const { username } = useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [prs, setPRs] = useState<PR[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<ErrorType>(null);
 
   useEffect(() => {
     async function fetchData() {
       if (!username) return;
 
+      setError(null);
+
       try {
         const userRes = await fetch(`https://api.github.com/users/${username}`);
-        const userData = await userRes.json();
-        setProfile(userData);
 
+        if (!userRes.ok) {
+          if (userRes.status === 404) {
+            setError("not_found");
+          } else {
+            setError("api_error");
+          }
+          setProfile(null);
+          setPRs([]);
+          return;
+        }
+
+        const userData = await userRes.json();
+        setProfile(userData as Profile);
+
+        // --- FIX: Scoped to this repo only using GITHUB_REPO constant ---
         const prsRes = await fetch(
-          `https://api.github.com/search/issues?q=author:${username}+type:pr`
+          `https://api.github.com/search/issues?q=repo:${GITHUB_REPO}+author:${username}+type:pr`
         );
-        const prsData = await prsRes.json();
-        setPRs(prsData.items);
+
+        if (!prsRes.ok) {
+          setPRs([]);
+          toast.error("Failed to load pull requests.");
+        } else {
+          const prsData = await prsRes.json();
+          setPRs(prsData.items ?? []);
+        }
       } catch {
+        setError("api_error");
+        setProfile(null);
+        setPRs([]);
         toast.error("Failed to fetch user data.");
       } finally {
         setLoading(false);
@@ -51,10 +80,23 @@ export default function ContributorProfile() {
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
-  if (!profile)
+  if (error === "not_found") {
     return (
-      <div className="text-center mt-10 text-red-600">User not found.</div>
+      <div className="text-center mt-10 text-red-600">
+        User not found.
+      </div>
     );
+  }
+
+  if (error === "api_error") {
+    return (
+      <div className="text-center mt-10 text-yellow-600">
+        Unable to load contributor profile. Please try again later.
+      </div>
+    );
+  }
+
+  if (!profile) return null;
 
   return (
     <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-xl">

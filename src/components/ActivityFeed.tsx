@@ -12,6 +12,7 @@ interface EventType {
 export default function ActivityFeed({ username }: { username: string }) {
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // 🕒 time ago function
   const getTimeAgo = (dateString: string) => {
@@ -29,16 +30,26 @@ export default function ActivityFeed({ username }: { username: string }) {
     const fetchEvents = async () => {
       try {
         setLoading(true);
+        setError(null);
 
         const res = await fetch(
           `https://api.github.com/users/${username}/events`
         );
+
+        if (!res.ok) {
+          setEvents([]);
+          setError("Failed to fetch activity");
+          setLoading(false);
+          return;
+        }
+
         const data = await res.json();
 
-        setEvents(data);
+        setEvents(Array.isArray(data) ? data : []);
         setLoading(false);
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        setError(err.message || "Failed to load activity");
         setLoading(false);
       }
     };
@@ -57,6 +68,8 @@ export default function ActivityFeed({ username }: { username: string }) {
 
       {loading ? (
         <p className="text-center">Loading...</p>
+      ) : error ? (
+        <p className="text-center text-red-500">{error}</p>
       ) : events.length === 0 ? (
         <p className="text-center">No activity found</p>
       ) : (

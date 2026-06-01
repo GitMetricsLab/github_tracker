@@ -49,7 +49,7 @@ const ContributorsPage = () => {
       } catch {
         setError("Failed to fetch contributors. Please try again later.");
       } finally {
-        loading && setLoading(false);
+        setLoading(false);
       }
     };
     fetchContributors();
@@ -203,7 +203,7 @@ const ContributorsPage = () => {
                       backgroundColor: "#333333",
                       textTransform: "none",
                       color: "#FFFFFF",
-                      &amp;:hover: { backgroundColor: "#555555" },
+                      "&:hover": { backgroundColor: "#555555" },
                     }}
                   >
                     GitHub

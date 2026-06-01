@@ -28,6 +28,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
@@ -35,6 +36,8 @@ import { useGitHubData } from "../../hooks/useGitHubData";
 import { KeyIcon } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
+const RECENT_SEARCHES_KEY = 'githubTrackerRecentSearches';
+const MAX_RECENT_SEARCHES = 10;
 
 interface GitHubItem {
   id: number;
@@ -71,6 +74,7 @@ const Home: React.FC = () => {
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
@@ -79,21 +83,117 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  const normalizeSearchUsername = (value: string): string => value.trim();
+
+  const loadRecentSearches = (): string[] => {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+
+    try {
+      const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+      if (!stored) {
+        return [];
+      }
+
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .slice(0, MAX_RECENT_SEARCHES);
+    } catch {
+      return [];
+    }
+  };
+
+  const persistRecentSearches = (searches: string[]) => {
+    setRecentSearches(searches);
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+  };
+
+  const addRecentSearch = (value: string) => {
+    const normalized = normalizeSearchUsername(value);
+    if (!normalized) {
+      return;
+    }
+
+    const updated = [
+      normalized,
+      ...recentSearches.filter(
+        (item) => item.toLowerCase() !== normalized.toLowerCase()
+      ),
+    ].slice(0, MAX_RECENT_SEARCHES);
+
+    persistRecentSearches(updated);
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem(RECENT_SEARCHES_KEY);
+  };
+
+  useEffect(() => {
+    setRecentSearches(loadRecentSearches());
+  }, []);
+
+  // Fetch data when tab or page changes.
+  // Do not fetch on intermediate username typing.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (username) {
       fetchData(username, page + 1, ROWS_PER_PAGE);
     }
   }, [tab, page]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+
+    const normalizedUsername = normalizeSearchUsername(username);
+    if (!normalizedUsername) {
+      return;
+    }
+
+    setUsername(normalizedUsername);
     setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+
+    const wasSuccessful = await fetchData(
+      normalizedUsername,
+      1,
+      ROWS_PER_PAGE
+    );
+
+    if (wasSuccessful) {
+      addRecentSearch(normalizedUsername);
+    }
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
     setPage(newPage);
+  };
+
+  const handleRecentSearchClick = async (value: string) => {
+    const normalizedUsername = normalizeSearchUsername(value);
+    if (!normalizedUsername) {
+      return;
+    }
+
+    setUsername(normalizedUsername);
+    setPage(0);
+
+    const wasSuccessful = await fetchData(
+      normalizedUsername,
+      1,
+      ROWS_PER_PAGE
+    );
+
+    if (wasSuccessful) {
+      addRecentSearch(normalizedUsername);
+    }
   };
 
   const formatDate = (dateString: string): string =>
@@ -240,6 +340,52 @@ const Home: React.FC = () => {
             </Button>
           </Box>
         </form>
+
+        {recentSearches.length > 0 && (
+          <Box
+            sx={{
+              mt: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 2,
+                flexWrap: 'wrap',
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ color: theme.palette.text.primary }}>
+                Recent searches
+              </Typography>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={clearRecentSearches}
+              >
+                Clear History
+              </Button>
+            </Box>
+
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {recentSearches.map((item) => (
+                <Button
+                  key={item}
+                  variant="outlined"
+                  size="small"
+                  onClick={() => handleRecentSearchClick(item)}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {item}
+                </Button>
+              ))}
+            </Box>
+          </Box>
+        )}
       </Paper>
 
       {/* Filters */}

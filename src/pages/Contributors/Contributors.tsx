@@ -64,7 +64,7 @@ const ContributorsPage = () => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen p-4 mt-4">
+    <div className="bg-white dark:bg-dark text-black dark:text-white min-h-screen p-4 mt-4">
       <Container>
         <Typography sx={{ pb: 2 }} variant="h4" align="center" gutterBottom>
           🤝 Contributors

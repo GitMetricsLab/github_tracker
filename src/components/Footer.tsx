@@ -23,6 +23,15 @@ function Footer() {
   };
 
   return (
+    <footer className="dark:text-white bg-white dark:bg-dark border-t border-gray-200 dark:border-dark-border py-2 px-6 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center p-3">
+          <div className="flex items-center space-x-2 md:mb-0">
+            <a
+                href="https://github.com/GitMetricsLab/github_tracker"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center hover:text-gray-300 transition-colors"
     <footer
       className="
         w-full relative overflow-hidden transition-colors duration-300

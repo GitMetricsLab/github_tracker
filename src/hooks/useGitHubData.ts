@@ -46,11 +46,11 @@ export const useGitHubData = (
     let q = `author:${username} is:${type}`;
 
     if (filters.search) {
-      q += ` ${filters.search} in:title`;
+      q += ` ${encodeURIComponent(filters.search)} in:title`;
     }
 
     if (filters.repo) {
-      q += ` repo:${filters.repo}`;
+      q += ` repo:${encodeURIComponent(filters.repo)}`;
     }
 
     if (filters.startDate) {

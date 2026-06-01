@@ -27,6 +27,7 @@ interface Contributor {
   avatar_url: string;
   contributions: number;
   html_url: string;
+  type?: string; 
 }
 
 const ContributorsPage = () => {
@@ -35,6 +36,8 @@ const ContributorsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [minPRs, setMinPRs] = useState<string>("");
+  const [prType, setPrType] = useState<string>("all");
 
   useEffect(() => {
     const fetchContributors = async () => {
@@ -46,23 +49,34 @@ const ContributorsPage = () => {
       } catch {
         setError("Failed to fetch contributors. Please try again later.");
       } finally {
-        setLoading(false);
+        loading && setLoading(false);
       }
     };
     fetchContributors();
   }, []);
 
-  const filtered = useMemo(
-    () =>
-      contributors
-        .filter((c) => c.login.toLowerCase().includes(search.toLowerCase()))
-        .sort((a, b) =>
-          sortOrder === "desc"
-            ? b.contributions - a.contributions
-            : a.contributions - b.contributions
-        ),
-    [contributors, search, sortOrder]
-  );
+  const handleClearFilters = () => {
+    setSearch("");
+    setSortOrder("desc");
+    setMinPRs("");
+    setPrType("all");
+  };
+
+  const filtered = useMemo(() => {
+    return contributors
+      .filter((c) => {
+        const matchesSearch = c.login.toLowerCase().includes(search.toLowerCase());
+        const matchesMinPR = minPRs === "" || c.contributions >= parseInt(minPRs, 10);
+        const matchesType = prType === "all" || (c.type && c.type.toLowerCase() === prType.toLowerCase());
+        return matchesSearch && matchesMinPR && matchesType;
+      })
+      .sort((a, b) => {
+        if (sortOrder === "desc") {
+          return b.contributions - a.contributions;
+        }
+        return a.contributions - b.contributions;
+      });
+  }, [contributors, search, sortOrder, minPRs, prType]);
 
   if (loading) {
     return (
@@ -87,7 +101,7 @@ const ContributorsPage = () => {
           🤝 Contributors
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 2, mb: 4, flexWrap: "wrap" }}>
+        <Box sx={{ display: "flex", gap: 2, mb: 4, flexWrap: "wrap", alignItems: "center" }}>
           <TextField
             label="Search by username"
             variant="outlined"
@@ -96,6 +110,28 @@ const ContributorsPage = () => {
             onChange={(e) => setSearch(e.target.value)}
             sx={{ flex: 1, minWidth: 200 }}
           />
+          <TextField
+            label="Min PR Count"
+            type="number"
+            variant="outlined"
+            size="small"
+            value={minPRs}
+            onChange={(e) => setMinPRs(e.target.value)}
+            sx={{ width: 130 }}
+          />
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>PR Type</InputLabel>
+            <Select
+              value={prType}
+              label="PR Type"
+              onChange={(e) => setPrType(e.target.value)}
+            >
+              <MenuItem value="all">All Types</MenuItem>
+              <MenuItem value="merged">Merged</MenuItem>
+              <MenuItem value="open">Open</MenuItem>
+              <MenuItem value="closed">Closed</MenuItem>
+            </Select>
+          </FormControl>
           <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel>Sort by Contributions</InputLabel>
             <Select
@@ -107,6 +143,14 @@ const ContributorsPage = () => {
               <MenuItem value="asc">Least to Most</MenuItem>
             </Select>
           </FormControl>
+          <Button 
+            variant="outlined" 
+            color="secondary" 
+            onClick={handleClearFilters}
+            sx={{ textTransform: "none", height: 40 }}
+          >
+            Clear Filters
+          </Button>
         </Box>
 
         <Typography variant="body2" sx={{ mb: 2 }} color="text.secondary">
@@ -159,7 +203,7 @@ const ContributorsPage = () => {
                       backgroundColor: "#333333",
                       textTransform: "none",
                       color: "#FFFFFF",
-                      "&:hover": { backgroundColor: "#555555" },
+                      &amp;:hover: { backgroundColor: "#555555" },
                     }}
                   >
                     GitHub

@@ -49,7 +49,7 @@ export default function ContributorProfile() {
         }
 
         const userData = await userRes.json();
-        setProfile(userData as Profile);
+        setProfile(userData);
 
         const prsRes = await fetch(
           `https://api.github.com/search/issues?q=author:${username}+type:pr`

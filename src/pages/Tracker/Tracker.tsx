@@ -28,13 +28,16 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
+import Dashboard from "../../components/Dashboard";
 import { KeyIcon } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
+const ACTIVE_DAYS_ROWS_PER_PAGE = 8;
 
 interface GitHubItem {
   id: number;
@@ -71,6 +74,8 @@ const Home: React.FC = () => {
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(0);
+  const [activeDaysPage, setActiveDaysPage] = useState(0);
+  const [hasFetchedData, setHasFetchedData] = useState(false);
 
   const [issueFilter, setIssueFilter] = useState("all");
   const [prFilter, setPrFilter] = useState("all");
@@ -89,6 +94,7 @@ const Home: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
+    setHasFetchedData(true);
     fetchData(username, 1, ROWS_PER_PAGE);
   };
 
@@ -157,11 +163,41 @@ const Home: React.FC = () => {
     return <IssueOpenedIcon size={16} className="icon-issue-open" />;
   };
 
-
   // Current data and filtered data according to tab and filters
-  const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  const filteredIssues = filterData(issues, issueFilter);
+  const filteredPrs = filterData(prs, prFilter);
+  const currentFilteredData = tab === 0 ? filteredIssues : filteredPrs;
   const totalCount = tab === 0 ? totalIssues : totalPrs;
+  const showStateFilter = tab !== 2;
+  const isActiveDaysTab = tab === 2;
+  const activeDaysData = Array.from(
+    new Set(
+      [...filteredIssues, ...filteredPrs]
+        .map((item) => item.created_at?.slice(0, 10))
+        .filter((date): date is string => Boolean(date))
+    )
+  )
+    .map((date) => ({
+      date,
+      count: [...filteredIssues, ...filteredPrs].filter(
+        (item) => item.created_at?.slice(0, 10) === date
+      ).length,
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const totalActiveDays = activeDaysData.length;
+  const activeDaysPageData = activeDaysData.slice(
+    activeDaysPage * ACTIVE_DAYS_ROWS_PER_PAGE,
+    activeDaysPage * ACTIVE_DAYS_ROWS_PER_PAGE + ACTIVE_DAYS_ROWS_PER_PAGE
+  );
+
+  useEffect(() => {
+    if (
+      activeDaysPage > 0 &&
+      activeDaysPage * ACTIVE_DAYS_ROWS_PER_PAGE >= activeDaysData.length
+    ) {
+      setActiveDaysPage(0);
+    }
+  }, [activeDaysData.length, activeDaysPage]);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
@@ -242,6 +278,15 @@ const Home: React.FC = () => {
         </form>
       </Paper>
 
+      {hasFetchedData && (
+        <Dashboard
+          totalIssues={totalIssues}
+          totalPrs={totalPrs}
+          data={currentFilteredData}
+          theme={theme}
+        />
+      )}
+
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
         <TextField
@@ -290,38 +335,42 @@ const Home: React.FC = () => {
           onChange={(_, v) => {
             setTab(v);
             setPage(0);
+            setActiveDaysPage(0);
           }}
           sx={{ flex: 1 }}
         >
           <Tab label={`Issues (${totalIssues})`} />
           <Tab label={`Pull Requests (${totalPrs})`} />
+          <Tab label={`Active Days (${activeDaysData.length})`} />
         </Tabs>
-        <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
-          <Select
-            value={tab === 0 ? issueFilter : prFilter}
-            onChange={(e) =>
-              tab === 0
-                ? setIssueFilter(e.target.value)
-                : setPrFilter(e.target.value)
-            }
-            label="State"
-            sx={{
-              backgroundColor: theme.palette.background.paper,
-              color: theme.palette.text.primary,
-              borderRadius: "4px",
-              "& .MuiSelect-select": { padding: "10px" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: theme.palette.primary.main,
-              },
-            }}
-          >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="open">Open</MenuItem>
-            <MenuItem value="closed">Closed</MenuItem>
-            {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
-          </Select>
-        </FormControl>
+        {showStateFilter && (
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
+            <Select
+              value={tab === 0 ? issueFilter : prFilter}
+              onChange={(e) =>
+                tab === 0
+                  ? setIssueFilter(e.target.value)
+                  : setPrFilter(e.target.value)
+              }
+              label="State"
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                borderRadius: "4px",
+                "& .MuiSelect-select": { padding: "10px" },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: theme.palette.primary.main,
+                },
+              }}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="open">Open</MenuItem>
+              <MenuItem value="closed">Closed</MenuItem>
+              {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
+            </Select>
+          </FormControl>
+        )}
       </Box>
 
       {(authError || dataError) && (
@@ -333,6 +382,89 @@ const Home: React.FC = () => {
       {loading ? (
         <Box display="flex" justifyContent="center" my={4}>
           <CircularProgress />
+        </Box>
+      ) : isActiveDaysTab ? (
+        <Box>
+          <Paper
+            elevation={2}
+            sx={{
+              p: { xs: 2.5, sm: 3 },
+              mb: 2,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}18, ${theme.palette.secondary.main}10)`,
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: { xs: "flex-start", sm: "center" },
+                justifyContent: "space-between",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+              }}
+            >
+              <Box>
+                <Typography variant="overline" color="textSecondary" sx={{ letterSpacing: 1.2 }}>
+                  Analytics Snapshot
+                </Typography>
+                <Typography variant="h6" color="textPrimary" sx={{ fontWeight: 700 }}>
+                  Total Active Days
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Unique calendar days with at least one issue or pull request activity.
+                </Typography>
+              </Box>
+
+              <Typography
+                variant="h2"
+                sx={{
+                  fontWeight: 800,
+                  lineHeight: 1,
+                  color: theme.palette.primary.main,
+                  textAlign: { xs: "left", sm: "right" },
+                }}
+              >
+                {totalActiveDays}
+              </Typography>
+            </Box>
+          </Paper>
+
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell align="center">Activities</TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {activeDaysPageData.length > 0 ? (
+                  activeDaysPageData.map((item) => (
+                    <TableRow key={item.date}>
+                      <TableCell>{item.date}</TableCell>
+                      <TableCell align="center">{item.count}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={2} align="center">
+                      No active days found for the current filters.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+
+            <TablePagination
+              component="div"
+              count={activeDaysData.length}
+              page={activeDaysPage}
+              onPageChange={(_event, newPage) => setActiveDaysPage(newPage)}
+              rowsPerPage={ACTIVE_DAYS_ROWS_PER_PAGE}
+              rowsPerPageOptions={[ACTIVE_DAYS_ROWS_PER_PAGE]}
+            />
+          </TableContainer>
         </Box>
       ) : (
         <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>

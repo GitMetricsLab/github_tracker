@@ -2,3 +2,6 @@ export const GITHUB_REPO_API_BASE = "https://api.github.com/repos/GitMetricsLab/
 
 // endpoints:
 export const GITHUB_REPO_CONTRIBUTORS_URL = `${GITHUB_REPO_API_BASE}/contributors`;
+
+// --- FIX: Repo identifier for scoped PR search queries ---
+export const GITHUB_REPO = "GitMetricsLab/github_tracker";

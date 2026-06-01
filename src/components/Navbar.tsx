@@ -89,7 +89,7 @@ const Navbar: React.FC = () => {
 
           {/* Menu Toggle */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => setIsOpen((prev)=>!prev)}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors transition-all ani-fade-in duration-100"
             aria-label="Toggle Menu"
           >

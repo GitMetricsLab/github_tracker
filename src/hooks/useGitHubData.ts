@@ -93,11 +93,11 @@ export const useGitHubData = (
       perPage = 10,
       activeTab: 'issue' | 'pr' | 'both' = 'both',
       filters: FetchFilters = {}
-    ) => {
+    ): Promise<boolean> => {
       const octokit = getOctokit();
 
       if (!octokit || !username.trim() || rateLimited) {
-        return;
+        return false;
       }
 
       const requestId = ++lastRequestId.current;
@@ -144,7 +144,7 @@ export const useGitHubData = (
 
         // Ignore stale requests
         if (requestId !== lastRequestId.current) {
-          return;
+          return false;
         }
 
         let resultIndex = 0;
@@ -186,9 +186,10 @@ export const useGitHubData = (
         }
 
         setRateLimited(false);
+        return !hasRejected;
       } catch (err: unknown) {
         if (requestId !== lastRequestId.current) {
-          return;
+          return false;
         }
 
         const error = err as {
@@ -230,6 +231,7 @@ export const useGitHubData = (
             'Unable to fetch GitHub data. Please verify the username, token, or network connection.'
           );
         }
+        return false;
       } finally {
         if (requestId === lastRequestId.current) {
           setLoading(false);

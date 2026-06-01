@@ -33,9 +33,16 @@ export default function ActivityFeed({ username }: { username: string }) {
         const res = await fetch(
           `https://api.github.com/users/${username}/events`
         );
+
+        if (!res.ok) {
+          setEvents([]);
+          setLoading(false);
+          return;
+        }
+
         const data = await res.json();
 
-        setEvents(data);
+        setEvents(Array.isArray(data) ? data : []);
         setLoading(false);
       } catch (err) {
         console.error(err);

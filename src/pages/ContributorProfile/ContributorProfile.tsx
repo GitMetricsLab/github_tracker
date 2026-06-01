@@ -77,10 +77,10 @@ export default function ContributorProfile() {
       <h3 className="text-xl font-semibold mt-6 mb-2">Pull Requests</h3>
       {prs.length > 0 ? (
         <ul className="list-disc ml-6 space-y-2">
-          {prs.map((pr, i) => {
+          {prs.map((pr) => {
             const repoName = pr.repository_url.split("/").slice(-2).join("/");
             return (
-              <li key={i}>
+              <li key={pr.html_url}>
                 <a
                   href={pr.html_url}
                   target="_blank"

@@ -14,26 +14,40 @@ type Profile = {
   bio: string;
 };
 
+// --- FIX: Added separate error type to distinguish 404 vs other failures ---
+type ErrorType = "not_found" | "api_error" | null;
+
 export default function ContributorProfile() {
   const { username } = useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [prs, setPRs] = useState<PR[]>([]);
   const [loading, setLoading] = useState(true);
+  // --- FIX: New error state ---
+  const [error, setError] = useState<ErrorType>(null);
 
   useEffect(() => {
     async function fetchData() {
       if (!username) return;
 
+      // --- FIX: Reset error on each fetch ---
+      setError(null);
+
       try {
         const userRes = await fetch(`https://api.github.com/users/${username}`);
+
         if (!userRes.ok) {
           if (userRes.status === 404) {
-            setProfile(null);
-            setPRs([]);
-            return;
+            // --- FIX: 404 → "not_found", not a generic error ---
+            setError("not_found");
+          } else {
+            // --- FIX: Rate limit, server error, etc. → "api_error" ---
+            setError("api_error");
           }
-          throw new Error(`Failed to load user (${userRes.status})`);
+          setProfile(null);
+          setPRs([]);
+          return;
         }
+
         const userData = await userRes.json();
         setProfile(userData as Profile);
 
@@ -41,7 +55,6 @@ export default function ContributorProfile() {
           `https://api.github.com/search/issues?q=author:${username}+type:pr`
         );
         if (!prsRes.ok) {
-          // avoid crashing — show empty PR list and notify user
           setPRs([]);
           toast.error("Failed to load pull requests.");
         } else {
@@ -49,6 +62,10 @@ export default function ContributorProfile() {
           setPRs(prsData.items ?? []);
         }
       } catch {
+        // --- FIX: Network/connection failures → "api_error" ---
+        setError("api_error");
+        setProfile(null);
+        setPRs([]);
         toast.error("Failed to fetch user data.");
       } finally {
         setLoading(false);
@@ -65,10 +82,24 @@ export default function ContributorProfile() {
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
-  if (!profile)
+  // --- FIX: Show correct message based on error type ---
+  if (error === "not_found") {
     return (
-      <div className="text-center mt-10 text-red-600">User not found.</div>
+      <div className="text-center mt-10 text-red-600">
+        User not found.
+      </div>
     );
+  }
+
+  if (error === "api_error") {
+    return (
+      <div className="text-center mt-10 text-yellow-600">
+        Unable to load contributor profile. Please try again later.
+      </div>
+    );
+  }
+
+  if (!profile) return null;
 
   return (
     <div className="max-w-3xl mx-auto mt-2 mb-2 p-4 bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-xl">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Grid,
@@ -52,13 +52,17 @@ const ContributorsPage = () => {
     fetchContributors();
   }, []);
 
-  const filtered = contributors
-    .filter((c) => c.login.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) =>
-      sortOrder === "desc"
-        ? b.contributions - a.contributions
-        : a.contributions - b.contributions
-    );
+  const filtered = useMemo(
+    () =>
+      contributors
+        .filter((c) => c.login.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) =>
+          sortOrder === "desc"
+            ? b.contributions - a.contributions
+            : a.contributions - b.contributions
+        ),
+    [contributors, search, sortOrder]
+  );
 
   if (loading) {
     return (

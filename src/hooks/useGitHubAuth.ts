@@ -7,9 +7,12 @@ export const useGitHubAuth = () => {
 
   const octokit = useMemo(() => {
     if (!username) return null;
-    if(token){
-    return new Octokit({ auth: token });
+    if (token) {
+      return new Octokit({ auth: token });
     }
+    console.warn(
+      'No GitHub token provided. API calls will be limited to 60 requests per hour.'
+    );
     return new Octokit();
   }, [username, token]);
 

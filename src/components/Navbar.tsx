@@ -77,20 +77,20 @@ const Navbar: React.FC = () => {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors transition-all ani-fade-in duration-100"
             aria-label="Toggle Theme"
           >
             {mode === "dark" ? (
               <Sun className="h-5 w-5 text-yellow-400" />
             ) : (
-              <Moon className="h-5 w-5 text-white" />
+              <Moon className="h-5 w-5 text-black" />
             )}
           </button>
 
           {/* Menu Toggle */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            onClick={() => setIsOpen((prev)=>!prev)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors transition-all ani-fade-in duration-100"
             aria-label="Toggle Menu"
           >
             {isOpen ? (
@@ -104,7 +104,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all ani-fade-in duration-100">
           <div className="px-6 py-5 flex flex-col gap-3">
 
             <NavLink

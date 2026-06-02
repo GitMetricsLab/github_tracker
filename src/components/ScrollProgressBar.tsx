@@ -61,21 +61,18 @@ const ScrollProgressBar = () => {
       {/* Scroll progress bar after animation ends */}
       {!isAnimating && (
         <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          // Dynamically swaps between full width loading animation and real-time scroll updates
-          width: isAnimating ? "0" : `${scrollWidth}%`,
-          height: isAnimating ? "2px" : "3px",
-          backgroundColor: isAnimating ? "blue" : "#3b82f6",
-          zIndex: 100,
-          // Applies the loading animation curve ONLY during the initial loading phase
-          animation: isAnimating ? "slideIn 2s ease-in-out forwards" : "none",
-          // Applies smooth tracking ticks once scroll tracking takes over
-          transition: isAnimating ? "none" : "width 0.1s ease",
-        }}
-      />
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: `${scrollWidth}%`,
+            height: "3px",
+            backgroundColor: "#3b82f6",
+            zIndex: 100,
+            transition: "width 0.1s ease",
+          }}
+        />
+      )}
 
       {/* Animation Keyframes */}
       <style>
@@ -93,3 +90,5 @@ const ScrollProgressBar = () => {
     </>
   );
 };
+
+export default ScrollProgressBar;

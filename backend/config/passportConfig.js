@@ -7,7 +7,7 @@ passport.use(
         { usernameField: "email" },
         async (email, password, done) => {
             try {
-                const user = await User.findOne({ email }).select("+password");
+                const user = await User.findOne( {email} );
                 if (!user) {
                     return done(null, false, { message: 'Email is invalid ' });
                 }
@@ -38,13 +38,6 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);
-        
-        // 🛡️ Safety check: If the user record no longer exists in MongoDB, exit safely
-        // This prevents the application from throwing an unhandled TypeError downstream
-        if (!user) {
-            return done(null, false); // Gracefully invalidates the cookie and ends the request loop
-        }
-        
         done(null, user);
     } catch (err) {
         done(err, null);

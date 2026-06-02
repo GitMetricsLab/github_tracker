@@ -425,7 +425,8 @@ const ReposSection: React.FC<{
     { key: "name",              label: "Name"         },
   ];
 
-  const filtered = repos
+  // FIX 4: search/filter/sort runs on allRepos (full dataset), not just current page
+  const filtered = (search || langFilter !== "All" || !showForks ? allRepos : repos)
     .filter((r) => {
       if (!showForks && r.fork) return false;
       if (langFilter !== "All" && r.language !== langFilter) return false;
@@ -451,8 +452,8 @@ const ReposSection: React.FC<{
         <Box sx={{ display: "flex", gap: 3, mb: 2.5, flexWrap: "wrap" }}>
           {[
             { icon: <BookOpen size={14} />, label: `${totalRepos} repositories`        },
-            { icon: <Star size={14} />,      label: `${fmtNum(totalStars)} stars total` },
-            { icon: <GitFork size={14} />,   label: `${fmtNum(totalForks)} forks total` },
+            { icon: <Star size={14} />,      label: `${fmtNum(totalStars)} stars (this page)` },
+            { icon: <GitFork size={14} />,   label: `${fmtNum(totalForks)} forks (this page)` },
           ].map(({ icon, label }) => (
             <Box key={label} sx={{ display: "flex", alignItems: "center", gap: 0.6, fontSize: "0.78rem", color: "text.secondary" }}>
               {icon} {label}
@@ -590,7 +591,7 @@ const Tracker: React.FC = () => {
     useGitHubData(getOctokit);
 
   // NEW: repos hook
-  const { repos, totalRepos, loading: reposLoading, error: reposError, fetchRepos } =
+  const { repos, allRepos, totalRepos, loading: reposLoading, error: reposError, fetchRepos } =
     useGitHubRepos(getOctokit);
 
   // tab now includes "repos"
@@ -609,19 +610,20 @@ const Tracker: React.FC = () => {
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const prevFetched = useRef(false);
+  const prevFetched        = useRef(false);
+  const submittedUsername  = useRef(""); // FIX: drive refetches from submitted value, not live input
 
   // UNCHANGED: re-fetch issues/prs on tab or page change
   useEffect(() => {
-    if (prevFetched.current && username && tab !== "repos") {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+    if (prevFetched.current && submittedUsername.current && tab !== "repos") {
+      fetchData(submittedUsername.current, page + 1, ROWS_PER_PAGE);
     }
   }, [tab, page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // NEW: re-fetch repos on repoPage change
   useEffect(() => {
-    if (prevFetched.current && username && tab === "repos") {
-      fetchRepos(username, repoPage + 1, REPOS_PER_PAGE);
+    if (prevFetched.current && submittedUsername.current && tab === "repos") {
+      fetchRepos(submittedUsername.current, repoPage + 1, REPOS_PER_PAGE, token);
     }
   }, [repoPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -632,10 +634,11 @@ const Tracker: React.FC = () => {
       setPage(0);
       setRepoPage(0); // NEW
       prevFetched.current = true;
+      submittedUsername.current = username; // FIX: lock in the submitted value
       setHasFetched(true);
       // fetch both simultaneously
       const p1 = fetchData(username, 1, ROWS_PER_PAGE);
-      const p2 = fetchRepos(username, 1, REPOS_PER_PAGE); // NEW
+      const p2 = fetchRepos(username, 1, REPOS_PER_PAGE, token); // NEW
       toast.promise(
         Promise.all([p1 ?? Promise.resolve(), p2 ?? Promise.resolve()]),
         {
@@ -860,7 +863,7 @@ const Tracker: React.FC = () => {
           <StatCard label="Pull Requests" value={totalPrs}     icon={<GitPullRequest size={18} />} color={isDark ? "#d2a8ff" : "#8250df"} bg={isDark ? "rgba(210,168,255,.12)" : "rgba(130,80,223,.08)"} />
           {/* NEW */}
           <StatCard label="Repositories"  value={totalRepos}   icon={<BookOpen size={18} />}       color={isDark ? "#ffa657" : "#bc4c00"} bg={isDark ? "rgba(255,166,87,.12)"  : "rgba(188,76,0,.08)"}  />
-          <StatCard label="Total Stars"   value={totalStars}   icon={<Star size={18} />}           color={isDark ? "#e3b341" : "#9a6700"} bg={isDark ? "rgba(227,179,65,.12)"  : "rgba(154,103,0,.08)"} />
+          <StatCard label="Stars (page)"  value={totalStars}   icon={<Star size={18} />}           color={isDark ? "#e3b341" : "#9a6700"} bg={isDark ? "rgba(227,179,65,.12)"  : "rgba(154,103,0,.08)"} />
         </Box>
       )}
 
@@ -876,11 +879,28 @@ const Tracker: React.FC = () => {
             ]).map(({ key, label }) => (
               <Box
                 key={key}
+                data-tab={key}
                 role="tab"
                 aria-selected={tab === key}
                 tabIndex={tab === key ? 0 : -1}
                 onClick={() => { setTab(key); setPage(0); setStateFilter("all"); }}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setTab(key); setPage(0); setStateFilter("all"); } }}
+                onKeyDown={(e) => {
+                  const keys = ["issues", "prs", "repos"] as const;
+                  const idx  = keys.indexOf(key);
+                  if (e.key === "Enter" || e.key === " ") {
+                    setTab(key); setPage(0); setStateFilter("all");
+                  } else if (e.key === "ArrowRight") {
+                    e.preventDefault();
+                    const next = keys[(idx + 1) % keys.length];
+                    setTab(next); setPage(0); setStateFilter("all");
+                    setTimeout(() => (document.querySelector(`[data-tab="${next}"]`) as HTMLElement)?.focus(), 0);
+                  } else if (e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    const prev = keys[(idx - 1 + keys.length) % keys.length];
+                    setTab(prev); setPage(0); setStateFilter("all");
+                    setTimeout(() => (document.querySelector(`[data-tab="${prev}"]`) as HTMLElement)?.focus(), 0);
+                  }
+                }}
                 sx={{
                   px: 2.5, py: 0.875, borderRadius: 5,
                   fontSize: "0.82rem", fontWeight: 600, cursor: "pointer",
@@ -979,6 +999,7 @@ const Tracker: React.FC = () => {
       {hasFetched && tab === "repos" && (
         <ReposSection
           repos={repos}
+          allRepos={allRepos}
           totalRepos={totalRepos}
           loading={reposLoading}
           error={reposError}

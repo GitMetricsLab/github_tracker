@@ -80,6 +80,27 @@ Install all required dependencies:
 npm install
 npm install --save-dev jasmine @types/jasmine supertest express-session passport passport-local bcryptjs
 ```
+## Environment Variables
+
+Create a `.env` file in the project root and add the following variables:
+
+| Variable | Description |
+|----------|-------------|
+| PORT | Port on which the backend server runs |
+| MONGO_URI | MongoDB connection string |
+| SESSION_SECRET | Secret key used for session management |
+| NODE_ENV | Application environment |
+| LOG_LEVEL | Logging level |
+
+### Example
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+SESSION_SECRET=your_session_secret
+NODE_ENV=development
+LOG_LEVEL=debug
+```
 
 ### Running the Tests
 1. **Start MongoDB** (if not already running):

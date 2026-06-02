@@ -8,7 +8,7 @@ const router = express.Router();
 // Signup route
 router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
-    const { username,  email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try {
         const existingUser = await User.findOne({
@@ -22,8 +22,14 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
         await newUser.save();
         res.status(201).json({ message: 'User created successfully' });
     } catch (err) {
+        // ⚡ FIXED: Intercept MongoDB unique index constraint violation (E11000)
+        // Dynamically parses the error keys to return a precise validation message
         if (err && err.code === 11000) {
-            return res.status(400).json({ message: 'User already exists' });
+            const duplicateField = Object.keys(err.keyValue)[0]; // Safely extracts 'email' or 'username'
+            return res.status(400).json({ 
+                success: false, 
+                message: `This ${duplicateField} is already registered.` 
+            });
         }
 
         res.status(500).json({ message: 'Error creating user', error: err.message });

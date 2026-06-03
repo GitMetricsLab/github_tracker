@@ -175,7 +175,7 @@ function Contact() {
                             mode === "dark"
                               ? "text-gray-400"
                               : "text-gray-500"
-                          }` }
+                          }`}
                         >
                           {sub}
                         </p>

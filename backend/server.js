@@ -10,8 +10,12 @@ const cors = require('cors');
 require('./config/passportConfig');
 
 const logger = require('./logger');
+const httpsRedirect = require('./middleware/httpsRedirect');
 
 const app = express();
+
+// HTTPS enforcement (must be before other middleware)
+app.use(httpsRedirect);
 
 // CORS configuration
 const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];

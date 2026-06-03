@@ -1,10 +1,9 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface LoginFormData {
   email: string;
@@ -19,6 +18,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
+  const { login } = useAuth();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,18 +30,11 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, formData);
-      setMessage(response.data.message);
-
-      if (response.data.message === 'Login successful') {
-        navigate("/");
-      }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
+      await login(formData.email, formData.password);
+      setMessage("Login successful!");
+      setTimeout(() => navigate("/track"), 1500);
+    } catch (error: any) {
         setMessage(error.response?.data?.message || "Something went wrong");
-      } else {
-        setMessage("Something went wrong");
-      }
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +128,7 @@ const Login: React.FC = () => {
           {/* Message */}
           {message && (
             <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
-              message === "Login successful"
+              message === "Login successful!"
                 ? "bg-green-500/20 text-green-300 border border-green-500/30"
                 : "bg-red-500/20 text-red-300 border border-red-500/30"
             }`}>

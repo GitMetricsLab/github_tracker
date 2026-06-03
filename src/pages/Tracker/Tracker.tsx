@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -85,17 +85,33 @@ const Home: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Fetch data when username, tab, or page changes
+  // Fetch data when username, filters, tab, or page changes
   useEffect(() => {
     if (username) {
-      fetchData(username, page + 1, ROWS_PER_PAGE);
+      const filters = {
+        search: searchTitle,
+        repo: selectedRepo,
+        startDate: startDate,
+        endDate: endDate,
+        state: tab === 0 ? issueFilter : prFilter,
+      };
+      const activeTab = tab === 0 ? 'issue' : 'pr';
+      fetchData(username, page + 1, ROWS_PER_PAGE, activeTab, filters);
     }
-  }, [tab, page]);
+  }, [username, tab, page, issueFilter, prFilter, searchTitle, selectedRepo, startDate, endDate, fetchData]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setPage(0);
-    fetchData(username, 1, ROWS_PER_PAGE);
+    const filters = {
+      search: searchTitle,
+      repo: selectedRepo,
+      startDate: startDate,
+      endDate: endDate,
+      state: tab === 0 ? issueFilter : prFilter,
+    };
+    const activeTab = tab === 0 ? 'issue' : 'pr';
+    fetchData(username, 1, ROWS_PER_PAGE, activeTab, filters);
   };
 
   const handlePageChange = (_: unknown, newPage: number) => {
@@ -164,9 +180,11 @@ const Home: React.FC = () => {
   };
 
 
-  // Current data and filtered data according to tab and filters
+  // Memoized filtered data to avoid recomputing on every render
   const currentRawData = tab === 0 ? issues : prs;
-  const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  const currentFilteredData = useMemo(() => {
+    return filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
+  }, [currentRawData, tab, issueFilter, prFilter, searchTitle, selectedRepo, startDate, endDate]);
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
   // Helper function to get status badge color
@@ -236,7 +254,6 @@ const Home: React.FC = () => {
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
                   type="password"
-                  required
                   placeholder="Paste your token here"
                   variant="outlined"
                   size="medium"
@@ -529,7 +546,7 @@ const Home: React.FC = () => {
                     </TableCell>
                     <TableCell align="center" sx={{ py: 2 }}>
                       <Chip
-                        label={item.repository_url.split("/").slice(-1)[0]}
+                        label={item.repository_url.split("/").slice(-2).join("/")}
                         size="small"
                         variant="outlined"
                       />

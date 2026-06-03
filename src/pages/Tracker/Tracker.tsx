@@ -28,11 +28,17 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Chip,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Divider,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
-import { KeyIcon } from "lucide-react";
+import { KeyIcon, Search, Filter } from "lucide-react";
 
 const ROWS_PER_PAGE = 10;
 
@@ -163,116 +169,213 @@ const Home: React.FC = () => {
   const currentFilteredData = filterData(currentRawData, tab === 0 ? issueFilter : prFilter);
   const totalCount = tab === 0 ? totalIssues : totalPrs;
 
+  // Helper function to get status badge color
+  const getStatusColor = (item: GitHubItem): "success" | "error" | "warning" | "info" | "default" => {
+    if (item.pull_request) {
+      if (item.pull_request.merged_at) return "success";
+      return item.state === "closed" ? "error" : "info";
+    }
+    return item.state === "closed" ? "error" : "warning";
+  };
+
+  // Helper function to get status label
+  const getStatusLabel = (item: GitHubItem): string => {
+    if (item.pull_request?.merged_at) return "Merged";
+    return item.state.charAt(0).toUpperCase() + item.state.slice(1);
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, minHeight: "80vh", color: theme.palette.text.primary }}>
-      {/* Auth Form */}
-      <Paper elevation={1} sx={{ p: 2, mb: 4, backgroundColor: theme.palette.background.paper }}>
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              label="GitHub Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-            />
-            <TextField
-              label="Personal Access Token"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              type="password"
-              required
-              sx={{ flex: 1, minWidth: 150 }}
-              helperText={
-                <Box
-                    component="span"
-                    sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    fontSize: "0.75rem",
-                    }}
-                >
-                    <Link
-                    href="https://github.com/settings/tokens/new"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                    }}
-                    >
-                    <KeyIcon size={12} />
-                    Generate new token
-                    </Link>
-
-                    <Box component="span" sx={{ opacity: 0.6 }}>
-                    •
-                    </Box>
-
-                    <Link
-                    href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                        fontSize: "0.75rem",
-                        textDecoration: "none",
-                    }}
-                    >
-                    Learn more
-                    </Link>
-                </Box>
-              }
-            />
-            <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                    minWidth: "100px",
-                    minHeight: "55px",
-                    alignSelf: "flex-start",
-            }}
-            >
-                Fetch Data
-            </Button>
-          </Box>
-        </form>
-      </Paper>
-
-      {/* Filters */}
-      <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
-        <TextField
-          label="Search Title"
-          value={searchTitle}
-          onChange={(e) => setSearchTitle(e.target.value)}
-          sx={{ minWidth: 200 }}
-        />
-        <TextField
-          label="Repository"
-          value={selectedRepo}
-          onChange={(e) => setSelectedRepo(e.target.value)}
-          sx={{ minWidth: 200 }}
-        />
-        <TextField
-          label="Start Date"
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          sx={{ minWidth: 150 }}
-        />
-        <TextField
-          label="End Date"
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          sx={{ minWidth: 150 }}
-        />
+    <Container maxWidth="lg" sx={{ py: 4, minHeight: "100vh", color: theme.palette.text.primary }}>
+      {/* Header Section */}
+      <Box sx={{ mb: 6 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            mb: 1,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          GitHub Activity Tracker
+        </Typography>
+        <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
+          Track and analyze your GitHub issues and pull requests
+        </Typography>
       </Box>
+
+      {/* Authentication Card */}
+      <Card sx={{ mb: 4, boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <KeyIcon size={20} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              GitHub Authentication
+            </Typography>
+          </Box>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="GitHub Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  placeholder="Enter your GitHub username"
+                  variant="outlined"
+                  size="medium"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Personal Access Token"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  type="password"
+                  required
+                  placeholder="Paste your token here"
+                  variant="outlined"
+                  size="medium"
+                  helperText={
+                    <Box
+                      component="span"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        fontSize: "0.75rem",
+                        mt: 0.5,
+                      }}
+                    >
+                      <Link
+                        href="https://github.com/settings/tokens/new"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          fontSize: "0.75rem",
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        <KeyIcon size={12} />
+                        Generate token
+                      </Link>
+                      <Box component="span" sx={{ opacity: 0.6 }}>
+                        •
+                      </Box>
+                      <Link
+                        href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          fontSize: "0.75rem",
+                          textDecoration: "none",
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        Learn more
+                      </Link>
+                    </Box>
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: "1rem",
+                  }}
+                >
+                  Fetch Data
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Error Alert */}
+      {(authError || dataError) && (
+        <Alert severity="error" sx={{ mb: 4, borderRadius: 1 }}>
+          {authError || dataError}
+        </Alert>
+      )}
+
+      {/* Filters Section */}
+      <Card sx={{ mb: 4, boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <Filter size={20} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Filters
+            </Typography>
+          </Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label="Search Title"
+                value={searchTitle}
+                onChange={(e) => setSearchTitle(e.target.value)}
+                placeholder="Search by title..."
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  startAdornment: <Search size={16} style={{ marginRight: 8 }} />,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label="Repository"
+                value={selectedRepo}
+                onChange={(e) => setSelectedRepo(e.target.value)}
+                placeholder="Filter by repo..."
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label="Start Date"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label="End Date"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
       {/* Tabs + State Filter */}
       <Box
@@ -285,19 +388,39 @@ const Home: React.FC = () => {
           gap: 2,
         }}
       >
-        <Tabs
-          value={tab}
-          onChange={(_, v) => {
-            setTab(v);
-            setPage(0);
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            alignItems: "center",
+            flex: 1,
+            minWidth: 0,
           }}
-          sx={{ flex: 1 }}
         >
-          <Tab label={`Issues (${totalIssues})`} />
-          <Tab label={`Pull Requests (${totalPrs})`} />
-        </Tabs>
-        <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>
+          <Tabs
+            value={tab}
+            onChange={(_, v) => {
+              setTab(v);
+              setPage(0);
+            }}
+            sx={{
+              "& .MuiTabs-indicator": {
+                height: 3,
+              },
+            }}
+          >
+            <Tab
+              label={`Issues (${totalIssues})`}
+              sx={{ fontWeight: 600, fontSize: "1rem" }}
+            />
+            <Tab
+              label={`Pull Requests (${totalPrs})`}
+              sx={{ fontWeight: 600, fontSize: "1rem" }}
+            />
+          </Tabs>
+        </Box>
+        <FormControl sx={{ minWidth: 180 }}>
+          <InputLabel sx={{ fontSize: "14px" }}>Filter by State</InputLabel>
           <Select
             value={tab === 0 ? issueFilter : prFilter}
             onChange={(e) =>
@@ -305,18 +428,18 @@ const Home: React.FC = () => {
                 ? setIssueFilter(e.target.value)
                 : setPrFilter(e.target.value)
             }
-            label="State"
+            label="Filter by State"
             sx={{
               backgroundColor: theme.palette.background.paper,
               color: theme.palette.text.primary,
               borderRadius: "4px",
-              "& .MuiSelect-select": { padding: "10px" },
+              "& .MuiSelect-select": { padding: "10px 14px" },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                 borderColor: theme.palette.primary.main,
               },
             }}
           >
-            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="all">All States</MenuItem>
             <MenuItem value="open">Open</MenuItem>
             <MenuItem value="closed">Closed</MenuItem>
             {tab === 1 && <MenuItem value="merged">Merged</MenuItem>}
@@ -324,77 +447,124 @@ const Home: React.FC = () => {
         </FormControl>
       </Box>
 
-      {(authError || dataError) && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {authError || dataError}
-        </Alert>
-      )}
-
+      {/* Results Section */}
       {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ my: 6, minHeight: "300px" }}
+        >
+          <Box sx={{ textAlign: "center" }}>
+            <CircularProgress size={48} />
+            <Typography sx={{ mt: 2, color: theme.palette.text.secondary }}>
+              Loading your data...
+            </Typography>
+          </Box>
         </Box>
+      ) : currentFilteredData.length === 0 ? (
+        <Card sx={{ boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
+          <CardContent sx={{ py: 6, textAlign: "center" }}>
+            <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
+              No {tab === 0 ? "issues" : "pull requests"} found
+            </Typography>
+            <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mt: 1 }}>
+              Try adjusting your filters or search criteria
+            </Typography>
+          </CardContent>
+        </Card>
       ) : (
-        <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
-
-          <TableContainer component={Paper}>
-
-            <Table size="small">
-
+        <Card sx={{ boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
+          <TableContainer>
+            <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell align="center">Repository</TableCell>
-                  <TableCell align="center">State</TableCell>
-                  <TableCell>Created</TableCell>
+                <TableRow sx={{ backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)" }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: "0.95rem" }}>
+                    Title
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 700, fontSize: "0.95rem" }}>
+                    Repository
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 700, fontSize: "0.95rem" }}>
+                    State
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: "0.95rem" }}>
+                    Created
+                  </TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
-                {currentFilteredData.map((item) => (
-                  <TableRow key={item.id}>
-
-                    <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {getStatusIcon(item)}
+                {currentFilteredData.map((item, index) => (
+                  <TableRow
+                    key={item.id}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.02)",
+                        transition: "background-color 0.2s",
+                      },
+                      borderBottom: index === currentFilteredData.length - 1 ? "none" : undefined,
+                    }}
+                  >
+                    <TableCell sx={{ py: 2 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", color: theme.palette.primary.main }}>
+                          {getStatusIcon(item)}
+                        </Box>
                         <Link
-                            href={item.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            underline="hover"
-                            sx={{ color: theme.palette.primary.main }}
+                          href={item.html_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          underline="none"
+                          sx={{
+                            color: theme.palette.primary.main,
+                            fontWeight: 500,
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
+                          }}
                         >
-                            {item.title}
+                          {item.title}
                         </Link>
+                      </Box>
                     </TableCell>
-
-
-                    <TableCell align="center">
-                      {item.repository_url.split("/").slice(-1)[0]}
+                    <TableCell align="center" sx={{ py: 2 }}>
+                      <Chip
+                        label={item.repository_url.split("/").slice(-1)[0]}
+                        size="small"
+                        variant="outlined"
+                      />
                     </TableCell>
-
-                    <TableCell align="center">
-                      {item.pull_request?.merged_at ? "merged" : item.state}
+                    <TableCell align="center" sx={{ py: 2 }}>
+                      <Chip
+                        label={getStatusLabel(item)}
+                        size="small"
+                        color={getStatusColor(item)}
+                        variant="filled"
+                      />
                     </TableCell>
-
-                    <TableCell>{formatDate(item.created_at)}</TableCell>
-
+                    <TableCell sx={{ py: 2, color: theme.palette.text.secondary }}>
+                      {formatDate(item.created_at)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
-
             </Table>
-
-            <TablePagination
-              component="div"
-              count={totalCount}
-              page={page}
-              onPageChange={handlePageChange}
-              rowsPerPage={ROWS_PER_PAGE}
-              rowsPerPageOptions={[ROWS_PER_PAGE]}
-            />
-
           </TableContainer>
-        </Box>
+          <Divider />
+          <TablePagination
+            component="div"
+            count={totalCount}
+            page={page}
+            onPageChange={handlePageChange}
+            rowsPerPage={ROWS_PER_PAGE}
+            rowsPerPageOptions={[ROWS_PER_PAGE]}
+            sx={{
+              "& .MuiTablePagination-root": {
+                borderTop: "none",
+              },
+            }}
+          />
+        </Card>
       )}
     </Container>
   );

@@ -7,7 +7,6 @@ export const useGitHubAuth = () => {
   const [error, setError] = useState('');
 
   const octokit = useMemo(() => {
-    setError('');
     if (!username) return null;
     if(token){
       return new Octokit({ auth: token });
@@ -15,21 +14,35 @@ export const useGitHubAuth = () => {
     return new Octokit();
   }, [username, token]);
 
+  // Clear error when username or token changes, before validation runs
+  useEffect(() => {
+    setError('');
+  }, [username, token]);
+
   // Validate token format and authentication on mount or change
   useEffect(() => {
     if (!token || !username) {
-      setError('');
       return;
     }
+
+    const controller = new AbortController();
 
     const validateAuth = async () => {
       if (!octokit) return;
       
       try {
         // Attempt a simple API call to verify the token is valid
-        await octokit.request('GET /user');
-        setError('');
+        await octokit.request('GET /user', { request: { signal: controller.signal } });
+        // Only update state if request was not aborted
+        if (!controller.signal.aborted) {
+          setError('');
+        }
       } catch (err: unknown) {
+        // Ignore if request was aborted
+        if (controller.signal.aborted) {
+          return;
+        }
+
         const error = err as {
           status?: number;
           message?: string;
@@ -49,7 +62,10 @@ export const useGitHubAuth = () => {
 
     // Validate on token change (but with a small delay to avoid excessive API calls during typing)
     const timeoutId = setTimeout(validateAuth, 500);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [token, username, octokit]);
 
   const getOctokit = () => octokit;

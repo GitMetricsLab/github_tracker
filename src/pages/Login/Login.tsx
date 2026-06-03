@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
+import { csrfHeaders } from "../../utils/csrf";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -30,7 +31,9 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, formData);
+      const response = await axios.post(`${backendUrl}/api/auth/login`, formData, {
+        headers: csrfHeaders(),
+      });
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {

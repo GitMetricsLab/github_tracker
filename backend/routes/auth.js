@@ -32,7 +32,9 @@ router.post("/signup", validateRequest(signupSchema), async (req, res) => {
 
 // Login route
 router.post("/login", validateRequest(loginSchema), passport.authenticate('local'), (req, res) => {
-    res.status(200).json( { message: 'Login successful', user: req.user } );
+    const userObj = req.user.toObject ? req.user.toObject() : req.user;
+    const { password, ...safeUser } = userObj;
+    res.status(200).json( { message: 'Login successful', user: safeUser } );
 });
 
 // Logout route

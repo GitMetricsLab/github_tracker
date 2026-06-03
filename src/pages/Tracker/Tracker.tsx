@@ -324,9 +324,15 @@ const Home: React.FC = () => {
         </FormControl>
       </Box>
 
-      {(authError || dataError) && (
+      {authError && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {authError || dataError}
+          <strong>Authentication Error:</strong> {authError}
+        </Alert>
+      )}
+
+      {dataError && !authError && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          <strong>Data Fetch Error:</strong> {dataError}
         </Alert>
       )}
 

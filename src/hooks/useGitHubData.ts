@@ -46,7 +46,17 @@ export const useGitHubData = (
     let q = `author:${username} is:${type}`;
 
     if (filters.search) {
-      q += ` ${filters.search} in:title`;
+      // Strip GitHub search qualifiers (key:value pairs) from the free-text
+      // search term before appending it to the query string. Allowing raw
+      // qualifier injection lets a caller override repo:, author:, is:, and
+      // other operators already set by the hook, potentially leaking data
+      // from repositories outside the intended scope.
+      const sanitizedSearch = filters.search
+        .replace(/[a-zA-Z_-]+:[^\s]*/g, '')
+        .trim();
+      if (sanitizedSearch) {
+        q += ` ${sanitizedSearch} in:title`;
+      }
     }
 
     if (filters.repo) {

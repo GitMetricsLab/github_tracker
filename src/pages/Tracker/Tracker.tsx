@@ -182,6 +182,7 @@ const Home: React.FC = () => {
               onChange={(e) => setToken(e.target.value)}
               type="password"
               required
+              inputProps={{ autoComplete: 'new-password' }}
               sx={{ flex: 1, minWidth: 150 }}
               helperText={
                 <Box

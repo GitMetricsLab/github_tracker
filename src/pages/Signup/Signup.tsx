@@ -83,6 +83,39 @@ const SignUp: React.FC = () => {
     }
     setIsLoading(true);
     try {
+      const response = await axios.post(
+        `${backendUrl}/api/auth/signup`,
+        formData,
+        { withCredentials: true }
+      );
+      setMessage(response.data.message); // Show success message from backend
+
+      // Navigate to login page after successful signup
+      if (response.data.message === 'User created successfully') {
+        navigate("/login");}
+
+    
+    // // Simulate API call (replace with your actual backend integration)
+    // try {
+    //   // Mock successful signup
+    //   setMessage("Account created successfully! Redirecting to login...");
+      
+    //   // In your actual implementation, integrate with your backend here:
+    //   // const response = await fetch(`${backendUrl}/api/auth/signup`, {
+    //   //   method: 'POST',
+    //   //   headers: { 'Content-Type': 'application/json' },
+    //   //   body: JSON.stringify(formData)
+    //   // });
+      
+    //   setTimeout(() => {
+    //     // Navigate to login page in your actual implementation
+    //     console.log("Redirecting to login page...");
+    //   }, 2000);
+      
+    } catch (error) {
+      setMessage("Something went wrong. Please try again.");
+      const response = await axios.post(`${backendUrl}/api/auth/signup`, formData);
+      setMessage(response.data.message);
       const response = await axios.post(`${backendUrl}/api/auth/signup`,
         formData // Include cookies for session
       );

@@ -14,6 +14,14 @@ const logger = require('./logger');
 const app = express();
 
 // CORS configuration
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true,
 const allowedOrigins = ['http://localhost:5173', 'https://github-spy.etlify.app'];
 app.use(cors({
     origin: function (origin, callback) {

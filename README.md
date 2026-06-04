@@ -63,17 +63,6 @@ $ npm i
 $ npm start
 ```
 
-## 🧪 Backend Unit & Integration Testing with Jasmine
-
-This project uses the Jasmine framework for backend unit and integration tests. The tests cover:
-- User model (password hashing, schema, password comparison)
-- Authentication routes (signup, login, logout)
-- Passport authentication logic (via integration tests)
-
-### Prerequisites
-- **Node.js** and **npm** installed
-- **MongoDB** running locally (default: `mongodb://127.0.0.1:27017`)
-
 ## 🔐 Environment Variables
 
 Create a `.env` file inside the `backend/` directory with the following variables:
@@ -86,6 +75,17 @@ Create a `.env` file inside the `backend/` directory with the following variable
 | `LOG_LEVEL` | Winston logging level | `debug` (dev) / `info` (prod) |
 
 > **Note**: Copy `backend/.env.example` to `backend/.env` and update the values as needed.
+
+## 🧪 Backend Unit & Integration Testing with Jasmine
+
+This project uses the Jasmine framework for backend unit and integration tests. The tests cover:
+- User model (password hashing, schema, password comparison)
+- Authentication routes (signup, login, logout)
+- Passport authentication logic (via integration tests)
+
+### Prerequisites
+- **Node.js** and **npm** installed
+- **MongoDB** running locally (default: `mongodb://127.0.0.1:27017`)
 
 ### Installation
 Install all required dependencies:

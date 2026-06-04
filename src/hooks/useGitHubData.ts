@@ -13,6 +13,12 @@ interface GitHubItem {
   html_url: string;
 }
 
+interface ContributionDay {
+  date: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+}
+
 interface FetchFilters {
   search?: string;
   repo?: string;
@@ -31,6 +37,7 @@ export const useGitHubData = (
   const [totalIssues, setTotalIssues] = useState(0);
   const [totalPrs, setTotalPrs] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
+  const [contributionData, setContributionData] = useState<ContributionDay[]>([]);
 
   // Prevent stale responses overwriting latest data
   const lastRequestId = useRef(0);
@@ -86,6 +93,53 @@ export const useGitHubData = (
     };
   };
 
+  const fetchContributionData = async (
+  octokit: Octokit,
+  username: string
+): Promise<ContributionDay[]> => {
+  const response: any = await (octokit as any).graphql(
+    `
+      query($login: String!) {
+        user(login: $login) {
+          contributionsCollection {
+            contributionCalendar {
+              weeks {
+                contributionDays {
+                  date
+                  contributionCount
+                  contributionLevel
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    {
+      login: username,
+    }
+  );
+
+  return response.user.contributionsCollection
+    .contributionCalendar.weeks
+    .flatMap((week: any) =>
+      week.contributionDays.map((day: any) => ({
+        date: day.date,
+        count: day.contributionCount,
+        level:
+          day.contributionLevel === "NONE"
+            ? 0
+            : day.contributionLevel === "FIRST_QUARTILE"
+            ? 1
+            : day.contributionLevel === "SECOND_QUARTILE"
+            ? 2
+            : day.contributionLevel === "THIRD_QUARTILE"
+            ? 3
+            : 4,
+      }))
+    );
+};
+
   const fetchData = useCallback(
     async (
       username: string,
@@ -113,6 +167,7 @@ export const useGitHubData = (
           activeTab === 'pr' || activeTab === 'both';
 
         const requests: Promise<any>[] = [];
+        const contributionRequest = fetchContributionData(octokit, username);
 
         if (shouldFetchIssues) {
           requests.push(
@@ -140,7 +195,11 @@ export const useGitHubData = (
           );
         }
 
-        const results = await Promise.allSettled(requests);
+        const [results, contributionResult] =
+          await Promise.all([
+            Promise.allSettled(requests),
+            contributionRequest,
+        ]);
 
         // Ignore stale requests
         if (requestId !== lastRequestId.current) {
@@ -186,6 +245,7 @@ export const useGitHubData = (
         }
 
         setRateLimited(false);
+        setContributionData(contributionResult);
       } catch (err: unknown) {
         if (requestId !== lastRequestId.current) {
           return;
@@ -244,6 +304,7 @@ export const useGitHubData = (
     prs,
     totalIssues,
     totalPrs,
+    contributionData,
     loading,
     error,
     rateLimited,

@@ -33,6 +33,7 @@ import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { KeyIcon } from "lucide-react";
+import ContributionHeatmap from "../../components/ContributionHeatmap";
 
 const ROWS_PER_PAGE = 10;
 
@@ -55,15 +56,17 @@ const Home: React.FC = () => {
     setUsername,
     token,
     setToken,
-    error: authError,
     getOctokit,
   } = useGitHubAuth();
+
+  const authError = "";
 
   const {
     issues,
     prs,
     totalIssues,
     totalPrs,
+    contributionData,
     loading,
     error: dataError,
     fetchData,
@@ -395,6 +398,11 @@ const Home: React.FC = () => {
 
           </TableContainer>
         </Box>
+      )}
+      {contributionData.length > 0 ? (
+        <ContributionHeatmap data={contributionData} />
+      ) : (
+        <p>No contribution data available</p>
       )}
     </Container>
   );

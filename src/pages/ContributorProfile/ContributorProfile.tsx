@@ -11,7 +11,31 @@ type PR = {
 type Profile = {
   avatar_url: string;
   login: string;
-  bio: string;
+  bio: string | null;
+};
+
+const isProfile = (data: unknown): data is Profile => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    typeof (data as any).avatar_url === "string" &&
+    typeof (data as any).login === "string" &&
+    (typeof (data as any).bio === "string" || (data as any).bio === null)
+  );
+};
+
+const isPrArray = (data: unknown): data is PR[] => {
+  return (
+    Array.isArray(data) &&
+    data.every(
+      (item) =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as any).title === "string" &&
+        typeof (item as any).html_url === "string" &&
+        typeof (item as any).repository_url === "string"
+    )
+  );
 };
 
 export default function ContributorProfile() {
@@ -19,23 +43,64 @@ export default function ContributorProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [prs, setPRs] = useState<PR[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
-      if (!username) return;
+      if (!username) {
+        setError("No username provided.");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
 
       try {
         const userRes = await fetch(`https://api.github.com/users/${username}`);
+        if (!userRes.ok) {
+          if (userRes.status === 404) {
+            throw new Error("User not found.");
+          }
+          if (userRes.status === 403) {
+            throw new Error("GitHub API rate limit exceeded. Please try again later.");
+          }
+          throw new Error(`GitHub user fetch failed with status ${userRes.status}.`);
+        }
+
         const userData = await userRes.json();
+        if (!isProfile(userData)) {
+          throw new Error("Invalid GitHub profile response.");
+        }
         setProfile(userData);
 
         const prsRes = await fetch(
           `https://api.github.com/search/issues?q=author:${username}+type:pr`
         );
+        if (!prsRes.ok) {
+          if (prsRes.status === 403) {
+            throw new Error("GitHub API rate limit exceeded. Please try again later.");
+          }
+          throw new Error(`GitHub PR fetch failed with status ${prsRes.status}.`);
+        }
+
         const prsData = await prsRes.json();
-        setPRs(prsData.items);
-      } catch {
-        toast.error("Failed to fetch user data.");
+        if (
+          typeof prsData !== "object" ||
+          prsData === null ||
+          !Array.isArray((prsData as any).items) ||
+          !isPrArray((prsData as any).items)
+        ) {
+          throw new Error("Invalid GitHub PR response.");
+        }
+
+        setPRs((prsData as any).items);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to fetch user data.";
+        setError(message);
+        toast.error(message);
+        setProfile(null);
+        setPRs([]);
       } finally {
         setLoading(false);
       }
@@ -50,6 +115,11 @@ export default function ContributorProfile() {
   };
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
+
+  if (error)
+    return (
+      <div className="text-center mt-10 text-red-600">{error}</div>
+    );
 
   if (!profile)
     return (

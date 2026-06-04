@@ -63,6 +63,19 @@ $ npm i
 $ npm start
 ```
 
+## 🔐 Environment Variables
+
+Create a `.env` file inside the `backend/` directory with the following variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MONGO_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/github_tracker` |
+| `SESSION_SECRET` | Secret key for session encryption | (required) |
+| `PORT` | Backend server port | `5000` |
+| `LOG_LEVEL` | Winston logging level | `debug` (dev) / `info` (prod) |
+
+> **Note**: Copy `backend/.env.example` to `backend/.env` and update the values as needed.
+
 ## 🧪 Backend Unit & Integration Testing with Jasmine
 
 This project uses the Jasmine framework for backend unit and integration tests. The tests cover:

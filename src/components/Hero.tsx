@@ -34,7 +34,7 @@ const Hero = () => {
 
             <div className="pt-4 flex flex-wrap gap-4">
               {/* Interactive Primary Link Button */}
-              <Link to='/track' className="group relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-semibold rounded-xl bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 dark:from-blue-500 dark:via-cyan-400 dark:to-teal-400 text-slate-900 dark:text-white transition-all shadow-md dark:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-lg dark:hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] transform hover:-translate-y-0.5">
+              <Link to='/track' className="group relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-semibold rounded-xl bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 dark:from-blue-500 dark:via-cyan-400 dark:to-teal-400 text-slate-900 dark:text-white transition-all shadow-md dark:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-lg dark:hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
                 <span className="relative px-7 py-3.5 transition-all ease-in duration-75 bg-white dark:bg-[#030712] rounded-[10px] group-hover:bg-opacity-0 flex items-center space-x-2">
                   <Search className="h-5 w-5 text-blue-600 dark:text-cyan-400 group-hover:text-white transition-colors" />
                   <span className="text-slate-900 dark:text-white group-hover:text-white">Start Tracking</span>

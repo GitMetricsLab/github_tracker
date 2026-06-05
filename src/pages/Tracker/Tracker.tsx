@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
 import {
   IssueOpenedIcon,
   IssueClosedIcon,
@@ -78,6 +78,14 @@ const Home: React.FC = () => {
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const usernameInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUsernameKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+   if (e.key === "Escape") {
+    setUsername("");
+    usernameInputRef.current?.querySelector("input")?.focus();
+   }
+}, [setUsername]);
 
   // Fetch data when username, tab, or page changes
   useEffect(() => {
@@ -173,7 +181,11 @@ const Home: React.FC = () => {
               label="GitHub Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={handleUsernameKeyDown}
               required
+              autoFocus
+              inputRef={usernameInputRef}
+              inputProps={{ "aria-label": "GitHub Username" }}
               sx={{ flex: 1, minWidth: 150 }}
             />
             <TextField
@@ -292,9 +304,10 @@ const Home: React.FC = () => {
             setPage(0);
           }}
           sx={{ flex: 1 }}
+          aria-label="Data view tabs"
         >
-          <Tab label={`Issues (${totalIssues})`} />
-          <Tab label={`Pull Requests (${totalPrs})`} />
+          <Tab label={`Issues (${totalIssues})`} aria-label={`Issues tab, ${totalIssues} total`}/>
+          <Tab label={`Pull Requests (${totalPrs})`} aria-label={`Pull Requests tab, ${totalPrs} total`} />
         </Tabs>
         <FormControl sx={{ minWidth: 150 }}>
           <InputLabel sx={{ fontSize: "14px" }}>State</InputLabel>

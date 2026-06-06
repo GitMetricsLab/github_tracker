@@ -243,7 +243,10 @@ const Home: React.FC = () => {
           </Box>
         </form>
       </Paper>
-      <DeveloperSummary username={username} />
+      <DeveloperSummary
+        username={username}
+        token={token}
+      />
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
         <TextField

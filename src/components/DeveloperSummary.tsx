@@ -18,20 +18,66 @@ interface DeveloperProfile {
 
 interface Props {
   username: string;
+  token?: string;
 }
 
-const DeveloperSummary: React.FC<Props> = ({ username }) => {
+const DeveloperSummary: React.FC<Props> = ({ username, token }) => {
   const [profile, setProfile] =
     useState<DeveloperProfile | null>(null);
 
-  useEffect(() => {
-    if (!username) return;
+useEffect(() => {
+  if (!username.trim()) {
+    setProfile(null);
+    return;
+  }
 
-    fetch(`https://api.github.com/users/${username}`)
-      .then((res) => res.json())
-      .then((data) => setProfile(data))
-      .catch(console.error);
-  }, [username]);
+  const controller = new AbortController();
+
+  const timeout = setTimeout(async () => {
+    try {
+      setProfile(null);
+
+      const response = await fetch(
+        `https://api.github.com/users/${username}`,
+        {
+          signal: controller.signal,
+          ...(token && {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData =
+          await response.json().catch(() => null);
+
+        throw new Error(
+          errorData?.message ||
+            `GitHub request failed (${response.status})`
+        );
+      }
+
+      const data = await response.json();
+
+      setProfile(data);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.name !== "AbortError"
+      ) {
+        console.error(error);
+        setProfile(null);
+      }
+    }
+  }, 500);
+
+  return () => {
+    clearTimeout(timeout);
+    controller.abort();
+  };
+}, [username, token]);
 
   if (!profile) return null;
 

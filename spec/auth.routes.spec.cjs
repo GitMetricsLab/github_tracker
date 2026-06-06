@@ -124,6 +124,16 @@ describe('Auth Routes', () => {
     expect(res.status).toBe(401);
   });
 
+  it('should list configured OAuth providers', async () => {
+    const res = await request(app).get('/auth/oauth/providers');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(jasmine.objectContaining({
+      google: jasmine.any(Boolean),
+      github: jasmine.any(Boolean),
+    }));
+  });
+
   // ---------------- LOGOUT ----------------
   it('should logout a logged-in user', async () => {
     const agent = request.agent(app);

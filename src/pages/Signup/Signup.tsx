@@ -1,12 +1,10 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { authApi } from "../../utils/authApi";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface SignUpFormData {
   username: string;
@@ -83,9 +81,7 @@ const SignUp: React.FC = () => {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`,
-        formData // Include cookies for session
-      );
+      const response = await authApi.post("/signup", formData);
       setMessage(response.data.message); // Show success message from backend
 
       // Navigate to login page after successful signup

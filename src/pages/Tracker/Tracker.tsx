@@ -33,6 +33,8 @@ import { useTheme } from "@mui/material/styles";
 import { useGitHubAuth } from "../../hooks/useGitHubAuth";
 import { useGitHubData } from "../../hooks/useGitHubData";
 import { KeyIcon } from "lucide-react";
+import DeveloperSummary from "../../components/DeveloperSummary";
+
 
 const ROWS_PER_PAGE = 10;
 
@@ -241,7 +243,10 @@ const Home: React.FC = () => {
           </Box>
         </form>
       </Paper>
-
+      <DeveloperSummary
+        username={username}
+        token={token}
+      />
       {/* Filters */}
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
         <TextField

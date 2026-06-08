@@ -93,6 +93,21 @@ const healthStatus =
   { month: "Total", contributions: totalContributions },
 ];
 
+const weeklySummary = [
+  {
+    title: "Issues Created",
+    value: totalIssues,
+  },
+  {
+    title: "Pull Requests Opened",
+    value: totalPrs,
+  },
+  {
+    title: "Total Contributions",
+    value: totalContributions,
+  },
+];
+
   if (!hasData) {
     return (
       <Paper elevation={1} sx={{ p: 4, mb: 4, textAlign: 'center', backgroundColor: theme.palette.background.paper }}>
@@ -189,6 +204,35 @@ const healthStatus =
     variant="determinate"
     value={Math.min((totalContributions / 200) * 100, 100)}
   />
+</Paper>
+
+<Paper
+  elevation={2}
+  sx={{
+    p: 3,
+    mb: 3,
+    backgroundColor: theme.palette.background.paper,
+  }}
+>
+  <Typography variant="h5" gutterBottom>
+    Weekly GitHub Activity Summary
+  </Typography>
+
+  <Typography>
+    Issues Created: {totalIssues}
+  </Typography>
+
+  <Typography>
+    Pull Requests Opened: {totalPrs}
+  </Typography>
+
+  <Typography>
+    Total Contributions: {totalContributions}
+  </Typography>
+
+  <Typography sx={{ mt: 2 }}>
+    Activity Status: {healthStatus}
+  </Typography>
 </Paper>
 
       <Grid container spacing={3}>

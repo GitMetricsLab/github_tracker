@@ -11,8 +11,16 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer
-} from 'recharts';
-import { Paper, Typography, Box, Grid, Theme } from '@mui/material';
+}from 'recharts';
+
+import {
+  Paper,
+  Typography,
+  Box,
+  Grid,
+  Theme,
+  LinearProgress
+} from '@mui/material';
 
 interface GitHubItem {
   id: number;
@@ -63,6 +71,21 @@ const Dashboard: React.FC<DashboardProps> = ({ totalIssues, totalPrs, data, them
     .slice(0, 5);
 
   const hasData = totalIssues > 0 || totalPrs > 0;
+  const totalContributions = totalIssues + totalPrs;
+
+const healthScore = Math.min(
+  100,
+  Math.round((totalContributions / 50) * 100)
+);
+
+const healthStatus =
+  healthScore >= 80
+    ? "Excellent"
+    : healthScore >= 60
+    ? "Good"
+    : healthScore >= 40
+    ? "Moderate"
+    : "Poor";
 
   if (!hasData) {
     return (
@@ -76,6 +99,52 @@ const Dashboard: React.FC<DashboardProps> = ({ totalIssues, totalPrs, data, them
 
   return (
     <Box sx={{ mb: 4 }}>
+    <Paper
+  elevation={2}
+  sx={{
+    p: 3,
+    mb: 3,
+    textAlign: "center",
+    backgroundColor: theme.palette.background.paper,
+  }}
+>
+  <Typography variant="h5" gutterBottom>
+    Repository Health Score
+  </Typography>
+
+  <Typography
+    variant="h2"
+    color="primary"
+    fontWeight="bold"
+  >
+    {healthScore}/100
+  </Typography>
+
+  <Typography
+  variant="h6"
+  color={
+    healthScore >= 80
+      ? "success.main"
+      : healthScore >= 60
+      ? "info.main"
+      : healthScore >= 40
+      ? "warning.main"
+      : "error.main"
+  }
+>
+  Status: {healthStatus}
+</Typography>
+  <Box sx={{ mt: 2 }}>
+  <LinearProgress
+    variant="determinate"
+    value={healthScore}
+    sx={{
+      height: 12,
+      borderRadius: 5,
+    }}
+  />
+</Box>
+</Paper>
       <Grid container spacing={3}>
         {/* Pie Chart: Issues vs PRs */}
         <Grid item xs={12} md={6}>

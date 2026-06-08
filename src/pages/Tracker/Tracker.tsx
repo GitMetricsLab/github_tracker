@@ -17,6 +17,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  Typography,
   TableRow,
   TablePagination,
   Link,
@@ -78,6 +79,7 @@ const Home: React.FC = () => {
   const [selectedRepo, setSelectedRepo] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [compareUsername, setCompareUsername] = useState("");
 
   // Fetch data when username, tab, or page changes
   useEffect(() => {
@@ -176,6 +178,15 @@ const Home: React.FC = () => {
               required
               sx={{ flex: 1, minWidth: 150 }}
             />
+          
+
+      <TextField
+  label="Compare Username"
+  value={compareUsername}
+  onChange={(e) => setCompareUsername(e.target.value)}
+  sx={{ flex: 1, minWidth: 150 }}
+/>
+
             <TextField
               label="Personal Access Token"
               value={token}
@@ -239,10 +250,32 @@ const Home: React.FC = () => {
                 Fetch Data
             </Button>
           </Box>
-        </form>
-      </Paper>
+          </form>
+          </Paper>
 
       {/* Filters */}
+
+      <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+  <Typography variant="h6" gutterBottom>
+    Activity Comparison
+  </Typography>
+
+  <Typography>
+    Primary User: {username || "N/A"}
+  </Typography>
+
+  <Typography>
+    Compare User: {compareUsername || "N/A"}
+  </Typography>
+
+  <Typography>
+    Issues: {totalIssues}
+  </Typography>
+
+  <Typography>
+    Pull Requests: {totalPrs}
+  </Typography>
+</Paper>
       <Box sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 2 }}>
         <TextField
           label="Search Title"

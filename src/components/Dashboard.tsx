@@ -87,6 +87,12 @@ const healthStatus =
     ? "Moderate"
     : "Poor";
 
+    const contributorGrowthData = [
+  { month: "Issues", contributions: totalIssues },
+  { month: "PRs", contributions: totalPrs },
+  { month: "Total", contributions: totalContributions },
+];
+
   if (!hasData) {
     return (
       <Paper elevation={1} sx={{ p: 4, mb: 4, textAlign: 'center', backgroundColor: theme.palette.background.paper }}>
@@ -134,7 +140,7 @@ const healthStatus =
 >
   Status: {healthStatus}
 </Typography>
-  <Box sx={{ mt: 2 }}>
+<Box sx={{ mt: 2 }}>
   <LinearProgress
     variant="determinate"
     value={healthScore}
@@ -180,6 +186,39 @@ const healthStatus =
 
         {/* Bar Chart: Activity by Repository */}
         <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
+          <Paper
+          levation={2}
+          sx={{
+            p: 2,
+            height: 350,
+            backgroundColor: theme.palette.background.paper,
+          }}
+  >
+    <Typography
+      variant="h6"
+      gutterBottom
+      align="center"
+    >
+      Contributor Growth Analytics
+    </Typography>
+
+    <ResponsiveContainer width="100%" height="90%">
+      <BarChart data={contributorGrowthData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar
+          dataKey="contributions"
+          fill={theme.palette.primary.main}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  </Paper>
+</Grid>
+        
           <Paper elevation={2} sx={{ p: 2, height: 350, backgroundColor: theme.palette.background.paper }}>
             <Typography variant="h6" gutterBottom align="center" color="textPrimary">
               Top Repositories (Current View)

@@ -11,8 +11,16 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer
-} from 'recharts';
-import { Paper, Typography, Box, Grid, Theme } from '@mui/material';
+}from 'recharts';
+
+import {
+  Paper,
+  Typography,
+  Box,
+  Grid,
+  Theme,
+  LinearProgress
+} from '@mui/material';
 
 interface GitHubItem {
   id: number;
@@ -63,6 +71,42 @@ const Dashboard: React.FC<DashboardProps> = ({ totalIssues, totalPrs, data, them
     .slice(0, 5);
 
   const hasData = totalIssues > 0 || totalPrs > 0;
+  const totalContributions = totalIssues + totalPrs;
+
+const healthScore = Math.min(
+  100,
+  Math.round((totalContributions / 50) * 100)
+);
+
+const healthStatus =
+  healthScore >= 80
+    ? "Excellent"
+    : healthScore >= 60
+    ? "Good"
+    : healthScore >= 40
+    ? "Moderate"
+    : "Poor";
+
+    const contributorGrowthData = [
+  { month: "Issues", contributions: totalIssues },
+  { month: "PRs", contributions: totalPrs },
+  { month: "Total", contributions: totalContributions },
+];
+
+const weeklySummary = [
+  {
+    title: "Issues Created",
+    value: totalIssues,
+  },
+  {
+    title: "Pull Requests Opened",
+    value: totalPrs,
+  },
+  {
+    title: "Total Contributions",
+    value: totalContributions,
+  },
+];
 
   if (!hasData) {
     return (
@@ -76,6 +120,121 @@ const Dashboard: React.FC<DashboardProps> = ({ totalIssues, totalPrs, data, them
 
   return (
     <Box sx={{ mb: 4 }}>
+    <Paper
+  elevation={2}
+  sx={{
+    p: 3,
+    mb: 3,
+    textAlign: "center",
+    backgroundColor: theme.palette.background.paper,
+  }}
+>
+  <Typography variant="h5" gutterBottom>
+    Repository Health Score
+  </Typography>
+
+  <Typography
+    variant="h2"
+    color="primary"
+    fontWeight="bold"
+  >
+    {healthScore}/100
+  </Typography>
+
+  <Typography
+  variant="h6"
+  color={
+    healthScore >= 80
+      ? "success.main"
+      : healthScore >= 60
+      ? "info.main"
+      : healthScore >= 40
+      ? "warning.main"
+      : "error.main"
+  }
+>
+  Status: {healthStatus}
+</Typography>
+<Box sx={{ mt: 2 }}>
+  <LinearProgress
+    variant="determinate"
+    value={healthScore}
+    sx={{
+      height: 12,
+      borderRadius: 5,
+    }}
+  />
+</Box>
+</Paper>
+
+<Paper
+  elevation={2}
+  sx={{
+    p: 3,
+    mb: 3,
+    backgroundColor: theme.palette.background.paper,
+  }}
+>
+  <Typography variant="h5" gutterBottom>
+    Repository Milestone Tracking
+  </Typography>
+
+  <Typography gutterBottom>
+    Issue Resolution Milestone ({totalIssues}/100)
+  </Typography>
+  <LinearProgress
+    variant="determinate"
+    value={Math.min(totalIssues, 100)}
+    sx={{ mb: 2 }}
+  />
+
+  <Typography gutterBottom>
+    Pull Request Milestone ({totalPrs}/100)
+  </Typography>
+  <LinearProgress
+    variant="determinate"
+    value={Math.min(totalPrs, 100)}
+    sx={{ mb: 2 }}
+  />
+
+  <Typography gutterBottom>
+    Contributor Milestone ({totalContributions}/200)
+  </Typography>
+  <LinearProgress
+    variant="determinate"
+    value={Math.min((totalContributions / 200) * 100, 100)}
+  />
+</Paper>
+
+<Paper
+  elevation={2}
+  sx={{
+    p: 3,
+    mb: 3,
+    backgroundColor: theme.palette.background.paper,
+  }}
+>
+  <Typography variant="h5" gutterBottom>
+    Weekly GitHub Activity Summary
+  </Typography>
+
+  <Typography>
+    Issues Created: {totalIssues}
+  </Typography>
+
+  <Typography>
+    Pull Requests Opened: {totalPrs}
+  </Typography>
+
+  <Typography>
+    Total Contributions: {totalContributions}
+  </Typography>
+
+  <Typography sx={{ mt: 2 }}>
+    Activity Status: {healthStatus}
+  </Typography>
+</Paper>
+
       <Grid container spacing={3}>
         {/* Pie Chart: Issues vs PRs */}
         <Grid item xs={12} md={6}>
@@ -111,6 +270,39 @@ const Dashboard: React.FC<DashboardProps> = ({ totalIssues, totalPrs, data, them
 
         {/* Bar Chart: Activity by Repository */}
         <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
+          <Paper
+          elevation={2}
+          sx={{
+            p: 2,
+            height: 350,
+            backgroundColor: theme.palette.background.paper,
+          }}
+  >
+    <Typography
+      variant="h6"
+      gutterBottom
+      align="center"
+    >
+      Contributor Growth Analytics
+    </Typography>
+
+    <ResponsiveContainer width="100%" height="90%">
+      <BarChart data={contributorGrowthData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar
+          dataKey="contributions"
+          fill={theme.palette.primary.main}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  </Paper>
+</Grid>
+        
           <Paper elevation={2} sx={{ p: 2, height: 350, backgroundColor: theme.palette.background.paper }}>
             <Typography variant="h6" gutterBottom align="center" color="textPrimary">
               Top Repositories (Current View)

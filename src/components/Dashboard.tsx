@@ -151,6 +151,46 @@ const healthStatus =
   />
 </Box>
 </Paper>
+
+<Paper
+  elevation={2}
+  sx={{
+    p: 3,
+    mb: 3,
+    backgroundColor: theme.palette.background.paper,
+  }}
+>
+  <Typography variant="h5" gutterBottom>
+    Repository Milestone Tracking
+  </Typography>
+
+  <Typography gutterBottom>
+    Issue Resolution Milestone ({totalIssues}/100)
+  </Typography>
+  <LinearProgress
+    variant="determinate"
+    value={Math.min(totalIssues, 100)}
+    sx={{ mb: 2 }}
+  />
+
+  <Typography gutterBottom>
+    Pull Request Milestone ({totalPrs}/100)
+  </Typography>
+  <LinearProgress
+    variant="determinate"
+    value={Math.min(totalPrs, 100)}
+    sx={{ mb: 2 }}
+  />
+
+  <Typography gutterBottom>
+    Contributor Milestone ({totalContributions}/200)
+  </Typography>
+  <LinearProgress
+    variant="determinate"
+    value={Math.min((totalContributions / 200) * 100, 100)}
+  />
+</Paper>
+
       <Grid container spacing={3}>
         {/* Pie Chart: Issues vs PRs */}
         <Grid item xs={12} md={6}>
@@ -188,7 +228,7 @@ const healthStatus =
         <Grid item xs={12} md={6}>
         <Grid item xs={12}>
           <Paper
-          levation={2}
+          elevation={2}
           sx={{
             p: 2,
             height: 350,

@@ -1,22 +1,56 @@
 import { useState, useContext } from "react";
-import {
-  Github,
-  Mail,
-  Phone,
-  Send,
-  X,
-  CheckCircle,
-} from "lucide-react";
+import { Github, Mail, Phone, Send, X, CheckCircle } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import type { ThemeContextType } from "../../context/ThemeContext";
 
 function Contact() {
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const themeContext = useContext(ThemeContext) as ThemeContextType;
   const { mode } = themeContext;
 
-  const handleSubmit = async () => {
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!formData.subject) newErrors.subject = "Please select a subject";
+    if (!formData.message.trim()) newErrors.message = "Message is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
     setIsSubmitting(true);
 
     // Simulate API call
@@ -24,6 +58,10 @@ function Contact() {
 
     setIsSubmitting(false);
     setShowPopup(true);
+
+    // Reset form
+    setFormData({ fullName: "", email: "", subject: "", message: "" });
+    setErrors({});
 
     // Auto-close popup after 5 seconds
     setTimeout(() => {
@@ -37,287 +75,284 @@ function Contact() {
 
   return (
     <div
-      className={`min-h-screen w-screen relative overflow-y-auto ${
+      className={`min-h-screen w-full relative overflow-y-auto ${
         mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-indigo-100 via-purple-100 to-indigo-100"
+          ? "bg-[#0A0A0F] bg-[radial-gradient(#1F2937_0.5px,transparent_1px)] bg-[length:4px_4px]"
+          : "bg-gradient-to-br from-slate-50 via-white to-slate-100"
       }`}
     >
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+      {/* Subtle background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-6 max-w-7xl flex flex-col pb-20">
+      <div className="relative z-10 container mx-auto px-4 py-8 md:py-12 max-w-7xl">
         {/* Header Section */}
-        <div className="text-center mb-8 flex-shrink-0">
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3 mb-4">
+        <div className="text-center mb-12">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-6">
             <div
-              className={`inline-flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 shadow-2xl transition-transform transform hover:scale-105 overflow-hidden rounded-2xl sm:rounded-3xl ${
-                mode === "dark" ? "bg-white" : "bg-purple-200"
+              className={`inline-flex items-center justify-center w-16 h-16 shadow-xl overflow-hidden rounded-2xl ${
+                mode === "dark"
+                  ? "bg-zinc-900"
+                  : "bg-white border border-slate-200"
               }`}
             >
               <img
                 src="/crl-icon.png"
-                alt="Logo"
-                className="w-10 h-10 sm:w-14 sm:h-14 object-contain"
+                alt="GitHub Tracker Logo"
+                className="w-12 h-12 object-contain"
               />
             </div>
-            <h1
-              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold 
-                         bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
-            >
-              GitHub Tracker
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
+              Get In Touch
             </h1>
           </div>
-          <p
-            className={`text-sm sm:text-lg max-w-xl md:max-w-2xl mx-auto leading-relaxed ${
-              mode === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}
-          >
-            Get in touch with us to discuss your project tracking needs or
-            report any issues
+          <p className="max-w-xl mx-auto text-lg text-slate-400">
+            Have questions about GitHub Tracker? Need help with your dashboard,
+            or want to suggest new features? Our team is here to support you.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-start flex-1 min-h-0">
-          {/* Contact Info Cards */}
-          <div className="space-y-4 sm:space-y-6 h-full flex flex-col">
-            <div className="text-center lg:text-left flex-shrink-0">
-              <h2
-                className={`text-lg sm:text-2xl font-bold mb-2 sm:mb-3 ${
-                  mode === "dark" ? "text-white" : "text-gray-800"
-                }`}
-              >
-                Let's Connect
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Contact Info */}
+          <div className="lg:col-span-5 space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-white mb-2">
+                Support Channels
               </h2>
-              <p
-                className={`text-xs sm:text-base ${
-                  mode === "dark" ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                We're here to help you track and manage your GitHub
-                repositories more effectively
+              <p className="text-slate-400">
+                Choose the best way to reach us based on your needs
               </p>
             </div>
 
-            <div className="space-y-3 sm:space-y-4 flex-1 flex flex-col justify-center">
-              {[...Array(3)].map((_, index) => {
-                const contactTypes = [
-                  {
-                    title: "Phone Support",
-                    iconBg: "from-blue-500 to-cyan-500",
-                    detail: "(123) 456-7890",
-                    sub: "Mon-Fri, 9AM-6PM EST",
-                    Icon: Phone,
-                  },
-                  {
-                    title: "Email Us",
-                    iconBg: "from-purple-500 to-pink-500",
-                    detail: "support@githubtracker.com",
-                    sub: "We'll respond within 24 hours",
-                    Icon: Mail,
-                  },
-                  {
-                    title: "GitHub Issues",
-                    iconBg: "from-green-500 to-teal-500",
-                    detail: "github.com/yourorg/githubtracker",
-                    sub: "Report bugs & feature requests",
-                    Icon: Github,
-                  },
-                ];
-                const { title, iconBg, detail, sub, Icon } =
-                  contactTypes[index];
-                return (
-                  <div
-                    key={title}
-                    className={`group p-3 sm:p-5 rounded-xl sm:rounded-2xl backdrop-blur-lg transition-all duration-300 hover:scale-105 ${
-                      mode === "dark"
-                        ? "bg-white/10 border border-white/20 hover:bg-white/20"
-                        : "bg-white border border-gray-300 hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 sm:gap-4">
-                      <div
-                        className={`p-2 sm:p-2.5 rounded-full transition-transform duration-300 group-hover:scale-110 bg-gradient-to-r ${iconBg}`}
-                      >
-                        <Icon
-                          className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                            mode === "dark"
-                              ? "text-white"
-                              : "text-gray-800"
-                          }`}
-                        />
-                      </div>
-                      <div>
-                        <h3
-                          className={`text-sm sm:text-base font-semibold ${
-                            mode === "dark"
-                              ? "text-white"
-                              : "text-gray-800"
-                          }`}
-                        >
-                          {title}
-                        </h3>
-                        <p
-                          className={`text-xs sm:text-sm ${
-                            mode === "dark"
-                              ? "text-gray-300"
-                              : "text-gray-600"
-                          }`}
-                        >
-                          {detail}
-                        </p>
-                        <p
-                          className={`text-xs ${
-                            mode === "dark"
-                              ? "text-gray-400"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {sub}
-                        </p>
-                      </div>
-                    </div>
+            <div className="space-y-4">
+              {/* Phone */}
+              <div
+                className={`group p-6 rounded-3xl backdrop-blur-xl border transition-all hover:border-slate-700 ${
+                  mode === "dark"
+                    ? "bg-zinc-900/70 border-slate-800 hover:bg-zinc-900"
+                    : "bg-white border-slate-200"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-emerald-500/10 rounded-2xl">
+                    <Phone className="w-6 h-6 text-emerald-400" />
                   </div>
-                );
-              })}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-white mb-1">
+                      Phone Support
+                    </h3>
+                    <p className="text-slate-400">(555) 123-4567</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Mon–Fri, 9AM–5PM PST
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div
+                className={`group p-6 rounded-3xl backdrop-blur-xl border transition-all hover:border-slate-700 ${
+                  mode === "dark"
+                    ? "bg-zinc-900/70 border-slate-800 hover:bg-zinc-900"
+                    : "bg-white border-slate-200"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-purple-500/10 rounded-2xl">
+                    <Mail className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-white mb-1">
+                      Email Support
+                    </h3>
+                    <a
+                      href="mailto:support@githubtracker.dev"
+                      className="text-slate-400 hover:text-white transition-colors"
+                    >
+                      support@githubtracker.dev
+                    </a>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Responses within 24 hours
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* GitHub */}
+              <div
+                className={`group p-6 rounded-3xl backdrop-blur-xl border transition-all hover:border-slate-700 ${
+                  mode === "dark"
+                    ? "bg-zinc-900/70 border-slate-800 hover:bg-zinc-900"
+                    : "bg-white border-slate-200"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-white/10 rounded-2xl">
+                    <Github className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-white mb-1">
+                      GitHub Issues
+                    </h3>
+                    <a
+                      href="https://github.com/yourorg/githubtracker/issues"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-white transition-colors"
+                    >
+                      github.com/yourorg/githubtracker
+                    </a>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Report bugs • Request features
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Contact Form */}
-          <div
-            className={`p-4 sm:p-6 rounded-xl sm:rounded-3xl shadow-2xl h-full flex flex-col backdrop-blur-lg ${
-              mode === "dark"
-                ? "bg-white/10 border border-white/20"
-                : "bg-white border border-gray-300"
-            }`}
-          >
-            <h2
-              className={`text-base sm:text-xl font-bold mb-4 text-center flex-shrink-0 ${
-                mode === "dark" ? "text-white" : "text-gray-800"
+          <div className="lg:col-span-7">
+            <form
+              onSubmit={handleSubmit}
+              className={`p-8 md:p-10 rounded-3xl shadow-2xl border backdrop-blur-xl ${
+                mode === "dark"
+                  ? "bg-zinc-900/80 border-slate-700"
+                  : "bg-white border-slate-200"
               }`}
             >
-              Send us a Message
-            </h2>
+              <h2 className="text-2xl font-semibold text-white mb-8">
+                Send a Message
+              </h2>
 
-            <div className="space-y-3 sm:space-y-4 flex-1 flex flex-col">
-              <div className="space-y-3 flex-1">
+              <div className="space-y-6">
                 {/* Full Name */}
                 <div>
-                  <label
-                    className={`block text-xs font-medium mb-1 ${
-                      mode === "dark"
-                        ? "text-gray-300"
-                        : "text-gray-700"
-                    }`}
-                  >
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Full Name
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter your full name"
-                    required
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      mode === "dark"
-                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
-                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
-                    }`}
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    placeholder="Alex Rivera"
+                    className={`w-full px-4 py-3.5 rounded-2xl text-base bg-zinc-950 border transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
+                      errors.fullName
+                        ? "border-red-500"
+                        : "border-slate-700 focus:border-purple-500"
+                    } text-white placeholder:text-slate-500`}
                   />
+                  {errors.fullName && (
+                    <p className="text-red-400 text-sm mt-1.5">
+                      {errors.fullName}
+                    </p>
+                  )}
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label
-                    className={`block text-xs font-medium mb-1 ${
-                      mode === "dark"
-                        ? "text-gray-300"
-                        : "text-gray-700"
-                    }`}
-                  >
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Email Address
                   </label>
                   <input
                     type="email"
-                    placeholder="your.email@example.com"
-                    required
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      mode === "dark"
-                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
-                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
-                    }`}
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="alex@company.com"
+                    className={`w-full px-4 py-3.5 rounded-2xl text-base bg-zinc-950 border transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
+                      errors.email
+                        ? "border-red-500"
+                        : "border-slate-700 focus:border-purple-500"
+                    } text-white placeholder:text-slate-500`}
                   />
+                  {errors.email && (
+                    <p className="text-red-400 text-sm mt-1.5">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
 
                 {/* Subject */}
                 <div>
-                  <label
-                    className={`block text-xs font-medium mb-1 ${
-                      mode === "dark"
-                        ? "text-gray-300"
-                        : "text-gray-700"
-                    }`}
-                  >
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Subject
                   </label>
                   <select
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      mode === "dark"
-                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
-                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
-                    }`}
-                    required
-                    defaultValue=""
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-3.5 rounded-2xl text-base bg-zinc-950 border transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
+                      errors.subject
+                        ? "border-red-500"
+                        : "border-slate-700 focus:border-purple-500"
+                    } text-white`}
                   >
                     <option value="" disabled>
-                      Select a subject
+                      Select a topic...
                     </option>
-                    <option>General Inquiry</option>
-                    <option>Bug Report</option>
-                    <option>Feature Request</option>
-                    <option>Other</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Bug Report">Bug Report</option>
+                    <option value="Feature Request">Feature Request</option>
+                    <option value="Billing">Billing / Account</option>
+                    <option value="Other">Other</option>
                   </select>
+                  {errors.subject && (
+                    <p className="text-red-400 text-sm mt-1.5">
+                      {errors.subject}
+                    </p>
+                  )}
                 </div>
 
                 {/* Message */}
-                <div className="relative">
-                  <label
-                    className={`block text-xs font-medium mb-1 ${
-                      mode === "dark"
-                        ? "text-gray-300"
-                        : "text-gray-700"
-                    }`}
-                  >
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Message
                   </label>
                   <textarea
-                    placeholder="Type your message here..."
-                    required
-                    rows={4}
-                    className={`w-full p-2 sm:p-3 rounded-lg sm:rounded-xl text-sm sm:text-base resize-none transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      mode === "dark"
-                        ? "bg-white/5 border border-white/20 text-white placeholder-gray-400"
-                        : "bg-gray-50 border border-gray-300 text-gray-800 placeholder-gray-500"
-                    }`}
-                  ></textarea>
-
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className={`absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      isSubmitting
-                        ? "bg-purple-400 cursor-wait text-white"
-                        : "bg-purple-600 hover:bg-purple-700 text-white"
-                    }`}
-                  >
-                    {isSubmitting ? "Sending..." : "Send"}
-                    <Send className="w-4 h-4" />
-                  </button>
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    rows={6}
+                    placeholder="Tell us more about your question or feedback..."
+                    className={`w-full px-4 py-3.5 rounded-3xl text-base resize-y min-h-[140px] bg-zinc-950 border transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
+                      errors.message
+                        ? "border-red-500"
+                        : "border-slate-700 focus:border-purple-500"
+                    } text-white placeholder:text-slate-500`}
+                  />
+                  {errors.message && (
+                    <p className="text-red-400 text-sm mt-1.5">
+                      {errors.message}
+                    </p>
+                  )}
                 </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full py-4 rounded-2xl font-semibold text-base flex items-center justify-center gap-3 transition-all active:scale-[0.985] ${
+                    isSubmitting
+                      ? "bg-purple-600/70 cursor-wait"
+                      : "bg-purple-600 hover:bg-purple-500"
+                  } text-white shadow-lg shadow-purple-500/30`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      Sending
+                      <span className="animate-pulse">...</span>
+                    </>
+                  ) : (
+                    <>
+                      Send Message <Send className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
@@ -325,20 +360,19 @@ function Contact() {
       {/* Success Popup */}
       {showPopup && (
         <div
-          className={`fixed top-4 sm:top-6 left-1/2 transform -translate-x-1/2 z-50 w-[90%] sm:w-auto max-w-sm sm:max-w-md px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-lg flex items-center gap-3 sm:gap-4 ${
-            mode === "dark"
-              ? "bg-green-900 border border-green-700 text-green-100"
-              : "bg-green-100 border border-green-400 text-green-900"
-          }`}
+          className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] w-[90%] max-w-md bg-emerald-900/95 border border-emerald-700 text-emerald-100 rounded-2xl p-6 shadow-2xl flex gap-4 items-start`}
         >
-          <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7" />
-          <div className="flex-1 text-xs sm:text-sm font-semibold">
-            Thank you for contacting us! We will get back to you shortly.
+          <CheckCircle className="w-7 h-7 mt-0.5 flex-shrink-0 text-emerald-400" />
+          <div className="flex-1">
+            <div className="font-semibold">Message Sent Successfully</div>
+            <p className="text-emerald-100/80 text-sm mt-1">
+              Thank you! We'll get back to you within 24 hours.
+            </p>
           </div>
           <button
             onClick={handleClosePopup}
-            className="text-lg sm:text-xl px-2 sm:px-3 py-1 rounded-xl hover:bg-green-200/40 focus:outline-none focus:ring-2 focus:ring-green-400"
-            aria-label="Close notification"
+            className="text-emerald-300 hover:text-white text-xl leading-none p-1 -mt-1 -mr-1"
+            aria-label="Close"
           >
             <X />
           </button>

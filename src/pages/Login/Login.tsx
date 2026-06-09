@@ -12,17 +12,27 @@ interface LoginFormData {
 }
 
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState<LoginFormData>({ email: "", password: "" });
+  const [formData, setFormData] = useState<LoginFormData>({
+    email: "",
+    password: "",
+  });
+
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
   const themeContext = useContext(ThemeContext) as ThemeContextType;
+
   const { mode } = themeContext;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -30,10 +40,14 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, formData);
+      const response = await axios.post(
+        `${backendUrl}/api/auth/login`,
+        formData,
+      );
+
       setMessage(response.data.message);
 
-      if (response.data.message === 'Login successful') {
+      if (response.data.message === "Login successful") {
         navigate("/");
       }
     } catch (error: unknown) {
@@ -49,64 +63,101 @@ const Login: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen h-full w-full flex items-center justify-center relative overflow-hidden ${
-        mode === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100"
+      className={`min-h-screen w-full flex items-center justify-center relative overflow-hidden ${
+        mode === "dark" ? "bg-[#020817]" : "bg-slate-100"
       }`}
     >
-      {/* Animated background elements */}
+      {/* Background */}
       <div className="absolute inset-0">
-        <div className={`absolute -top-40 -right-40 w-96 h-96 ${mode === "dark" ? "bg-purple-500" : "bg-purple-300"} rounded-full blur-3xl opacity-30 animate-pulse`} />
-        <div className={`absolute -bottom-40 -left-40 w-96 h-96 ${mode === "dark" ? "bg-blue-500" : "bg-blue-300"} rounded-full blur-3xl opacity-30 animate-pulse`} />
-        <div className={`absolute top-40 left-40 w-96 h-96 ${mode === "dark" ? "bg-pink-500" : "bg-pink-300"} rounded-full blur-3xl opacity-30 animate-pulse`} />
-        <div className={`absolute top-1/2 right-1/4 w-64 h-64 ${mode === "dark" ? "bg-indigo-500" : "bg-indigo-300"} rounded-full blur-2xl opacity-20 animate-pulse delay-1000`} />
+        {/* Grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:50px_50px]" />
+
+        {/* Blue Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(0,180,255,0.12),transparent_35%)]" />
+
+        {/* Cyan Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(34,211,238,0.08),transparent_30%)]" />
+
+        {/* Bottom Glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-cyan-500/10 blur-[140px]" />
       </div>
 
-      <div className="relative w-full max-w-md px-4 sm:px-6">
+      <div className="relative w-full max-w-md px-4 sm:px-6 -mt-10">
         {/* Branding */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300 overflow-hidden">
-            <img src="/crl-icon.png" alt="Logo" className="w-14 h-14 object-contain" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-6 shadow-2xl overflow-hidden">
+            <img
+              src="/crl-icon.png"
+              alt="Logo"
+              className="w-14 h-14 object-contain"
+            />
           </div>
 
-          <h1 className={`text-4xl font-bold bg-clip-text text-transparent mb-2 ${
-            mode === "dark"
-              ? "bg-gradient-to-r from-purple-300 via-pink-300 to-indigo-300"
-              : "bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
-          }`}>
+          <h1
+            className={`text-4xl font-extrabold bg-clip-text text-transparent mb-4 ${
+              mode === "dark"
+                ? "bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400"
+                : "bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-500"
+            }`}
+          >
             GitHubTracker
           </h1>
-          <p className={`${mode === "dark" ? "text-slate-300" : "text-gray-700"} text-lg font-medium`}>
-            Track your GitHub journey
+
+          <p
+            className={`max-w-sm mx-auto leading-relaxed text-base ${
+              mode === "dark" ? "text-slate-300" : "text-gray-700"
+            }`}
+          >
+            Track repositories, commits, contributions and developer activity
+            with powerful GitHub insights.
           </p>
         </div>
 
-        {/* Form Card */}
-        <div className={`rounded-3xl p-6 sm:p-10 shadow-2xl border ${mode === "dark" ? "bg-white/10 backdrop-blur-xl border-white/20 text-white" : "bg-white border-gray-200 text-black"}`}>
-          <h2 className={`text-2xl font-bold text-center mb-8 ${mode === "dark" ? "text-white" : "text-gray-800"}`}>
+        {/* Login Card */}
+        <div
+          className={`rounded-3xl p-8 sm:p-10 ${
+            mode === "dark"
+              ? "bg-slate-900/80 backdrop-blur-xl border border-cyan-500/20 text-white shadow-[0_0_40px_rgba(0,180,255,0.08)]"
+              : "bg-white border border-gray-200 text-black shadow-xl"
+          }`}
+        >
+          <h2
+            className={`text-2xl font-bold text-center mb-2 ${
+              mode === "dark" ? "text-white" : "text-gray-800"
+            }`}
+          >
             Welcome Back
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
+          <p
+            className={`text-center mb-8 text-sm ${
+              mode === "dark" ? "text-slate-400" : "text-gray-500"
+            }`}
+          >
+            Sign in to access your GitHub analytics dashboard
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
+            <div>
               <input
                 type="email"
                 name="email"
+                autoComplete="username"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                autoComplete="username"
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
+                className={`w-full px-4 py-4 rounded-2xl transition-all duration-200 focus:outline-none ${
                   mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                    ? "bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/20"
+                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20"
                 }`}
               />
             </div>
 
-            <div className="relative">
+            {/* Password */}
+            <div>
               <input
                 type="password"
                 name="password"
@@ -115,41 +166,77 @@ const Login: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className={`w-full pl-4 pr-4 py-4 rounded-2xl focus:outline-none transition-all ${
+                className={`w-full px-4 py-4 rounded-2xl transition-all duration-200 focus:outline-none ${
                   mode === "dark"
-                    ? "bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
-                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400"
+                    ? "bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/20"
+                    : "bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20"
                 }`}
               />
             </div>
 
+            {/* Forgot Password */}
+            <div className="flex justify-end -mt-1">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold focus:ring-4 focus:ring-purple-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className="
+                w-full
+                bg-gradient-to-r
+                from-blue-600
+                via-cyan-500
+                to-cyan-400
+                text-white
+                py-4
+                px-6
+                rounded-2xl
+                font-semibold
+                transition-all
+                duration-300
+                hover:scale-[1.02]
+                hover:shadow-[0_0_30px_rgba(34,211,238,0.35)]
+                focus:ring-4
+                focus:ring-cyan-500/30
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+              "
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          {/* Message */}
+          {/* Status Message */}
           {message && (
-            <div className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
-              message === "Login successful"
-                ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                : "bg-red-500/20 text-red-300 border border-red-500/30"
-            }`}>
+            <div
+              className={`mt-6 p-4 rounded-2xl text-center text-sm font-medium ${
+                message === "Login successful"
+                  ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                  : "bg-red-500/10 text-red-400 border border-red-500/20"
+              }`}
+            >
               {message}
             </div>
           )}
 
-          {/* Footer Text */}
-          <div className="text-center mt-8 pb-8">
-            <p className={`${mode === "dark" ? "text-slate-500" : "text-gray-600"} text-sm`}>
+          {/* Footer */}
+          <div className="text-center mt-8 pt-6 border-t border-slate-800">
+            <p
+              className={`text-sm ${
+                mode === "dark" ? "text-slate-400" : "text-gray-600"
+              }`}
+            >
               Don't have an account?
               <Link
                 to="/signup"
-                className="ml-1 text-purple-400 hover:text-purple-300 transition-colors duration-300"
+                className="ml-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
               >
                 Sign up here
               </Link>
@@ -158,7 +245,12 @@ const Login: React.FC = () => {
         </div>
       </div>
 
-      <div className={`${mode === "dark" ? "from-slate-900" : "from-slate-100"} absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t to-transparent`} />
+      {/* Bottom Fade */}
+      <div
+        className={`absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t ${
+          mode === "dark" ? "from-[#020817]" : "from-slate-100"
+        } to-transparent`}
+      />
     </div>
   );
 };
